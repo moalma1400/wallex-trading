@@ -43,7 +43,7 @@ Events use deterministic IDs and a versioned schema. They reject exchange-origin
 
 ## Interpreting outcomes
 
-A unit-test pass means offline invariants hold for the tested paths. A synthetic eligibility pass does not mean a market is eligible. A backtest/shadow result is not a real fill, audited challenge account balance, or profitability claim. Feature 002’s next-bar-open execution and its explicit costs remain unchanged. Do not compare or present outcomes without disclosing dataset provenance, missingness, costs and limitations.
+A unit-test pass means offline invariants hold for the tested paths. A synthetic eligibility pass does not mean a market is eligible. A backtest/shadow result is not a real fill, audited challenge account balance, or profitability claim. Feature 002’s next-bar-open execution and its explicit costs remain unchanged. Its `ReplayResult.limitations` states that `initial_cash` does not establish ownership or withdrawability and that generic commission/slippage do not represent official costs. Credit fees, forced liquidation, registration balances, spread as a distinct cost, and special challenge settlement are not modeled. Do not report model return as net credit-account profit or as withdrawable cash; do not treat unknown costs/triggers as zero or use the unrelated plan example as a hackathon rate. Disclose dataset provenance, missingness, assumptions and limitations in any report.
 
 ## Judge handoff
 

@@ -19,12 +19,14 @@ All values are caller data or derived local simulation values. The models do not
 
 ### `SimulationConfig`
 
-- `initial_cash: Decimal > 0`
+- `initial_cash: Decimal > 0` — generic caller-supplied arithmetic balance, not a claim of owned/withdrawable assets and not a representation of credit principal or registration balance.
 - `quote_currency: str` — explicit caller label, not validated against exchange metadata.
-- `commission_rate: Decimal` — explicit generic proportional simulation assumption in `[0,1)`.
-- `slippage_rate: Decimal` — explicit adverse proportional simulation assumption in `[0,1)`.
+- `commission_rate: Decimal` — explicit generic proportional simulation assumption in `[0,1)`; not an official exchange rate.
+- `slippage_rate: Decimal` — explicit adverse proportional simulation assumption in `[0,1)`; there is no separate spread model.
 - `maximum_spot_exposure: Decimal` — explicit cap in `[0,1]`.
 - No default instance or built-in parameter values.
+
+Credit-plan fees, credit liability, forced-liquidation thresholds/mechanics, account permissions, and challenge-specific settlement are not modeled. Unknown values remain unknown; no general-plan fee example is reused as a challenge input.
 
 ## Data-quality report
 
@@ -34,7 +36,7 @@ All values are caller data or derived local simulation values. The models do not
 
 - `SimulatedFill`: observation time, next-bar execution time, side, quantity, reference open, adverse simulated price, notional, modeled commission, and slippage cost.
 - `LedgerPoint`: candle time, cash, base quantity, mark price, equity, running peak, and drawdown.
-- `ReplayResult`: symbol, config/assumptions, immutable order outcomes, fills and ledger, final cash/quantity/equity, arithmetic total return versus initial cash, total modeled commission/slippage, and maximum observed drawdown.
+- `ReplayResult`: symbol, config/assumptions, immutable order outcomes, fills and ledger, final cash/quantity/equity, arithmetic total return versus initial cash, total modeled commission/slippage, maximum observed drawdown, and explicit `limitations` describing omitted financing/liquidation/settlement assumptions.
 
 ## State and transition
 

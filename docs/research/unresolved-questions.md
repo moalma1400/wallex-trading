@@ -21,6 +21,21 @@
 
 13. منبع OFAC رسمی اعلام می‌کند Wallex در ۲ ژوئن ۲۰۲۶ designated شده و FAQ 1257 می‌گوید اشخاص غیرآمریکایی ممکن است در صورت معامله با آن با ریسک تحریم مواجه شوند. این پروژه قوانین هلند/اتحادیه اروپا، وضعیت شخصی/حقوقی کاربر، بانک/پرداخت‌گر، یا مجاز بودن هر فعالیت را بررسی نکرده است. قبل از هرگونه استفاده، بررسی مستقل و به‌روز با مشاور حقوقی/انطباق لازم است. [US-TREASURY-WALLEX-DESIGNATION](https://home.treasury.gov/news/press-releases/sb0519) · [OFAC-FAQ-1257](https://ofac.treasury.gov/faqs/1257)
 
+## Credit-plan / Starcoach reconciliation — added 2026-10-21
+
+The excerpt source `USER-WALLEX-CREDIT-PLAN-EXCERPT` is user-supplied and unverified; see [`wallex-credit-plan-reconciliation.md`](../knowledge-base/wallex-credit-plan-reconciliation.md). The underlying source was reported as Persian, but only an English bullet summary was supplied. Its exact URL, publication/retrieval date, eligible-market list, and readable account-permission table are unknown. Existing official sources support generic credit-account separation (`CREDIT-INTRO`) and a general 30-day plan with daily fee/warning/liquidation levels (`CREDIT-TYPES`), but not the exact excerpt amounts/claims or Starcoach applicability.
+
+1. Is the Starcoach allocation implemented through the exact general credit plan in the excerpt, or a separate grant/product/account? What official URL/version and effective terms govern?
+2. Is the 5,000,000-Toman amount credit principal, grant, or another allocation? Are principal, deficit, fee, or any other amount a team/member liability?
+3. Does the plan fee apply during the three-day hackathon? If so, confirm exact rate, accrual base/day count, cap, stop/expiry rules, waivers, other fees, and settlement priority. The excerpt's 600,000/30-day example is not a challenge rate.
+4. Do the plan warning and liquidation terms apply? Confirm threshold, valuation, sale mechanics/route, fees, residual asset handling, post-liquidation debt or return, and whether special hackathon terms supersede them.
+5. Supply the readable original account-permission matrix, including account-specific trading/API/bot/deposit/withdrawal/transfer permissions.
+6. Supply the exact effective Spot-market allow/deny list and explain how it relates to the separate 345-pair user-provided exclusion list. No market may be inferred from either list's absence.
+7. Confirm level-one/new-account trading fee tier and current maker/taker values or hackathon exceptions.
+8. Confirm sequence for expiry, early stop, Instant Sell, credit repayment, credit fee, tournament capital recovery, profit payout, remaining assets, final valuation and account zeroing.
+
+Until authoritative, traceable hackathon-specific evidence resolves these questions, treat all such values/permissions as `UNKNOWN`; no credit-fee/liquidation/settlement model is implemented, and offline results must disclose that limitation.
+
 ## تصمیم‌های آتی نیازمند نظر مالک پروژه
 
 - هدف آتی پروژه و روش استفاده: مطالعه/دستی، decision support، paper research، یا اتوماسیون؟ (هیچ‌کدام در این feature انتخاب نشده‌اند.)

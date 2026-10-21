@@ -31,7 +31,7 @@ python3 scripts/validate_doc_links.py
 
 ## Backtest interface status
 
-The library accepts explicit `TargetExposure` decisions and an explicit `SimulationConfig`; it does not generate strategy signals. All cost assumptions are generic local model inputs, not current Wallex fees. Check the tests and contract in this feature before using the replay API. A paper result is not a live or exchange-connected paper-trading session.
+The library accepts explicit `TargetExposure` decisions and an explicit `SimulationConfig`; it does not generate strategy signals. `initial_cash` is a generic simulation balance, not necessarily user-owned or withdrawable. All cost assumptions are generic local model inputs, not current Wallex fees. `ReplayResult.limitations` identifies omitted credit principal/fees, liquidation and challenge settlement; in particular, the replay does not model the general credit-plan example or determine whether it applies to Starcoach. Check the tests and contract in this feature before using the replay API. A paper result is not a live or exchange-connected paper-trading session.
 
 ## Explicitly unsupported
 

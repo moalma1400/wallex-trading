@@ -76,7 +76,7 @@ class TargetExposure:
 
 @dataclass(frozen=True, slots=True)
 class SimulationConfig:
-    """All assumptions are required; rates are local model inputs, not exchange fees."""
+    """Generic offline inputs; initial_cash is not an ownership or credit-account claim."""
 
     initial_cash: Decimal | str | int
     quote_currency: str
@@ -137,6 +137,14 @@ class LedgerPoint:
     drawdown: Decimal
 
 
+REPLAY_LIMITATIONS = (
+    "initial_cash is a generic caller-supplied simulation balance; asset ownership, withdrawability, credit principal, registration balance, and repayment liability are not represented.",
+    "No credit-plan fee accrual, forced-liquidation threshold or sale mechanics, account-permission model, or challenge-specific settlement is modeled.",
+    "commission_rate and slippage_rate are generic simulation assumptions; no official trading fee, credit fee, or separately modeled spread is inferred.",
+    "Marked equity is not a settlement ledger; realized/unrealized P&L, residual assets, principal repayment, and final payout are not separately reconciled.",
+)
+
+
 @dataclass(frozen=True, slots=True)
 class ReplayResult:
     symbol: str
@@ -150,8 +158,9 @@ class ReplayResult:
     total_commission: Decimal
     total_slippage_cost: Decimal
     maximum_drawdown: Decimal
+    limitations: tuple[str, ...] = REPLAY_LIMITATIONS
 
     @property
     def total_return(self) -> Decimal:
-        """Arithmetic model return relative to explicit initial cash; not a forecast."""
+        """Arithmetic model return only; not net financing return or withdrawable cash."""
         return self.final_equity / self.config.initial_cash - Decimal(1)

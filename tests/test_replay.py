@@ -51,6 +51,10 @@ class ReplayTests(unittest.TestCase):
         self.assertEqual(result.final_cash, Decimal("1067.0200"))
         self.assertEqual(result.final_quantity, Decimal("0"))
         self.assertEqual(result.total_return, Decimal("0.06702"))
+        self.assertTrue(any("ownership, withdrawability, credit principal" in item for item in result.limitations))
+        self.assertTrue(any("credit-plan fee accrual" in item and "challenge-specific settlement" in item for item in result.limitations))
+        self.assertTrue(any("no official trading fee" in item and "spread" in item for item in result.limitations))
+        self.assertTrue(any("realized/unrealized P&L" in item and "final payout" in item for item in result.limitations))
 
     def test_final_bar_signal_is_rejected_instead_of_same_bar_fill(self) -> None:
         bars = [bar(0, "100", "100"), bar(1, "100", "100")]

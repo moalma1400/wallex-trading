@@ -2,6 +2,10 @@
 
 **Research-status snapshot compiled:** `2026-10-21T13:55:33Z` (UTC). The 115-URL sitemap set itself is the one captured at `2026-10-21T13:14:42Z`; it was not re-fetched during the follow-up.
 
+## User-supplied credit-plan excerpt — separate from sitemap coverage
+
+`USER-WALLEX-CREDIT-PLAN-EXCERPT` is registered as a user-provided source, not an official Wallex page. Only an English bullet summary was supplied; the user reports that the underlying source is Persian. URL and dates remain `UNKNOWN`; the eligible-market list is absent and the permission table is malformed. Previously reviewed official `CREDIT-INTRO` supports account separation; `CREDIT-TYPES` summarizes a general 30-day credit plan with daily fee and warning/liquidation levels. Neither source verifies the excerpt's exact amounts/example or applicability to Starcoach. Full provenance and claim reconciliation are in [`wallex-credit-plan-reconciliation.md`](../knowledge-base/wallex-credit-plan-reconciliation.md). No market-list inference is made.
+
 ## Counts: developer documentation sitemap pages only
 
 Counts below use the 115 unique `/docs...` URLs returned by the official developers.wallex.ir sitemap, not arbitrary pages guessed during research. `not_started` means the exact page URL is in the official sitemap but the body has not yet been reviewed. Sitemap coverage is a discoverability snapshot, not a claim that the entire public web is exhaustively crawled.

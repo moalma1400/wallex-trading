@@ -8,7 +8,9 @@ CSV must include exactly these logical fields (additional columns are rejected f
 
 A `TargetExposure` is a strategy-neutral decision observed at an existing candle timestamp. Its `fraction` must be nonnegative and no greater than the explicitly configured exposure limit. The engine does not produce target exposures.
 
-`SimulationConfig` requires `initial_cash`, `quote_currency`, `commission_rate`, `slippage_rate`, and `maximum_spot_exposure`. No default values are defined. All rates are generic simulation assumptions, not Wallex terms.
+`SimulationConfig` requires `initial_cash`, `quote_currency`, `commission_rate`, `slippage_rate`, and `maximum_spot_exposure`. No default values are defined. All rates are generic simulation assumptions, not Wallex terms. `initial_cash` is only a caller-supplied arithmetic starting balance; it does not claim ownership, withdrawability, or represent a credit principal/registration balance.
+
+`ReplayResult.limitations` is part of the result contract and states that replay does not model financing liability, credit-fee accrual, registration balance, account permissions, a separate spread, forced-liquidation thresholds/sale mechanics, or challenge-specific settlement; it also does not separately reconcile realized/unrealized P&L, residual assets, principal repayment, or payout. Generic commission/slippage are not official rates. Unknown financing or settlement amounts must not be replaced with zero or borrowed from an unrelated plan example.
 
 ## Deterministic execution semantics
 

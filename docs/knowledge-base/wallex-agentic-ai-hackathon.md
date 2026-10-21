@@ -12,6 +12,8 @@
 
 The source record is `USER-WALLEX-HACKATHON-BRIEF` in the [source register](../research/source-register.yaml). The full attachment is preserved verbatim at [`docs/research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md`](../research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md), SHA-256 `da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144`. Its URL and UTC retrieval instant are `null`: this was an Arena attachment, not a public URL, and no exact UTC receive time was supplied. The list-only raw appendix is separately preserved byte-for-byte at `config/challenge/wallex_disabled_spot_pairs_raw.txt`; its SHA-256 is `48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0`. The two hashes cover distinct files. The later inline Persian cleaned working transcript is separately preserved at [`wallex_hackathon_audio_transcript_fa.md`](../research/user-sources/wallex_hackathon_audio_transcript_fa.md), source ID `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT`, SHA-256 `c7831200b22590f5b076e43fbe6834d4c1905023abcd03297e20c34dcc732a5e`. It is not an audio file or a raw ASR dump; its speaker/date/range and wording caveats are recorded in the source register. See the [Persian reconciliation article](wallex-hackathon-audio-transcript-fa.md).
 
+> **HIGH-PRIORITY FINANCIAL RISK — unresolved:** Existing official Wallex source summaries describe a general credit plan with a 30-day term, daily credit fee, and warning/liquidation levels (`CREDIT-TYPES`). Separately, the user-supplied excerpt claims a three-day, 5,000,000-Toman arrangement, daily-prorated example fee, forced instant sale, and no assets/money returned in liquidation. The user-provided hackathon brief also says the team does not pay a capital shortfall. These sources do **not** establish whether the general product applies to Starcoach, whether the three-day terms are a special package, or whether fees/deficits/liquidation liability are waived or superseded. Do not call the 5,000,000-Toman figure risk-free, owned, withdrawable, fee-free, or proof that a team/member can never owe a loss. See the [credit-plan reconciliation and organizer questions](wallex-credit-plan-reconciliation.md).
+
 ## Purpose and challenge flow
 
 - **`PROVIDED_BY_CHALLENGE_BRIEF`** — The challenge is described as part of the Starcoach Agentic AI hackathon with Wallex. Each team has three days to develop, run, and evaluate an algorithm.
@@ -22,21 +24,22 @@ The source record is `USER-WALLEX-HACKATHON-BRIEF` in the [source register](../r
 
 ## Capital, account and settlement
 
-- **`PROVIDED_BY_CHALLENGE_BRIEF`** — Initial allocation is **5,000,000 toman** for the challenge account, dedicated to a team and separate from member personal assets. Withdrawals are disabled.
-- **`PROVIDED_BY_CHALLENGE_BRIEF`** — The brief describes the allocated capital as Wallex’s. It says teams do not reimburse allocated-capital losses; after judging, positive net value returns the original capital to Wallex and pays net profit to the nominated Wallex account; for negative results, Wallex recovers remaining account assets without a team shortfall payment. It says the challenge account is zeroed after final settlement.
-- **`PROVIDED_BY_CHALLENGE_BRIEF`** — Settlement is expected approximately two days after the three-day challenge, subject to judging approval. The brief’s 2,000,000-toman examples are explanatory examples only; they do not replace the 5,000,000-toman baseline.
-- **`REQUIRES_ORGANIZER_CONFIRMATION`** — These account-funding, ownership, loss, payout, zeroing, and timing terms need official confirmation before any challenge account is used.
-- **`INFERRED`** — No deposit, withdrawal, transfer, or movement feature is implemented. The brief’s “trading-credit” label does not permit leverage, borrowing, credit multipliers, or margin.
+- **`PROVIDED_BY_CHALLENGE_BRIEF`** — The user brief reports a **5,000,000-Toman** challenge allocation in a team-dedicated account, separate from member personal assets, and says withdrawals are disabled. This is the brief’s reported amount, **not evidence that it is team-owned or withdrawable cash**.
+- **`PROVIDED_BY_CHALLENGE_BRIEF` (unverified claim, not a guarantee)** — The brief describes the allocation as Wallex’s and says the team does not reimburse an allocated-capital shortfall; it describes return of original capital and payment of net profit after judging, or recovery of remaining assets after a negative result. It also says the account is zeroed after settlement. These are user-brief claims only. They do not establish that principal, plan fees, liquidation deficits or other charges can never become a team/member liability.
+- **`PROVIDED_BY_CHALLENGE_BRIEF`** — The brief estimates settlement approximately two days after the three-day challenge, subject to judging. Its 2,000,000-Toman examples are explanatory, not the stated 5,000,000-Toman baseline.
+- **`UNRESOLVED`** — The existing official `CREDIT-TYPES` source summary describes a 30-day general-plan term, a daily credit fee, and warning/liquidation levels; `CREDIT-INTRO` describes account separation. The user excerpt separately reports three days, a fee example, Instant Sell, and no assets/money returned at liquidation. Exact terms, applicability to the challenge, and reconciliation with the brief’s no-shortfall claim remain unknown. The excerpt’s fee example is not a hackathon rate. [CREDIT-TYPES](https://developers.wallex.ir/docs/trade-credit-types) · [CREDIT-INTRO](https://developers.wallex.ir/docs/trade-credit-intro).
+- **`REQUIRES_ORGANIZER_CONFIRMATION`** — Confirm in writing the funding/legal nature of the allocation, user-owned opening assets, principal/fee/deficit liability, liquidation, net-profit calculation, residual assets, payout, zeroing and timing before any account is used.
+- **`INFERRED`** — No deposit, withdrawal, transfer, or movement feature is implemented. A credit-account arrangement is not permission to use margin, leverage, borrowing, futures, or short selling; the project remains Spot-only.
 
 ### Return and end-state accounting
 
-The brief supplies this formula (**`PROVIDED_BY_CHALLENGE_BRIEF`**):
+The user-provided brief reports this formula (**`PROVIDED_BY_CHALLENGE_BRIEF`; not officially verified**):
 
 ```text
 net_return_percent = ((final_account_value_toman - 5_000_000) / 5_000_000) * 100
 ```
 
-It mentions realized P&L, fees, residual assets, and potentially unrealized P&L, while emphasizing realized result in toman rather than ending with coin inventory. The offline settlement validator keeps realized P&L, estimated unrealized P&L, fees, TMN cash and non-TMN inventory separate. It only reports final value/return when an official cutoff is verified, the snapshot is exactly at that cutoff, balances are reconciled, fees and unrealized P&L are known, and non-TMN holdings are zero. It never converts a residual token using a stale or invented price.
+This formula uses the brief-reported 5,000,000 figure as a denominator; it does not establish ownership, withdrawability, plan fee, credit liability, or final settlement treatment. It mentions realized P&L, fees, residual assets, and potentially unrealized P&L, while emphasizing realized result in toman rather than ending with coin inventory. The offline settlement validator keeps realized P&L, estimated unrealized P&L, fees, TMN cash and non-TMN inventory separate. It only reports final value/return when an official cutoff is verified, the snapshot is exactly at that cutoff, balances are reconciled, fees and unrealized P&L are known, and non-TMN holdings are zero. It never converts a residual token using a stale or invented price.
 
 - **`UNRESOLVED`** — Official cutoff time, allowed conversion pairs/routes, settlement valuation policy, fees, and exact account-balance representation are absent.
 - **`REQUIRES_ORGANIZER_CONFIRMATION`** — Any pre-deadline liquidation/settlement procedure and permitted TMN conversion route must be confirmed. Until then, settlement readiness fails closed.
@@ -64,6 +67,7 @@ It mentions realized P&L, fees, residual assets, and potentially unrealized P&L,
 - **`INFERRED`** — Backtest, shadow and dry-run dispatch are record-only and cannot invoke an order submitter. This feature returns a blocked result for `live`; no exchange adapter exists. A UI/config flag cannot activate live trading.
 - **`REQUIRES_ORGANIZER_CONFIRMATION`** — Any future live challenge phase needs separate feature approval, current account and market contract, security/risk/compliance review, official account instructions, and explicit mode authorization. It is out of scope here.
 - Synthetic fixtures remain clearly synthetic. Successful replay is not Wallex ingestion, a real fill, profitability evidence, or safety assurance.
+- **`UNRESOLVED`** — Current generic replay inputs do not model challenge credit principal vs user-owned assets, registration-balance requirements, credit fee accrual, a separately modeled spread, plan liquidation triggers/sale mechanics, or challenge-specific settlement. Generic commission and slippage inputs are not official trading costs. Every challenge-context report must state these omissions; fees, triggers and settlement unknowns remain `UNKNOWN` rather than silently treated as zero.
 
 ## Decision auditability and AI
 
@@ -77,7 +81,7 @@ Versioned events cover market/feature snapshots, AI analysis, signals, risk verd
 
 The independent risk layer is strategy-neutral. It has configurable limits for per-order notional, per-asset exposure, total deployed capital, open orders, order rate, daily loss, peak drawdown, consecutive losses/errors, market-data age, AI-signal age, spread, slippage, liquidity utilization and total estimated fees/costs. It also requires reconciled account/orders, known fees, and inactive emergency stop.
 
-- **`INFERRED`** — The order cap must be strictly below the 5,000,000-toman allocation; a single order can never consume the full baseline.
+- **`INFERRED`** — Internal risk configuration must not assume the brief-reported amount is owned/withdrawable balance. Risk limits remain unresolved/null and no order-sizing authorization follows from the capital figure.
 - **`UNRESOLVED`** — The brief supplies no official numeric risk values, fee schedule, order precision/minimums, data-age threshold, spread/slippage limit, order-rate cap, or AI timeout. Configuration entries are deliberately `null`; missing limits veto an order proposal. No placeholder numeric values are represented as Wallex requirements or recommendations.
 - **`REQUIRES_ORGANIZER_CONFIRMATION`** — Organizers/operators must set and review every essential cap before even a separately authorized live phase.
 

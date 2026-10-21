@@ -2743,6 +2743,51 @@
       "timestamp_range_as_supplied": "approximately 00:00:00–00:03:54; last visible transcript segment at 00:03:33",
       "audio_file_status": "not_present_in_repository_or_available_task_attachments",
       "audio_review_status": "not_performed; transcript_not_independently_audio_verified"
+    },
+    {
+      "source_id": "USER-WALLEX-CREDIT-PLAN-EXCERPT",
+      "title": "«هکاتون استارکوچ | والکس» (title supplied by user)",
+      "url": null,
+      "official_domain": null,
+      "documentation_type": "User-provided summary of general trading-credit plan; not independently verified",
+      "discovery_path": "Claims and title supplied inline in an Arena user message; available material was English bullet summaries, while the user identified the underlying source language as Persian.",
+      "retrieved_at_utc": null,
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "trading credit",
+        "credit fee",
+        "forced liquidation",
+        "eligible markets",
+        "account permissions",
+        "hackathon settlement reconciliation"
+      ],
+      "claims_summary": "User-provided summary says 0 Toman user assets plus 5,000,000 Toman credit for three days; basic identity verification and sufficient balance to register; separate credit account; distinct but unreadable account-permission table; omitted eligible-market list; Instant Sell on stop/expiry; repayment of credit plus a daily time-based fee (example 600,000 Toman/30 days and 200,000 Toman/10 days); notifications and forced liquidation after declining value with no assets/money returned; trading fees start at new-account level one. These are not independently verified and are not established as hackathon terms.",
+      "confidence_and_evidence_notes": "Preserved user-provided English bullet summary only; no verbatim Persian original, official URL, publication/retrieval date, screenshot or complete table was supplied. User identifies underlying source language as Persian; do not fabricate or label the English summary as a Persian quotation. Eligible-market list is omitted and permissions-table layout is corrupted. Example fee arithmetic is not a hackathon fee. Exact plan/hackathon applicability and liability/settlement relationship remain unresolved. SHA-256 identifies only the local supplied-summary record.",
+      "related_source_ids": [
+        "CREDIT-INTRO",
+        "CREDIT-TYPES",
+        "USER-WALLEX-HACKATHON-BRIEF",
+        "USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT"
+      ],
+      "research_status": "reviewed",
+      "source_kind": "user_provided",
+      "source_file": "docs/research/user-sources/wallex_credit_plan_excerpt_user_supplied.md",
+      "source_file_sha256": "c93ed591efd00be2e084d35a6119239d7ac68cb5105551b479ebd6128dda8172",
+      "source_material_type": "inline_user_supplied_english_bullet_summary_of_source_reported_as_persian",
+      "language": {
+        "underlying_source_reported": "fa",
+        "supplied_material": "en"
+      },
+      "source_url_status": "UNKNOWN",
+      "publication_date_status": "UNKNOWN",
+      "retrieval_date_status": "UNKNOWN",
+      "official_verification_status": "NOT_VERIFIED",
+      "completeness_limitations": [
+        "eligible-market list omitted",
+        "account-permissions table formatting corrupted",
+        "no verbatim Persian original provided"
+      ]
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."
