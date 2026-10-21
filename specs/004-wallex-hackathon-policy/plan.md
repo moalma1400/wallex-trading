@@ -4,7 +4,7 @@
 
 ## Summary
 
-Extract only the explicitly supplied market list, preserve raw bytes, derive hash-bound canonical JSON, register the attachment as user-provided evidence, and build local Python policy/evidence contracts. Link challenge KB, restrictions, operator/judge, and demo docs; update reusable research skills and preserve Features 001–003. Every policy is offline and fail-closed; no live adapter or real request is in scope.
+Extract only the explicitly supplied market list, preserve raw bytes, derive hash-bound canonical JSON, register the attachment as user-provided evidence, and build local Python policy/evidence contracts. Link challenge KB, restrictions, operator/judge, and demo docs; update reusable research skills and preserve Features 001–003. Feature 004's policy evaluation and tests remain offline and fail-closed. The separately approved Feature 005 may implement a Smart98-mediated public read-only Spot market-data adapter; order submission and live execution are not in scope.
 
 ## Technical context
 
