@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "format_note": "JSON syntax, which is also valid YAML 1.2; enables dependency-free offline validation. Null publisher dates mean no page-provided publication/update date was observed.",
-  "research_snapshot_utc": "2026-10-21T13:14:42Z",
+  "format_note": "JSON syntax, which is also valid YAML 1.2; enables dependency-free offline validation. Null publisher dates mean no page-provided publication/update date was observed. Additional source records now track official OpenAPI/Swagger artifacts, but page-reader chunks are transformed/partial and are not byte-for-byte local archives.",
+  "research_snapshot_utc": "2026-10-21T13:55:33Z",
   "sources": [
     {
       "source_id": "MOD-INTRO",
@@ -25,23 +25,23 @@
     },
     {
       "source_id": "MOD-BASIC-SERVICES",
-      "title": null,
+      "title": "مقدمه",
       "url": "https://developers.wallex.ir/docs/basic-services",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "General API / other",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "General API / other"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Reviewed official basic-services intro; links a Swagger JSON asset. The actual endpoint examples should be read from their own pages/specs; this intro alone does not establish runtime availability.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "ACCOUNT-FEE",
@@ -425,23 +425,23 @@
     },
     {
       "source_id": "MOD-GENERATED-CANDLE-HISTORY",
-      "title": null,
+      "title": "Get historical market data (candles)",
       "url": "https://developers.wallex.ir/docs/generated/candle-history",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Market data / market discovery",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:48:05Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents `GET https://api.wallex.com/v1/udf/history`; query fields symbol/resolution/from/to are marked required and response is UDF arrays s/t/c/o/h/l/v. This differs from the basic UDF page table marking these fields Optional. x-api-key is shown; no request made.",
+      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-CHECK-PROP-PACKAGE-AVAILABILITY",
@@ -525,43 +525,45 @@
     },
     {
       "source_id": "MOD-GENERATED-DELETE-ACCOUNT-ORDERS",
-      "title": null,
+      "title": "Cancel an existing order",
       "url": "https://developers.wallex.ir/docs/generated/delete-account-orders",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:55:33Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents DELETE //api.wallex.com/v1/account/orders with a required JSON clientOrderId and x-api-key authorization; this differs from the prose Spot cancellation path DELETE /v1/account/orders/{client_id}. Documentation only; no request or cancellation was made.",
+      "confidence_and_evidence_notes": "One complete generated page chunk was inspected. The schema/status/auth text is attributed only to this page; the leading // host and body identifier remain distinct from prose and legacy contracts (D-003, D-013, D-016). Page-reader output is not a raw OpenAPI archive and does not establish availability, permissions, or runtime behavior. retrieved_at_utc is the compilation snapshot, not an exact individual request time.",
       "related_source_ids": [
-        "MOD-SITEMAP"
+        "MOD-SITEMAP",
+        "SPOT-CANCEL",
+        "MOD-GENERATED-POST-ACCOUNT-ORDERS"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-DELETE-ORDERS-CLIENT",
-      "title": null,
+      "title": "Cancel an order by path parameter",
       "url": "https://developers.wallex.ir/docs/generated/delete-orders-client",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents DELETE //api.wallex.com/v1/account/orders/:client_id with API-key auth. Leading // host form differs from other descriptions; no cancellation was performed.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-DETAILED-INFORMATION",
@@ -685,23 +687,23 @@
     },
     {
       "source_id": "MOD-GENERATED-GET-ACCOUNT-BALANCES",
-      "title": null,
+      "title": "Get account balances",
       "url": "https://developers.wallex.ir/docs/generated/get-account-balances",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Account / wallet",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Account / wallet"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page describes API-key-protected GET https://api.wallex.com/v1/account/balances and asset/value/locked fields. This is private account information; no key/account was used.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-ACCOUNT-CARD-NUMBERS",
@@ -725,23 +727,23 @@
     },
     {
       "source_id": "MOD-GENERATED-GET-ACCOUNT-FEES",
-      "title": null,
+      "title": "دریافت کارمزدهای حساب",
       "url": "https://developers.wallex.ir/docs/generated/get-account-fees",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Account fees",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Account fees"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page describes API-key-protected GET https://api.wallex.com/v1/account/fee and per-market makerFeeRate, takerFeeRate, recent_days_sum fields. Examples are not a current fee schedule; host conflict remains.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-ACCOUNT-IBANS",
@@ -765,203 +767,205 @@
     },
     {
       "source_id": "MOD-GENERATED-GET-ACCOUNT-WALLET-BY-SYMBOL",
-      "title": null,
+      "title": "دریافت آدرس کیف‌پول کاربر برای نماد مشخص",
       "url": "https://developers.wallex.ir/docs/generated/get-account-wallet-by-symbol",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Account / wallet",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Account / wallet"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated API-key page describes GET https://api.wallex.com/v1/account/wallets/:symbol and optional network, returning wallet/deposit/withdrawal metadata. It is sensitive account/wallet information and was not accessed at runtime.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-DEPTH",
-      "title": null,
+      "title": "Get all markets depth",
       "url": "https://developers.wallex.ir/docs/generated/get-depth",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Market data / market discovery",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated endpoint page states GET //api.wallex.com/depth/all and ask/bid arrays; no version prefix is shown. Leading double-slash form and host differ from other official references; no runtime test.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-LATEST-TRADES",
-      "title": null,
+      "title": "دریافت معاملات اخیر",
       "url": "https://developers.wallex.ir/docs/generated/get-latest-trades",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page states GET https://api.wallex.com/v1/trades with required symbol and latestTrades fields (quantity, price, sum, isBuyOrder, timestamp); it documents x-api-key. Host differs from overview; no request made.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-LEVELS",
-      "title": null,
+      "title": "margin trade user levels",
       "url": "https://developers.wallex.ir/docs/generated/get-levels",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "General API / other",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:48:05Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "General API / other"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated Margin page documents API-key-protected GET https://api.wallex.ir/margin-trade/v1/user/levels and a schema containing user_level and per-market levels, max loan/position, max risk coefficient, and min trade volume. No user data queried.",
+      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-LEVELS-MARKET",
-      "title": null,
+      "title": "margin trade user levels",
       "url": "https://developers.wallex.ir/docs/generated/get-levels-market",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Market data / market discovery",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:48:05Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated Margin page documents API-key-protected GET https://api.wallex.ir/margin-trade/v1/user/levels/:market with required market path and level/loan/position/risk fields. No request made.",
+      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-MARKET-DEPTH",
-      "title": null,
+      "title": "دریافت عمق بازار",
       "url": "https://developers.wallex.ir/docs/generated/get-market-depth",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Market data / market discovery",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated endpoint page states GET https://api.wallex.com/v1/depth?symbol=... and ask/bid price/quantity/sum fields. Example numeric representations vary; schema is not runtime-verified.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-MARKETS",
-      "title": null,
+      "title": "Get all markets",
       "url": "https://developers.wallex.ir/docs/generated/get-markets",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Market data / market discovery",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated endpoint page states GET https://api.wallex.com/hector/web/v1/markets and lists market metadata fields including spot/OTC/margin flags and precision fields. This conflicts with the developer overview host api.wallex.ir; no runtime test.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-OPEN-ORDER",
-      "title": null,
+      "title": "List active orders",
       "url": "https://developers.wallex.ir/docs/generated/get-open-order",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents API-key-protected GET //api.wallex.com/v1/account/openOrders with symbol/page/per_page and order/fill fields. Leading // host form differs from overview; no account access.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-ORDERS",
-      "title": null,
+      "title": "List margin orders",
       "url": "https://developers.wallex.ir/docs/generated/get-orders",
       "official_domain": "developers.wallex.ir",
-      "documentation_type": "Spot / orders",
+      "documentation_type": "Margin / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
-        "Spot / orders"
+        "Margin",
+        "orders",
+        "private account data"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Despite the existing register category, this generated page is a Margin orders endpoint: GET https://api.wallex.ir/margin-trade/v1/orders with active/market/position filters and x-api-key. Margin remains out of implementation scope.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-ORDERS-CLIENT",
-      "title": null,
+      "title": "Get order details",
       "url": "https://developers.wallex.ir/docs/generated/get-orders-client",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents API-key-protected GET //api.wallex.com/v1/account/orders/:client_id and an order/fill response. The host form differs from other official material; no account/order lookup.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-OTC-MARKETS",
@@ -1005,23 +1009,23 @@
     },
     {
       "source_id": "MOD-GENERATED-GET-PNL",
-      "title": null,
+      "title": "User PNL",
       "url": "https://developers.wallex.ir/docs/generated/get-pnl",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "General API / other",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:48:05Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "General API / other"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents API-key-protected GET https://api.wallex.ir/margin-trade/v1/user/pnl with collateral, loans, profits, and total objects. Private account information; no user/account data queried.",
+      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-GET-POSITION-ID",
@@ -1105,23 +1109,23 @@
     },
     {
       "source_id": "MOD-GENERATED-POST-ACCOUNT-ORDERS",
-      "title": null,
+      "title": "Submit a new trading order",
       "url": "https://developers.wallex.ir/docs/generated/post-account-orders",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents POST //api.wallex.com/v1/account/orders, body fields client_id/price/quantity/side/stop_Price/symbol/type, and x-api-key. This is state-changing documentation only; no order was submitted.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-PROFIT-POSITION-ID",
@@ -1185,43 +1189,43 @@
     },
     {
       "source_id": "MOD-GENERATED-PUBLIC-RATIO",
-      "title": null,
+      "title": "Positions Ratio of long and short",
       "url": "https://developers.wallex.ir/docs/generated/public-ratio",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "General API / other",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:48:05Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "General API / other"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated page documents GET https://api.wallex.ir/margin-trade/v1/public/ratio/:market with long_percents/short_percents fields and x-api-key auth in the page. The word public does not establish auth/runtime behavior; no request made.",
+      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-SPOT",
-      "title": null,
+      "title": "Spot",
       "url": "https://developers.wallex.ir/docs/generated/spot",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Spot / orders",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Generated API overview identifies itself as the Spot API server and specifies ApiKeyAuth via x-api-key. The linked Swagger asset is separate and has not been preserved byte-for-byte.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-GENERATED-SUB-ACCOUNT-BALANCES-DETAILS",
@@ -1345,123 +1349,123 @@
     },
     {
       "source_id": "MOD-MARGIN-ACTIVE-MARKETS",
-      "title": null,
+      "title": "مارکت‌های فعال در معامله تعهدی",
       "url": "https://developers.wallex.ir/docs/margin-active-markets",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents GET /margin-trade/v1/public/markets and describes market-specific risk coefficient bounds, liquidity margin, and maximum age fields. Values and runtime behavior are not tested.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-MARGIN-CALCULATE-LOAN",
-      "title": null,
+      "title": "محاسبه وثیقه",
       "url": "https://developers.wallex.ir/docs/margin-calculate-loan",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents POST /margin-trade/v1/public/loan with market/risk_coef/side and optional collateral/open_price; describes minimum/maximum collateral and loan response. No request made.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-MARGIN-CLOSE-POSITION",
-      "title": null,
+      "title": "بستن موقعیت تعهدی",
       "url": "https://developers.wallex.ir/docs/margin-close-position",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents PATCH /margin-trade/v1/positions/{id}/close with price and position ID. This is state-changing Margin documentation only; not executed.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-MARGIN-DRY-RUN",
-      "title": null,
+      "title": "اطلاعات کامل موقعیت قبل باز شدن",
       "url": "https://developers.wallex.ir/docs/margin-dry-run",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents POST /margin-trade/v1/public/dry-run with market/collateral/open_price/risk_coef/side and optional stop-loss/take-profit. A documented dry-run route is not invoked here or treated as proof of no side effects.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-MARGIN-EDIT-COLLATERAL",
-      "title": null,
+      "title": "ویرایش وثیقه موقعیت تعهدی",
       "url": "https://developers.wallex.ir/docs/margin-edit-collateral",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents PATCH /margin-trade/v1/positions/{id}/collateral and a string change value for collateral. State-changing documentation only; not executed.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-MARGIN-GET-POSITIONS",
-      "title": null,
+      "title": "دریافت موقعیت‌های تعهدی",
       "url": "https://developers.wallex.ir/docs/margin-get-positions",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents GET /margin-trade/v1/positions with optional active/position_side/market filters and position fields; requires further schema review. No private account request.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MARGIN-INTRO",
@@ -1505,43 +1509,43 @@
     },
     {
       "source_id": "MOD-MARGIN-SLTP-EDIT",
-      "title": null,
+      "title": "ویرایش حد سود و حد ضرر موقعیت تعهدی",
       "url": "https://developers.wallex.ir/docs/margin-sltp-edit",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian guide documents PATCH /margin-trade/v1/positions/{id}/sltp with optional stop_loss/take_profit. State-changing documentation only; not executed.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-MARGIN-TYPES",
-      "title": null,
+      "title": "اصطلاحات معامله تعهدی",
       "url": "https://developers.wallex.ir/docs/margin-types",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "Margin",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "Margin"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Persian product guide describes long/short, collateral, activation/extension fees, and says maximum position age is 21 days. These are page statements, not current verified values or implementation assumptions.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "OTC-CREATE",
@@ -1625,63 +1629,63 @@
     },
     {
       "source_id": "MOD-SOCKET-ALL-PRICE",
-      "title": null,
+      "title": "دریافت قیمت لحظه‌ای همه بازارها (all@price)",
       "url": "https://developers.wallex.ir/docs/socket-all-price",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full three-method page reviewed: v1 websocket is described as deprecated (still working), new integrations should use Centrifugo v2; all-price sends changes only, no initial value/history, and channel names are case-sensitive. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-SOCKET-BUY-DEPTH",
-      "title": null,
+      "title": "دریافت عمق بازار خرید (buyDepth)",
       "url": "https://developers.wallex.ir/docs/socket-buy-depth",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full page reviewed: orderbook buy-depth messages are full snapshots rather than deltas; subscription sends no initial snapshot; v1 is described as deprecated; dropped events are not replayed. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-SOCKET-CANDLE",
-      "title": null,
+      "title": "دریافت به‌روزرسانی کندل‌های نمودار",
       "url": "https://developers.wallex.ir/docs/socket-candle",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full page reviewed: candle channel supports 1m/1h/1d examples and UDF OHLCV payload; open candle updates replace by `t`; UDF history and up to 10 channel messages within 2 minutes are described for synchronization. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "SOCKET-CONNECTION",
@@ -1705,23 +1709,23 @@
     },
     {
       "source_id": "MOD-SOCKET-FAIR-PRICE",
-      "title": null,
+      "title": "دریافت قیمت منصفانه (all@fairPrice)",
       "url": "https://developers.wallex.ir/docs/socket-fair-price",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full page reviewed: v2 all-fairPrice periodic full price snapshots with `ts` and `prices`; page states ~20 second cadence, sometimes 35 seconds, missing symbols possible, and no history/replay. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "SOCKET-INTRO",
@@ -1765,63 +1769,63 @@
     },
     {
       "source_id": "MOD-SOCKET-PRIVATE-CHANNEL",
-      "title": null,
+      "title": "رویدادهای خصوصی کاربران",
       "url": "https://developers.wallex.ir/docs/socket-private-channel",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "All three chunks reviewed: page documents legacy stream-key private events and v2 JWT/private-user channel with balanceUpdated/orderSaved/orderRemoved/tradeDetails event payloads; no private history. Account data/token material only; no token or account was used.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-SOCKET-RAW-PROTOCOL",
-      "title": null,
+      "title": "اتصال بدون SDK در ورژن ۲ (سنتریفیگو)",
       "url": "https://developers.wallex.ir/docs/socket-raw-protocol",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full page reviewed: public v2 connect/subscribe frames, private token channel membership, 25-second ping/8-second response note, 64-channel cap, reconnect/no-replay limits, and candle exception are described. No websocket client was run.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "MOD-SOCKET-SELL-DEPTH",
-      "title": null,
+      "title": "دریافت عمق بازار فروش (sellDepth)",
       "url": "https://developers.wallex.ir/docs/socket-sell-depth",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full page reviewed: orderbook sell-depth messages are full snapshots rather than deltas; subscription sends no initial snapshot; v1 is described as deprecated; dropped events are not replayed. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "SOCKET-TOKEN",
@@ -1845,23 +1849,23 @@
     },
     {
       "source_id": "MOD-SOCKET-TRADE",
-      "title": null,
+      "title": "دریافت معاملات انجام‌شده (trade)",
       "url": "https://developers.wallex.ir/docs/socket-trade",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "WebSocket",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:41:41Z",
       "published_or_updated_at": null,
       "currentness_classification": "unclear",
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "Full page reviewed: v2 public trade messages include `isBuyOrder`, quantity/price decimal strings, and timestamp; no initial trade/history or reconnect replay is described; v1 is deprecated. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "reviewed"
     },
     {
       "source_id": "SPOT-MARKETS",
@@ -2285,23 +2289,23 @@
     },
     {
       "source_id": "MOD-WEEKLY",
-      "title": null,
+      "title": "Wallex API Documentation",
       "url": "https://developers.wallex.ir/docs/weekly",
       "official_domain": "developers.wallex.ir",
       "documentation_type": "General API / other",
       "discovery_path": "https://developers.wallex.ir/sitemap.xml",
-      "retrieved_at_utc": "2026-10-21T13:14:42Z",
+      "retrieved_at_utc": "2026-10-21T13:48:05Z",
       "published_or_updated_at": null,
-      "currentness_classification": "unclear",
+      "currentness_classification": "inaccessible",
       "topics": [
         "General API / other"
       ],
-      "claims_summary": "Listed in the official developers.wallex.ir sitemap; page content has not yet been reviewed.",
-      "confidence_and_evidence_notes": "Exact path is present in the retrieved official sitemap. URL slug is used only as an identifier; page title and claims are not inferred. High for sitemap discovery; no claim about page body.",
+      "claims_summary": "The official sitemap-listed URL returned a localized “page not found” body through the page reader; no HTTP status was exposed. No page content was reviewed.",
+      "confidence_and_evidence_notes": "A direct public page-reader request returned the site's localized not-found content. This is an observed retrieval result only; no reason or HTTP status is inferred.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "not_started"
+      "research_status": "blocked"
     },
     {
       "source_id": "WALLEX-HOME",
@@ -2556,6 +2560,116 @@
       "documentation_type": "official government sanctions FAQ",
       "claims_summary": "OFAC FAQ says non-U.S. persons who transact with listed designated exchanges, including Wallex, may also face sanctions under E.O. 13902 or other Iran-related authorities; page shows updated 2026-08-07.",
       "confidence_and_evidence_notes": "Official U.S. Treasury OFAC FAQ, retrieved 2026-10-21 UTC. This is not an individualized determination and does not assess Netherlands/EU law or the individual circumstances. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time."
+    },
+    {
+      "source_id": "MOD-SPEC-BASIC-SERVICES",
+      "title": "Wallex basic-services Swagger 2.0 artifact (JSON)",
+      "url": "https://developers.wallex.ir/assets/files/basic-services-89626420b5f06e4d7a2dc9206cdeb192.json",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "Official API specification artifact",
+      "discovery_path": "https://developers.wallex.ir/docs/basic-services",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "OpenAPI",
+        "API schema",
+        "partial artifact review"
+      ],
+      "claims_summary": "The page reader returned the initial chunk of an OpenAPI/Swagger artifact. It declares host api.wallex.com and includes wallet, bank/IBAN, and money-withdrawal routes. Remaining chunks were not reviewed and no byte-for-byte local copy/hash was preserved.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "related_source_ids": [
+        "MOD-BASIC-SERVICES"
+      ],
+      "research_status": "in_progress"
+    },
+    {
+      "source_id": "MOD-SPEC-SPOT",
+      "title": "Wallex Spot Swagger 2.0 artifact (JSON)",
+      "url": "https://developers.wallex.ir/assets/files/spot-b9d06896d1009adc9ebc69b9a5495e7e.json",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "Official API specification artifact",
+      "discovery_path": "https://developers.wallex.ir/docs/generated/spot",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "OpenAPI",
+        "API schema",
+        "partial artifact review"
+      ],
+      "claims_summary": "Initial artifact chunk declares host api.wallex.com and shows market/depth and account-order paths. It is clipped and not a complete endpoint/schema review or raw-file archive.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "related_source_ids": [
+        "MOD-GENERATED-SPOT"
+      ],
+      "research_status": "in_progress"
+    },
+    {
+      "source_id": "MOD-SPEC-MARGIN",
+      "title": "Wallex Margin Swagger 2.0 artifact (JSON)",
+      "url": "https://developers.wallex.ir/assets/files/margin-c709e1f52cb44387a2e35ffd678c6dfa.json",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "Official API specification artifact",
+      "discovery_path": "https://developers.wallex.ir/docs/generated/wallex-margin-trade-api",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "OpenAPI",
+        "API schema",
+        "partial artifact review"
+      ],
+      "claims_summary": "Initial artifact chunk declares host api.wallex.ir and margin-trade paths including order/position reads and state-changing position operations. Remaining content is unreviewed; no runtime access.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "related_source_ids": [
+        "MOD-GENERATED-WALLEX-MARGIN-TRADE-API"
+      ],
+      "research_status": "in_progress"
+    },
+    {
+      "source_id": "MOD-SPEC-OTC",
+      "title": "Wallex OTC Swagger 2.0 artifact (JSON)",
+      "url": "https://developers.wallex.ir/assets/files/otc-8e321a32f4509cbf103b3127bf7c9918.json",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "Official API specification artifact",
+      "discovery_path": "https://developers.wallex.ir/docs/otc-intro",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "OpenAPI",
+        "API schema",
+        "partial artifact review"
+      ],
+      "claims_summary": "Initial artifact chunk declares host api.wallex.ir and includes OTC markets, quote, and easy-trade order operations. The page reader returned further chunks; not exhaustively reviewed or preserved byte-for-byte.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "related_source_ids": [
+        "OTC-INTRO"
+      ],
+      "research_status": "in_progress"
+    },
+    {
+      "source_id": "MOD-SPEC-TRADE-CREDIT",
+      "title": "Wallex trade-credit OpenAPI 3.0.3 artifact (YAML)",
+      "url": "https://developers.wallex.ir/assets/files/trade-credit-ff5c60b5b97b77a5b2c2e4800f07729c.yaml",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "Official API specification artifact",
+      "discovery_path": "https://developers.wallex.ir/docs/trade-credit-intro",
+      "retrieved_at_utc": "2026-10-21T13:39:21Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "OpenAPI",
+        "API schema",
+        "partial artifact review"
+      ],
+      "claims_summary": "Initial artifact chunk declares server https://api.wallex.ir and includes trade-credit/sub-account operations; the reader reports many further chunks. It is partial and not a byte-for-byte local archive.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "related_source_ids": [
+        "CREDIT-INTRO"
+      ],
+      "research_status": "in_progress"
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."

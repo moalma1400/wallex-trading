@@ -10,7 +10,7 @@
 
 پاسخ سفارش شامل فیلدهایی مانند `active`, `clientOrderId`, `executedPercent`, `executedPrice`, `executedQty`, `executedSum`, `fee`, `fills`, `origQty`, `status`, `type`, `updated_at` است. صفحه لیست سفارش‌ها نمونه enumهای `NEW`, `FILLED`, `CANCELED` را می‌آورد، اما فهرست کامل حالات و transitionها را مشخص نمی‌کند. [SPOT-CREATE](https://developers.wallex.ir/docs/spot-create-order) · [SPOT-ORDERS](https://developers.wallex.ir/docs/spot-order-list)
 
-صفحه لغو جدید `DELETE /v1/account/orders/{client_id}` را برای سفارش ناتمام معرفی می‌کند. مرجع قدیمی `DELETE /v1/account/orders?clientOrderId=...` را توصیف می‌کند؛ مسیرها با هم متفاوت‌اند و نباید ادغام شوند. لغو سفارش، اقدام حساب‌تغییردهنده است و در این پروژه هرگز فراخوانی نمی‌شود. [SPOT-CANCEL](https://developers.wallex.ir/docs/spot-cancel-order) · [LEGACY-API](https://api-docs.wallex.ir/)
+صفحه prose برای لغو سفارش ناتمام `DELETE /v1/account/orders/{client_id}` را معرفی می‌کند؛ مرجع قدیمی `DELETE /v1/account/orders?clientOrderId=...` را دارد. generated page دیگری `DELETE //api.wallex.com/v1/account/orders` با body اجباری JSON شامل `clientOrderId` و header مستندشده `x-api-key` نشان می‌دهد. این host، route و شناسه متفاوت را با هم ادغام نکنید؛ رفتار runtime و قرارداد canonical نامعلوم است. لغو سفارش حساب‌تغییردهنده است و در این پروژه هرگز فراخوانی نمی‌شود. [SPOT-CANCEL](https://developers.wallex.ir/docs/spot-cancel-order) · [LEGACY-API](https://api-docs.wallex.ir/) · [MOD-GENERATED-DELETE-ACCOUNT-ORDERS](https://developers.wallex.ir/docs/generated/delete-account-orders) · [D-016](../research/discrepancies.md)
 
 ## ابهام‌های اجرایی
 

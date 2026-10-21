@@ -1,0 +1,17 @@
+---
+name: risk-review
+description: Review offline Spot research controls without inventing a user risk profile.
+compatibility: Uses explicit caller-provided local simulation limits only.
+metadata:
+  owner: wallex-trading
+  scope: risk-controls
+---
+
+# Research risk review procedure
+
+1. Determine which inputs are policy choices. Do not select or suggest the user's capital, maximum exposure, loss tolerance, time horizon, market, leverage, or strategy.
+2. Require explicit non-default limits for any simulation. Verify negative exposure, values above the supplied limit, invalid/empty configuration, shorting, and leverage fail closed.
+3. Prefer rejection to silent clamping, silent defaults, hidden retries, or assumptions inferred from public docs. Preserve a visible audit trail of simulated inputs and events.
+4. Test deterministic failure behavior, cash conservation, cost deduction, and drawdown calculation with synthetic data. Note modeled risks omitted by the simplified engine (liquidity, gaps, latency, queue position, precision, venue rejection, and live failures).
+5. A local risk limit is not a recommendation, safety guarantee, or permission to use an exchange. Keep margin/leverage execution excluded.
+6. Any real exchange use remains blocked until a separate current contract/security/risk review and jurisdiction-specific legal/compliance review; never imply legality is guaranteed.

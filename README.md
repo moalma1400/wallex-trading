@@ -4,7 +4,7 @@
 
 ## Purpose and current phase
 
-This private repository establishes a Persian-first, source-backed knowledge base about publicly available official Wallex trading and API documentation. The current phase is documentation research and specification. It does **not** implement a trading strategy, connect to a Wallex account, call production APIs, place or cancel orders, transfer assets, or provide individualized buy/sell recommendations.
+This private repository maintains a Persian-first, source-backed knowledge base about official Wallex trading/API documentation and an offline, strategy-neutral research kernel. Feature 001 remains an incomplete documentation research effort; Feature 002 adds only local data validation, deterministic replay/backtest calculations, explicit risk gates, and simulated paper-ledger mechanics over synthetic or user-supplied files. Neither feature implements a strategy, fetches data from Wallex/Smart98, connects to an account or live feed, calls production APIs, places/cancels orders, transfers assets, or provides individualized buy/sell recommendations.
 
 Documented capabilities do not prove that a feature is currently available at runtime, suitable or profitable, or permitted for every account or use. Fees, symbols, limits, access, and platform behavior can change; check the dated official sources before relying on any value. Official U.S. Treasury/OFAC materials in the research record also describe sanctions designation and potential non-U.S.-person exposure; this repository is not legal advice, and no use or transaction should proceed without independent, current legal/compliance review.
 
@@ -14,10 +14,13 @@ The project uses the official [GitHub Spec Kit](https://github.com/github/spec-k
 
 ## Start here
 
-- [Feature specification](specs/001-wallex-official-documentation-inventory/spec.md)
+- [Feature 001: official documentation inventory](specs/001-wallex-official-documentation-inventory/spec.md) — in progress
+- [Feature 002: offline research kernel](specs/002-offline-research-kernel/spec.md) — initial offline slice delivered
+- [Feature 002 quickstart](specs/002-offline-research-kernel/quickstart.md)
 - [Research source register](docs/research/source-register.yaml)
 - [Coverage matrix](docs/research/coverage-matrix.md)
 - [Persian knowledge base](docs/fa/README.md)
+- [Repository-specific reusable skills](.agents/skills/README.md) (Markdown guidance; not verified slash commands)
 - [Discrepancy register](docs/research/discrepancies.md)
 - [Unresolved questions](docs/research/unresolved-questions.md)
 - [Research log](docs/research/research-log.md)

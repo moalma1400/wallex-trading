@@ -1,11 +1,18 @@
-# WebSocket
+# WebSocket research notes
 
-## Current-looking guide
+## Versions and public feeds
 
-- URL: `wss://api.wallex.ir/connection/websocket`; documented Centrifugo protocol v2. [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro)
-- Public channels include `public:<SYMBOL>@trade`, `public:all@price`, `public:all@fairPrice`, `orderbook:<SYMBOL>@buyDepth`, `orderbook:<SYMBOL>@sellDepth`, and `candle:<SYMBOL>@<INTERVAL>`; private channel is `private:user#<userId>`. [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro)
-- SDK client examples use `Centrifuge`; public feeds do not require a token. Private events use token refresh and server-side channel membership. An active connection supports up to 64 channels. [SOCKET-CONNECTION](https://developers.wallex.ir/docs/socket-connection)
-- Except candle channels, no history/snapshot is described; dropped intervals are not replayed. Candle channel history is limited to ten messages over two minutes. [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro)
-- Migration docs contrast legacy Socket.IO URL `wss://api.wallex.ir/ws`, legacy channels, and Centrifugo channel namespace/message format. [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration)
+- Wallex's new channel guides describe Centrifugo v2 at `wss://api.wallex.ir/connection/websocket`; v1 at `wss://api.wallex.ir/ws` is described as deprecated, but still working, with no end-of-support date stated. Use source terminology, not an assumption that v1 is already disabled. [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [MOD-SOCKET-ALL-PRICE](https://developers.wallex.ir/docs/socket-all-price) · [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration)
+- Public examples include `public:<SYMBOL>@trade`, `public:all@price`, `public:all@fairPrice`, `orderbook:<SYMBOL>@buyDepth`, `orderbook:<SYMBOL>@sellDepth`, and `candle:<SYMBOL>@<INTERVAL>`. Exact channel spelling/case matters. [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [MOD-SOCKET-FAIR-PRICE](https://developers.wallex.ir/docs/socket-fair-price)
+- `all@price` updates are sent when a market price changes and do not provide an initial price or replay missed messages. `all@fairPrice` is documented as a periodic full snapshot (typically 20 seconds, sometimes around 35 seconds); absent market keys can be temporarily missing, and no channel history is kept. These are source statements, not tested service-level guarantees. [MOD-SOCKET-ALL-PRICE](https://developers.wallex.ir/docs/socket-all-price) · [MOD-SOCKET-FAIR-PRICE](https://developers.wallex.ir/docs/socket-fair-price)
+- Trade publications contain `isBuyOrder`, `quantity`, `price`, and ISO timestamp examples; new trades only, without replay after disconnect. Depth publications are complete snapshots, not deltas, and subscription does not send an initial order book. [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade) · [MOD-SOCKET-BUY-DEPTH](https://developers.wallex.ir/docs/socket-buy-depth) · [MOD-SOCKET-SELL-DEPTH](https://developers.wallex.ir/docs/socket-sell-depth)
+- Candle channels document `1m`, `1h`, and `1d`; each update carries UDF-shaped OHLCV arrays, and an open candle may be published repeatedly with the same start-time `t`, requiring replacement rather than append. Up to 10 channel-history messages for two minutes are described for synchronization; this is not a substitute for historical UDF data. [MOD-SOCKET-CANDLE](https://developers.wallex.ir/docs/socket-candle)
 
-This is documentary summary only; no live connection was opened. Channel payload schemas, event order, recovery guarantees, token expiration/refresh behavior, and private event taxonomy need additional page-level review.
+## Private channels and raw-protocol notes
+
+- The private page documents `balanceUpdated`, `orderSaved`, `orderRemoved`, and `tradeDetails`; v2 private membership is supplied through a token-bound `private:user#<userId>` channel. These payloads are private account information. No account, token, or private channel was used. [MOD-SOCKET-PRIVATE-CHANNEL](https://developers.wallex.ir/docs/socket-private-channel) · [SOCKET-TOKEN](https://developers.wallex.ir/docs/socket-token)
+- Raw v2 protocol documentation describes `connect`/`subscribe`, empty success acknowledgments, server ping/pong behavior, up to 64 channels per connection, and error/close codes. It says data other than candle history cannot be recovered after disconnect; candle history is narrowly limited. No client is implemented. [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol)
+
+## Boundary
+
+This repository opens no live WebSocket, has no API/stream token, and implements no feed adapter or exchange-connected paper trading. Page review is source documentation only; ordering, runtime uptime, auth availability, and actual data quality are unverified. Current source coverage and unresolved reliability questions are in the [register](../research/source-register.yaml) and [open questions](../research/unresolved-questions.md).

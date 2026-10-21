@@ -41,3 +41,67 @@ These counts do not mean complete content coverage. The 88 `not_started` entries
 - Current-looking documentation is classified `unclear` unless the page itself establishes date/currentness. The old API reference is labelled `legacy` as a research label based on older examples and contract differences, not as a claimed official withdrawal notice.
 - API limits, fees, enums, and precision are not guessed from sample values; disagreements are captured in [discrepancies](discrepancies.md).
 - Search results were not used as proof of Wallex behavior or fee values. When an official URL was found, its page was fetched directly; missing content remains unresolved.
+
+## Snapshot 2 — 2026-10-21 (UTC)
+
+### Scope and method
+
+- Continued from the existing official sitemap and source register. Kept Feature 001 active/incomplete; did not reinitialize Spec Kit or replace its templates/scripts.
+- Read the actual constitution, Feature 001 artifacts, validators, source register, coverage matrix, discrepancy/open-question registers, docs, repository instructions, and generated skill structure before editing.
+- Verified the installed Spec Kit CLI is `1.2.2`; GitHub release listing still marks `v1.2.2` Latest (released 2026-10-19). The current integration is generic. The feature creation dry-run indicated a descriptive feature branch, so only its directory naming was used; no branch command was executed and the Arena session branch is unchanged.
+- Retrieved and reviewed 22 additional sitemap page bodies as complete one-chunk pages: basic-services overview, generated Spot market/depth/trade/account/order pages, and the eight documented Margin pages. Retrieved all chunks for the eight new WebSocket pages: all-price, fair-price, trade, buy/sell depth, candle, private channel, and raw protocol. Updated each register row with the actual page title, inspected content, currentness caveat, and status.
+- Added five official OpenAPI/Swagger asset references (basic services, Spot, Margin, OTC, trade credit). The page reader exposed transformed/chunked excerpts (trade-credit reported 16 chunks); complete source bytes, checksums, publisher release metadata, and byte-for-byte local archives are unavailable. They remain `in_progress`, not complete. No live endpoint or WebSocket was contacted.
+- Added `D-013` for generated REST host/path disagreements and `D-014` for UDF versus candle-WebSocket resolution coverage. A cited endpoint in any source remains documentation text, not proof of availability.
+- Updated English API summaries and Persian-first WebSocket/data summaries. Added repository-specific custom skills while preserving all generated `speckit-*` skills. These files are reusable procedures, not verified slash commands; none is claimed as invoked.
+- Amended the constitution to permit only local/offline strategy-neutral research code, with explicit Spot-only and compliance gates. Recorded the amendment and retained no-live, no-network, no-account, no-leverage, no-key, no-transfer/withdrawal boundaries.
+
+### Coverage after follow-up
+
+- Exact developer sitemap page destinations: **115**.
+- Page bodies reviewed: **57** (27 in Snapshot 1 + 30 in this follow-up).
+- Sitemap pages not yet body-reviewed: **58**.
+- Sitemap pages individually confirmed inaccessible: **0**; the 5 `blocked` records in the whole register include separate probes and external source attempts, not sitemap page bodies.
+- Duplicate sitemap URLs identified: **0**.
+- Separate linked OpenAPI/Swagger artifacts: **5**, all `in_progress` pending complete source capture/review.
+- Total source records: **132**; statuses: `reviewed=64`, `not_started=58`, `in_progress=5`, `blocked=5`. These whole-register counts are distinct from 115 sitemap-page counts.
+- Coverage is not complete; auth, detailed permissions/schema, all remaining sitemap pages, support/terms/notices, and full API-spec capture remain open.
+
+### Material findings
+
+- The introduction says base host `api.wallex.ir`, while the basic-services and Spot Swagger artifacts and several generated pages state `api.wallex.com`; some generated order/depth examples begin `//api.wallex.com`. Margin and OTC artifacts declare `.ir`. The legacy all-depth route is `/v2/depth/all`, while a generated page shows `/depth/all`. The conflict is recorded; no host or path was executed or selected.
+- Official v2 WebSocket pages distinguish full periodic fair-price snapshots from price-change-only updates, state no replay for most channels, describe depth as full snapshots without an initial snapshot, and document limited candle history. The eight source pages were read in all reported chunks. These are descriptions, not runtime service-level guarantees.
+- REST UDF history and WebSocket candle examples show different resolution sets. The distinction is recorded without assuming one is exhaustive.
+- Generated account balance, fee, wallet, order and private WebSocket documentation includes account-specific fields/authentication. None was accessed with a credential or account.
+- A Margin product guide states maximum position age and extension terminology; these remain Margin documentation evidence only and are excluded from implementation.
+
+### Offline implementation and test evidence
+
+- Created Feature 002 specification, plan, research, data model, local contract, quickstart, tasks and requirements checklist before implementing the kernel. Feature 002 is in progress; Feature 001 remains in progress.
+- Added dependency-free `src/wallex_research/` models, strict CSV input, OHLCV checks, explicit Spot risk validation, next-bar-open replay, modeled costs, partial-fill shortfall reporting, and an offline CSV audit CLI. No strategy generator, network adapter, credentials, account access, Smart98 adapter, or live feed exists.
+- Tests use fixed synthetic fixtures. The passing suite has **16 unit tests** covering exact Decimal parsing, UTC normalization, OHLC constraints, order/duplicate/symbol/gap checks, CSV failures, next-bar causality, cost/cash reconciliation, explicit risk rejection, no shorting, drawdown, partial unfilled quantities, and a network-side-effect guard.
+- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: **PASS**, 16 tests.
+- `python3 scripts/check_market_data.py tests/fixtures/synthetic_ohlcv.csv --interval-seconds 60`: **PASS**, 3 synthetic rows; structurally valid only. This does not validate provenance, completeness outside the configured interval, or exchange compatibility.
+- All generic costs/risk/capital/currency values in tests are synthetic; none is a Wallex fee or recommendation. No strategy, asset, market, timeframe, or user risk profile was selected.
+
+## Snapshot 3 — 2026-10-21 (UTC)
+
+- Reviewed five additional complete generated pages: historical UDF candles, Margin user levels, per-market Margin user levels, public-ratio schema, and user PNL. Account/user-level and PNL material remained documentation-only; no key or private request was used.
+- The sitemap-listed `/docs/weekly` returned the official site's localized not-found body. The reader did not expose an HTTP status. Marked that single sitemap page inaccessible/blocked rather than not-started; no replacement is guessed.
+- Added `D-015`: the basic UDF page marks its query fields Optional, while generated `candle-history` marks all four Required and lists a different set of resolution examples; the generated page also says `api.wallex.com`. Kept the mismatch unresolved.
+- Updated current sitemap counts: **115 total**, **62 reviewed**, **52 not started**, **1 blocked/inaccessible**. Five API specification artifacts remain `in_progress`. Whole-register totals: **132 records** (`reviewed=69`, `not_started=52`, `in_progress=5`, `blocked=6`).
+- No production request, WebSocket connection, credentials, account data, or account-changing action was used in this snapshot.
+
+## Snapshot 4 — 2026-10-21 (UTC)
+
+- Reviewed one additional complete generated Spot cancellation page: it documents `DELETE //api.wallex.com/v1/account/orders`, a required JSON `clientOrderId`, `x-api-key` authorization text, and response examples. This remains documentation evidence only; no key, request, or cancellation was used.
+- Added `D-016` because this generated form differs from the prose path `DELETE /v1/account/orders/{client_id}` and the legacy query form. No canonical host, route, identifier, or auth is selected.
+- Updated sitemap counts to **115 total**, **63 reviewed**, **51 not started**, and **1 blocked/inaccessible**. The sitemap itself was not re-fetched; it remains the 115-URL set captured in Snapshot 1. Whole-register totals are **132 records** (`reviewed=70`, `not_started=51`, `in_progress=5`, `blocked=6`).
+- No API request, account access, key, WebSocket connection, or account-changing operation occurred.
+
+### Validation after Snapshot 4
+
+- `python3 scripts/validate_sources.py`: **PASS**, 132 source records with 132 unique IDs and URLs; statuses `reviewed=70`, `not_started=51`, `in_progress=5`, `blocked=6`.
+- `python3 scripts/validate_doc_links.py`: **PASS**, 67 relative Markdown links resolve locally and 217 citations match registered source IDs and exact URLs. External URLs were not tested.
+- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: **PASS**, 16 synthetic/offline unit tests (including arithmetic total-return assertion versus explicit initial cash).
+- `python3 scripts/check_market_data.py tests/fixtures/synthetic_ohlcv.csv --interval-seconds 60`: **PASS**, three synthetic rows are structurally valid only.
+- `python3 -m py_compile scripts/validate_sources.py scripts/validate_doc_links.py scripts/check_market_data.py src/wallex_research/*.py tests/test_*.py` and `git diff --check`: **PASS**. Feature 002 task checklist is fully checked; Feature 001 and whole-repository research remain incomplete.

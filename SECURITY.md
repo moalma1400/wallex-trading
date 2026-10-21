@@ -9,7 +9,9 @@
 
 ## Trading actions
 
-This phase is documentation-only. No production REST request, live WebSocket connection, order placement/cancellation/amendment, transfer/withdrawal, or account-setting change is authorized. Public documentation does not itself grant account permission. A future feature involving account access must have its own reviewed specification, explicit user approval, least-privilege permissions, risk controls, and test plan before implementation or use.
+This phase permits only local/offline, strategy-neutral research tooling over synthetic or user-supplied files. No production REST request, public-data fetch, live WebSocket connection, account access, API key, order placement/cancellation/amendment, transfer/withdrawal, or account-setting change is authorized. There is no exchange adapter in scope. Public documentation does not itself grant account permission.
+
+Any future proposal for real exchange use requires a separate reviewed specification, explicit scope approval, security and risk review, least-privilege permissions, and an independent, current jurisdiction-specific legal/compliance gate (including sanctions and access restrictions). Passing this gate cannot be claimed by this project or guaranteed. Leveraged/margin execution, transfers, and withdrawals remain excluded. Paper simulation must be deterministic, offline, and clearly separated from any future exchange adapter.
 
 ## Reporting
 
