@@ -1,6 +1,6 @@
 # Implementation Plan — Feature 005 (Draft)
 
-**Status: Draft for governance review only**
+**Status: Approved for bounded Smart98-mediated public read-only Spot market-data adapter; live execution remains separately gated**
 
 ## Summary
 
@@ -8,7 +8,7 @@ Propose a fully automated, auditable challenge agent whose market data, decision
 
 ## Preconditions
 
-- Constitution and AGENTS.md amendments are reviewed and accepted.
+- Constitution v1.2.0 and AGENTS.md amendments are recorded; implementation scope is limited to verified public read-only Spot data.
 - Exact Smart98-mediated interface, authentication/secret boundary, tool catalog, schemas, and version are evidenced.
 - Security, privacy, risk, and jurisdiction/compliance reviews are recorded.
 - Feature 005 scope and tasks are accepted.
@@ -25,16 +25,16 @@ Propose a fully automated, auditable challenge agent whose market data, decision
 
 ## Proposed sequence
 
-1. Governance review and amendment acceptance.
-2. Inspect current data models, source register, pair registry, replay/shadow contracts, and validators.
-3. Verify Smart98 tool contracts and classify read-only tools from authoritative schemas.
-4. Specify normalized types and error/freshness/completeness contracts.
-5. Implement an opt-in Smart98-only adapter for verified data and explicitly authorized challenge-account order tools; never add a direct Wallex fallback.
-6. Add sanitized fixtures and tests for malformed/partial/stale/out-of-order data, risk-gate failures, order timeout/idempotency, partial fills and reconciliation; all tests remain offline.
-7. Run all offline test suites, source/document validators, pair-registry check, compilation, credential scans, and diff checks.
-8. Update evidence registers, architecture, research log, unresolved questions, and implementation report.
+1. Confirm the amended constitution/AGENTS scope and current PR head.
+2. Inspect current data models, source register, pair registry, replay/shadow contracts, validators, and the recovered Smart98 implementation/fixture documents.
+3. Verify the actual Smart98 tool contract and classify public read-only data tools from authoritative schemas or explicitly recorded observed contracts.
+4. Specify normalized types and error/freshness/completeness contracts without guessing unknown thresholds.
+5. Implement an opt-in Smart98-only public market-data adapter; do not implement order submission in this phase and never add a direct Wallex fallback.
+6. Add sanitized offline fixtures and tests for malformed/partial/stale/out-of-order data, Decimal precision, provenance, errors and fail-closed eligibility; tests remain offline.
+7. Run all offline test suites, source/document validators, pair-registry check, compilation, credential scans, network-client scans and diff checks.
+8. Update evidence registers, capability matrix, architecture, research log, unresolved questions, and implementation report.
 9. Commit and update existing PR #1 after checks pass; verify remote head and PR metadata.
 
 ## Not authorized in this plan
 
-No implementation or network/runtime testing before the preconditions are met. After approval, only explicitly authorized challenge-account Spot orders may be automated; no withdrawals, transfers, deposits, margin, leverage, derivatives or manual evaluated trades. No merge or force-push.
+No new MCP may be installed or configured by the agent; the owner will add any selected MCP manually. No direct Wallex request, private-account read, order submission, or live execution is part of this adapter task. Backtest/shadow/CI tests remain offline. After a separate explicit live activation gate is satisfied in the future, only verified permitted challenge-account Spot orders may be automated; no withdrawals, transfers, deposits, margin, leverage, derivatives or manual evaluated trades. No merge or force-push.
