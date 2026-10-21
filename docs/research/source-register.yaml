@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "format_note": "JSON syntax, which is also valid YAML 1.2; enables dependency-free offline validation. Null publisher dates mean no page-provided publication/update date was observed. Additional source records now track official OpenAPI/Swagger artifacts, but page-reader chunks are transformed/partial and are not byte-for-byte local archives.",
+  "format_note": "JSON syntax, which is also valid YAML 1.2; enables dependency-free offline validation. Null publisher dates mean no page-provided publication/update date was observed. Additional source records now track official OpenAPI/Swagger artifacts, but page-reader chunks are transformed/partial and are not byte-for-byte local archives. User-provided challenge materials use explicit non-official provenance and local source-file hashes; a null URL is permitted only for that source kind.",
   "research_snapshot_utc": "2026-10-21T13:55:33Z",
   "sources": [
     {
@@ -2670,6 +2670,39 @@
         "CREDIT-INTRO"
       ],
       "research_status": "in_progress"
+    },
+    {
+      "source_id": "USER-WALLEX-HACKATHON-BRIEF",
+      "title": "User-provided Arena attachment: arena_wallex_hackathon_knowledge_base_prompt.md",
+      "url": null,
+      "official_domain": null,
+      "documentation_type": "User-provided challenge brief (not independently official-source verified)",
+      "discovery_path": "User attachment supplied in this Arena conversation and preserved verbatim at docs/research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md; its disabled Spot-pair text is extracted verbatim to config/challenge/wallex_disabled_spot_pairs_raw.txt.",
+      "retrieved_at_utc": null,
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "Wallex/Starcoach hackathon",
+        "challenge rules",
+        "Spot market restrictions",
+        "settlement",
+        "scoring rubric"
+      ],
+      "claims_summary": "The attachment is user-provided challenge material. Its statements about duration, 5,000,000-TMN capital, account restrictions, settlement, market exclusions, judging and submissions are not independently verified as official policy. The raw disabled-pair list is preserved separately; canonical JSON records its SHA-256, counts, duplicates, malformed entries and sorted unique pairs.",
+      "confidence_and_evidence_notes": "Primary provenance is the user-provided attachment, not an official Wallex/organizer URL. The full attachment is preserved locally with SHA-256 da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144; the extracted raw pair-list file has separate SHA-256 48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0. Neither hash implies official verification or covers the transfer envelope. The audio mentioned by the task was not present in the available attachments and has not been reviewed.",
+      "related_source_ids": [],
+      "research_status": "reviewed",
+      "source_kind": "user_provided",
+      "source_file": "docs/research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md",
+      "source_file_sha256": "da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144",
+      "source_attachment_name": "arena_wallex_hackathon_knowledge_base_prompt.md",
+      "audio_review_status": "not_accessible_in_workspace",
+      "derived_files": [
+        {
+          "path": "config/challenge/wallex_disabled_spot_pairs_raw.txt",
+          "sha256": "48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0"
+        }
+      ]
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."

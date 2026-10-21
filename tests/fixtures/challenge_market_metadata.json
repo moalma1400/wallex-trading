@@ -1,0 +1,31 @@
+{
+  "evidence_status": "SYNTHETIC_FIXTURE",
+  "observed_at_utc": "2026-10-20T12:00:00Z",
+  "source_url": "file://tests/fixtures/challenge_market_metadata.json",
+  "markets": [
+    {
+      "pair": "SYNTHETICGOOD/TMN",
+      "active": true,
+      "orderable": true,
+      "is_spot": true,
+      "challenge_enabled": true,
+      "price_precision": 2,
+      "amount_precision": 4,
+      "precision_semantics_verified": true,
+      "minimum_order_value_tmn": "1000",
+      "minimum_order_value_verified": true
+    },
+    {
+      "pair": "A/TMN",
+      "active": true,
+      "orderable": true,
+      "is_spot": true,
+      "challenge_enabled": true,
+      "price_precision": 2,
+      "amount_precision": 4,
+      "precision_semantics_verified": true,
+      "minimum_order_value_tmn": "1000",
+      "minimum_order_value_verified": true
+    }
+  ]
+}

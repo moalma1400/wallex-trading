@@ -26,3 +26,8 @@ Run `python3 scripts/validate_sources.py` to validate offline. This validates st
 ## Coverage scope
 
 The coverage matrix enumerates the exact 115 destination URLs returned by the official developer sitemap during the snapshot. At the 2026-10-21 follow-up, 63 page bodies were reviewed, 51 remain `not_started`, and one sitemap URL returned localized not-found content; review does not mean exhaustive schema validation or runtime testing. Five official OpenAPI/Swagger assets linked by those pages are separately registered as `in_progress`; page-reader responses were transformed/chunked, so no byte-for-byte raw copies or checksums are claimed. The legacy API reference is a single long page with embedded navigation; it is tracked as one source and its navigation sections are described separately. Official Wallex website, fee, help-center and regulatory sources remain outside the 115 sitemap-page count.
+
+
+## User-provided challenge attachment
+
+`USER-WALLEX-HACKATHON-BRIEF` is supplemental user-provided evidence, not an official Wallex source and not part of official sitemap totals. Its attachment URL and exact retrieval time are unavailable. The verbatim attachment is retained at `user-sources/arena_wallex_hackathon_knowledge_base_prompt.md`; the extracted disabled-pair list is a separate hash-verified derived file. See [Feature 004 KB](../knowledge-base/README.md). No audio was accessible.

@@ -118,3 +118,25 @@ These counts do not mean complete content coverage. The 88 `not_started` entries
 ### Feature outcome boundary
 
 Feature 003 adds local-only import and audit support backed by synthetic fixtures. The implementation does not claim the source data is Wallex data and does not enable a provider/network path. Check test/validator outcomes in [Feature 003 research](../../specs/003-historical-market-data/research.md) after validation is complete.
+
+
+## Feature 004 — Wallex/Starcoach hackathon policy (2026-10-21)
+
+- Source `USER-WALLEX-HACKATHON-BRIEF` is the user-attached Markdown prompt; it is not independently official-verified. Its verbatim local archive SHA-256 is `da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144`. No public challenge URL or audio attachment was available. No challenge source was fetched or organizer contacted.
+- Preserved the disabled-pair fenced block byte-for-byte as a local raw appendix and derived uppercase sorted JSON. Raw block: 345 entries, 345 unique, zero duplicates/malformed; SHA-256 `48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0`. The pair-list hash covers only that extracted appendix.
+- Added local policy, explicit-config/risk-aware market eligibility, risk limit loader with all 15 numeric limits unset, deterministic pair-registry builder, offline execution boundary, versioned audit event schema, settlement readiness, synthetic-only metadata fixture, and challenge tests. No remote/API/account/credential/order actions were taken.
+- Added English challenge KB/restrictions/judge/demo guides, Persian summary, Feature 004 Spec Kit artifacts, skills, roadmap and source/coverage/unresolved-question updates. Proposed rubric remains explicitly unconfirmed; Feature 002 next-bar-open/cost semantics were preserved.
+- Audio review/transcription remains incomplete because no audio file was present in the workspace. No official challenge source, private account, or network execution was used.
+
+### Offline validation results (2026-10-21)
+
+- `PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_challenge.py' -v`: **PASS**, 27 challenge tests.
+- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: **PASS**, all 55 repository tests, including unchanged Feature 002 next-bar-open/cost regression tests.
+- `python3 scripts/build_challenge_pair_registry.py --check`: **PASS**, derived registry matches raw source; raw=345, unique=345, duplicate pairs/excess=0, malformed=0.
+- `python3 scripts/validate_sources.py`: **PASS**, 133 records/IDs/URLs; reviewed=71, not_started=51, in_progress=5, blocked=6. Full user-source SHA-256 validation and existing HTTPS validation both pass.
+- `python3 scripts/validate_doc_links.py`: **PASS**, 147 relative Markdown links and 245 source citations; network links are not tested.
+- `python3 -m py_compile scripts/*.py src/wallex_research/*.py tests/test_*.py`: **PASS**.
+- `git diff --check`: **PASS**.
+- Challenge source/config audit: **PASS**; full archived attachment and extracted raw pair block match exactly; 345 raw/unique pairs, no duplicates or malformed entries; raw-list SHA-256 `48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0`; cutoff remains null; execution scope offline-only.
+- Offline source scan: **PASS**, no network request clients in new challenge modules; credential-pattern scan of 50 changed/untracked files: **PASS**.
+- No dedicated Spec Kit Markdown validator exists in the repository; new spec/checklist links are covered by the document-link validator. External official sources were not fetched or validated.

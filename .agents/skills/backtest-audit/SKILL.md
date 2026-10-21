@@ -16,3 +16,9 @@ metadata:
 5. Audit cash/position reconciliation, Spot-only bounds, drawdown arithmetic, partial affordability behavior, and deterministic repeated outputs. Reject unsupported shorts/leverage.
 6. Report modeled fills and outputs as scenario arithmetic only. Include uncertainty, drawdowns, costs, data limitations, and out-of-sample limitations; never claim profitability, expected return, suitability, or future execution performance.
 7. Do not connect a backtest to Wallex or Smart98, request keys, or query APIs. Real-use proposals require separate technical/security/risk and jurisdiction-specific legal/compliance review.
+
+## Challenge replay boundary
+
+- Preserve Feature 002's close-observed decision / next-bar-open fill semantics and explicit cost interfaces. Challenge knowledge-base work must not change timing or silently add a fee/slippage model.
+- Label the challenge score breakdown proposed until confirmed; do not count manual trades or optimize volume. A replay is not challenge-account performance or profitability proof.
+- Attach code/config/data hashes and all decision/risk outcomes to any reproducibility report; no live/model/network request is permitted for this offline feature.

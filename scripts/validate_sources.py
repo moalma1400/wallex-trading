@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -61,26 +62,47 @@ def main() -> int:
         else:
             seen_ids.add(sid)
 
+        source_kind = source.get("source_kind", "official")
         url = source["url"]
-        parsed = urlparse(url if isinstance(url, str) else "")
-        if parsed.scheme != "https" or not parsed.hostname:
-            errors.append(f"{prefix}.url must be an absolute https URL")
-        else:
-            if url in seen_urls:
-                errors.append(f"duplicate URL: {url}")
-            seen_urls.add(url)
-            domain = source["official_domain"]
-            if not isinstance(domain, str) or not (parsed.hostname == domain or parsed.hostname.endswith("." + domain)):
-                errors.append(f"{prefix}.official_domain does not match URL host {parsed.hostname}")
-
         retrieved = source["retrieved_at_utc"]
-        if not isinstance(retrieved, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", retrieved):
-            errors.append(f"{prefix}.retrieved_at_utc must be UTC ISO-8601 ending in Z")
+        if source_kind == "user_provided":
+            if url is not None or source["official_domain"] is not None or retrieved is not None:
+                errors.append(f"{prefix} user-provided sources must not claim an official URL/domain/retrieval time")
+            source_file = source.get("source_file")
+            digest = source.get("source_file_sha256")
+            if not isinstance(source_file, str) or Path(source_file).is_absolute() or ".." in Path(source_file).parts:
+                errors.append(f"{prefix}.source_file must be a repository-relative path without traversal")
+            else:
+                file_path = ROOT / source_file
+                try:
+                    file_path.resolve().relative_to(ROOT.resolve())
+                except ValueError:
+                    errors.append(f"{prefix}.source_file resolves outside the repository")
+                    continue
+                if not file_path.is_file():
+                    errors.append(f"{prefix}.source_file does not exist: {source_file}")
+                elif not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest) or hashlib.sha256(file_path.read_bytes()).hexdigest() != digest:
+                    errors.append(f"{prefix}.source_file_sha256 does not match the local source file")
+        elif source_kind == "official":
+            parsed = urlparse(url if isinstance(url, str) else "")
+            if parsed.scheme != "https" or not parsed.hostname:
+                errors.append(f"{prefix}.url must be an absolute https URL")
+            else:
+                if url in seen_urls:
+                    errors.append(f"duplicate URL: {url}")
+                seen_urls.add(url)
+                domain = source["official_domain"]
+                if not isinstance(domain, str) or not (parsed.hostname == domain or parsed.hostname.endswith("." + domain)):
+                    errors.append(f"{prefix}.official_domain does not match URL host {parsed.hostname}")
+            if not isinstance(retrieved, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", retrieved):
+                errors.append(f"{prefix}.retrieved_at_utc must be UTC ISO-8601 ending in Z")
+            else:
+                try:
+                    datetime.strptime(retrieved, "%Y-%m-%dT%H:%M:%SZ")
+                except ValueError:
+                    errors.append(f"{prefix}.retrieved_at_utc is not a valid UTC datetime")
         else:
-            try:
-                datetime.strptime(retrieved, "%Y-%m-%dT%H:%M:%SZ")
-            except ValueError:
-                errors.append(f"{prefix}.retrieved_at_utc is not a valid UTC datetime")
+            errors.append(f"{prefix}.source_kind must be official or user_provided")
 
         pub = source["published_or_updated_at"]
         if pub is not None and (not isinstance(pub, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}(?:T.*)?", pub)):

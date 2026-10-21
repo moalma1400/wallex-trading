@@ -10,6 +10,7 @@ These reusable Markdown procedures are repository guidance, not newly generated 
 - `paper-replay`: local-only simulation, not exchange-connected paper trading.
 - `security-review`: secrets, personal data, and side-effect review.
 - `compliance-gate`: future jurisdiction-specific legal/compliance process; no legal advice.
+- `wallex-hackathon-policy`: provenance-backed user-brief knowledge, offline eligibility/risk/settlement gates, and no-live-mode boundary.
 - `smart98-interface-boundary`: preserve an unspecified integration seam without inventing a provider contract.
 
 All are subordinate to `.specify/memory/constitution.md`, Feature 001/002 specifications, and `AGENTS.md`.

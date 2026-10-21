@@ -15,3 +15,8 @@ metadata:
 4. Keep `.env.example` empty placeholders; do not log secrets or raw user data. Tests and validators must run without network access.
 5. Ensure paper results cannot be sent to an exchange by accidental configuration or environment variable. There is no live adapter to enable.
 6. Report limitations of automated secret scans; do not call a clean scan proof of security. Escalate accidental exposure privately and treat it as compromised.
+
+## Challenge-specific data checks
+
+- Search logs, fixtures, decision events, video captures and reports for member PII, credentials and private account/order data. Common identity fields include phone, national ID and birth date; do not retain them.
+- Verify challenge execution imports and modes are offline-only. Synthetic exchange-looking rows must be conspicuously labeled and can never authorize real orders.

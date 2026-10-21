@@ -10,6 +10,7 @@
 - [حساب و کلید API](account-and-api-keys.md)
 - [وب‌سوکت و داده بازار](websocket-and-market-data.md)
 - [داده تاریخی و کنترل کیفیت محلی (Feature 003)](historical-market-data.md)
+- [خلاصه هکاتون Wallex/Starcoach (Feature 004؛ مبتنی بر فایل کاربر و تأییدنشده)](wallex-hackathon.md)
 - [ریسک‌های عملیاتی](operational-risks.md)
 - [واژه‌نامه](glossary.md)
 

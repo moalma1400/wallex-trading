@@ -38,3 +38,21 @@
 18. Do Smart98 public docs or a reviewed user-supplied interface contract exist? None was verified in this checkout, so no adapter or endpoint has been invented.
 19. Which UDF-history field requiredness and resolution set is canonical? The basic page marks fields Optional; generated `candle-history` and the legacy reference mark them Required, and the modern pages show different resolution examples. See `D-008` and `D-015`; no runtime call is permitted.
 20. Does the sitemap-listed `/docs/weekly` have a replacement or is it retired? The page reader returned a localized not-found body without an HTTP status; the source is `blocked`/`inaccessible` and no reason is inferred.
+
+
+## Wallex / Starcoach hackathon (Feature 004) — organizer confirmation required
+
+These are separate from the official API documentation gaps above. The written attachment is user-provided evidence; do not infer answers from market-data docs.
+
+1. What are the official challenge start, end/cutoff timestamps and timezone, and any pause/resume or late-order policy?
+2. Is the attached disabled Spot-pair list the current version for this challenge account? What signed/versioned source and effective time govern future changes, and what exact market state/orderability fields should be trusted?
+3. Confirm the 5,000,000-TMN allocation, account ownership, credit meaning (not leverage), no-withdrawal restriction, loss liability, profit payout, account-zeroing process, and eligibility/access terms.
+4. Which public market-data and permitted challenge-account interfaces, authentication, order fields, rate limits, error/retry/idempotency, partial-fill and reconciliation semantics are specifically approved? What precision/minimum-order rules apply? No endpoint or field should be guessed.
+5. What are applicable fee/commission schedules and allowed slippage/cost assumptions? What are the official freshness constraints for metadata/market data and any AI output?
+6. Which final pre-cutoff inventory treatment is expected? Is a specific TMN conversion route permitted, executable before cutoff, and how are residual assets and official settlement valuation treated?
+7. Confirm exact realized/unrealized P&L, fee, cutoff snapshot and final-value formula, approximate two-day settlement and zeroing mechanics.
+8. Is the detailed 150/150 sub-rubric still only proposed? What is the final rubric, ranking method, tie-break and activity/volume interpretation?
+9. Confirm submission repository, exact run/log artifacts, video duration/format and any AI disclosure/model replay requirements. What participant privacy handling is expected? This repository must not collect member PII.
+10. Is there an audio recording or other written/official source to reconcile? No audio was available in the workspace; audio review/transcription remains incomplete.
+
+Until traceable answers are supplied, cutoff, market currentness, API/account permissions, fees, risk thresholds, conversion routes and final scoring stay unresolved; related code remains fail-closed and live execution absent.

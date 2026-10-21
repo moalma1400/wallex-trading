@@ -16,3 +16,8 @@ metadata:
 5. Separate direct official statements, observations of returned content, inference, third-party claims, legacy claims, and unknowns. Preserve raw field/path/version spelling. Never infer permissions, current runtime availability, fees, limits, or legal eligibility from examples.
 6. Update the coverage matrix and Persian-first knowledge base; retain broken/blocked/not-found pages and exact observed result. Do not claim complete coverage while sitemap or navigation sources remain unreviewed.
 7. Run the source and citation validators offline; record actual outcomes. This skill is a repository procedure, not a slash command in the current Arena environment.
+
+## User-provided challenge evidence
+
+- Keep `USER-WALLEX-HACKATHON-BRIEF` distinct from official Wallex source records. Do not set a fabricated URL, publication date, or retrieval timestamp for an attachment.
+- Tag claims using the Feature 004 evidence vocabulary; none becomes official without a direct, retrievable official source. The proposed score breakdown must remain explicitly proposed. Record the absent audio as not reviewed.

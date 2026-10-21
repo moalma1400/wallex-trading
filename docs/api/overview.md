@@ -24,3 +24,8 @@
 ## مرز ایمنی و قانونی
 
 این مخزن هیچ API یا WebSocket والکس را فراخوانی نمی‌کند، credential یا حساب خصوصی ندارد، و سفارش/لغو/تغییر/انتقال/برداشت انجام نمی‌دهد. مستند endpoint مجوز، availability یا eligibility را اثبات نمی‌کند. هرگونه استفاده واقعی در آینده منوط به specification و بررسی جداگانه قرارداد/امنیت/ریسک و مشاوره مستقل و به‌روز حقوقی/انطباق متناسب با jurisdiction است؛ هیچ تضمین قانونی داده نمی‌شود. منبع Treasury/OFAC موجود در ثبت پژوهش، ریسک sanctions مهمی را مطرح می‌کند و ارزیابی کامل قانون هلند/اتحادیه اروپا یا شرایط شخصی نیست. [US-TREASURY-WALLEX-DESIGNATION](https://home.treasury.gov/news/press-releases/sb0519) · [OFAC-FAQ-1257](https://ofac.treasury.gov/faqs/1257)
+
+
+## Feature 004 challenge controls (separate from Wallex API docs)
+
+The hackathon brief and its internal offline controls are documented separately from official API contracts. The user-supplied brief is not official-source verification; no endpoint, API field, account rule or current market is inferred from the following architecture. [Feature 004 architecture](challenge-architecture.md) · [challenge knowledge base](../knowledge-base/README.md)

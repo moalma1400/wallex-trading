@@ -15,3 +15,9 @@ metadata:
 4. Include sanctions designation, prohibited dealings, geo/access restrictions, licensing, consumer/financial rules, tax, privacy/data, banking/payment, and the exchange's own eligibility/terms as questions for qualified professionals. Never suggest bypassing identity, sanctions, access, or anti-abuse controls.
 5. Require independent, qualified legal/compliance review and explicit owner approval before considering any separate technical proposal. Do not state the gate is passed on the basis of public API docs, tests, or a model's interpretation.
 6. Document that review is time-sensitive and no legality or account eligibility is guaranteed. Do not provide individualized legal advice.
+
+## Challenge-specific restrictions
+
+- Treat `docs/knowledge-base/wallex-agentic-ai-hackathon.md` as a user-brief record, not official legal/account authorization. Explicitly distinguish user-provided terms, internal inference and unresolved organizer questions.
+- Do not request or retain member PII, personal account data, credentials, private order history, or identity documents. Never help bypass disabled withdrawals, access restrictions, sanctions screening or market exclusions.
+- Spot-only research controls prohibit margin, leverage, borrow, shorts and derivatives; no account, order, transfer, deposit or withdrawal action is in scope.

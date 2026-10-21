@@ -10,3 +10,8 @@
 ## داده تاریخی محلی
 
 Feature 003، metadata نماد را از فایل محلیِ ارائه‌شده کاربر می‌پذیرد و مقادیر `price_precision`/`amount_precision` مستند را به قانون اجرایی تبدیل نمی‌کند. سقف precision، نمادهای شناخته‌شده، فاصله، بازه و freshness باید برای هر audit صریح تعیین شوند. اختلاف host، ساختار و security note بین صفحه‌های رسمی همچنان باز است؛ هیچ endpointی فراخوانی نشده است. [MARKETS](https://developers.wallex.ir/docs/basic-services-markets) · [MOD-GENERATED-GET-MARKETS](https://developers.wallex.ir/docs/generated/get-markets) · [Feature 003](../../specs/003-historical-market-data/spec.md) · [D-017](../research/discrepancies.md)
+
+
+## محدودیت‌های هکاتون (منبع مجزا و تأییدنشده)
+
+قواعد مسابقه و فهرست جفت‌ارزهای غیرفعال، از فایل ارسالی کاربر هستند و نباید با قرارداد رسمی بازار/API یکی گرفته شوند. نبودن جفت‌ارز در آن فهرست، مجاز یا سفارش‌پذیر بودن را ثابت نمی‌کند. جزئیات در [خلاصه فارسی هکاتون](wallex-hackathon.md) و [صفحه محدودیت‌های بازار](../knowledge-base/wallex-hackathon-market-restrictions.md) آمده است.

@@ -15,3 +15,9 @@ metadata:
 4. Test deterministic failure behavior, cash conservation, cost deduction, and drawdown calculation with synthetic data. Note modeled risks omitted by the simplified engine (liquidity, gaps, latency, queue position, precision, venue rejection, and live failures).
 5. A local risk limit is not a recommendation, safety guarantee, or permission to use an exchange. Keep margin/leverage execution excluded.
 6. Any real exchange use remains blocked until a separate current contract/security/risk review and jurisdiction-specific legal/compliance review; never imply legality is guaranteed.
+
+## Challenge-specific gate
+
+- For Feature 004, load limits from `config/challenge/wallex_hackathon_policy.json`; null or missing limits are an explicit veto, not an invitation to choose defaults. The loader ignores numeric values unless configuration status is `REVIEWED_INTERNAL` with evidence status. These are internal controls, not official Wallex/organizer limits.
+- Require independent strategy approval, reconciled local state, fresh trusted metadata, known fees/costs, and a supported settlement quote. Normalize pair syntax before evaluating.
+- Preserve machine-readable blocker reasons and deterministic audit references. Do not add an order-submission action.

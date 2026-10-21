@@ -188,3 +188,12 @@ The market-data implementation refers only to the exact official pages and artif
 | Tickers and WebSocket semantics | [all price](https://developers.wallex.ir/docs/socket-all-price), [fair price](https://developers.wallex.ir/docs/socket-fair-price), [trades](https://developers.wallex.ir/docs/socket-trade), [buy depth](https://developers.wallex.ir/docs/socket-buy-depth), [candle](https://developers.wallex.ir/docs/socket-candle) | Selected socket pages reviewed; records reviewed | No initial snapshot/replay for several feeds; exact runtime ordering, feed permission and data completeness are unverified. |
 
 All available chunks for Basic Services (6/6) and Spot (3/3) were examined for relevant market-data schemas. This does **not** mean original artifact bytes were downloaded or archived; outputs were transformed reader chunks. Margin (1/5), OTC (1/2), and Trade Credit (1/16) chunk review remains partial. All five artifact records remain `in_progress`, and no artifact SHA-256 is claimed.
+
+
+## Supplemental user-provided challenge evidence (not part of official sitemap counts)
+
+| Source ID | Source | Status | Scope and limits |
+|---|---|---|---|
+| `USER-WALLEX-HACKATHON-BRIEF` | Arena attachment `arena_wallex_hackathon_knowledge_base_prompt.md` (URL unavailable) | Reviewed as user-provided, not official verified | Challenge rules/market exclusions inform Feature 004 KB and offline tests. The raw disabled-pair appendix is hash-verified; no official terms were independently confirmed. Audio was not available. |
+
+See the [Feature 004 challenge KB](../knowledge-base/README.md). This supplemental record does not change the 115-page official sitemap counts or the official source totals.

@@ -16,3 +16,8 @@ metadata:
 5. Add a discrepancy entry with each side's exact evidence, conservative interpretation, confidence, and unresolved question. Update `docs/api/` and Persian-first `docs/fa/` summaries.
 6. Account-changing, margin, wallet, withdrawal, and private-data endpoints are still only documentation evidence and must never be executed. Do not prepare executable request payloads for a user's account.
 7. Mark a page `reviewed` only after enough content was inspected to support its summary; use `in_progress` when returned content is truncated. Contract review never grants integration approval.
+
+## Challenge contracts are not exchange contracts
+
+- Feature 004 internal metadata/risk/event contracts must not be described as Wallex request or response fields. No new endpoint, error semantics, precision meaning, fee, freshness limit or conversion path may be inferred.
+- Official-source market docs do not independently verify challenge terms or the supplied disabled list. Keep these source families separate and unknown values fail closed.

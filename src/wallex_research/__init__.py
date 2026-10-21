@@ -28,6 +28,23 @@ from .historical_quality import (
     AuditIssue, AuditPolicy, AuditReport, audit_dataset, export_replay_csv,
     write_audit_reports,
 )
+from .challenge import (
+    ChallengeModePolicy, ChallengePolicyError, DisabledPairRegistry,
+    EligibilityDecision, MarketRequest, MarketSnapshot, build_disabled_pair_registry,
+    is_challenge_spot_market_allowed, load_challenge_mode_policy, normalize_spot_pair,
+)
+from .challenge_risk import (
+    ChallengeRiskLimits, RiskGateDecision, RiskObservation, RiskProposal,
+    evaluate_challenge_risk, load_challenge_risk_limits,
+)
+from .challenge_execution import DispatchResult, ExecutionMode, dispatch_order_intent
+from .challenge_settlement import (
+    SettlementReadiness, SettlementSnapshot, validate_settlement_readiness,
+)
+from .decision_log import (
+    DecisionAuditLog, DecisionEvent, DecisionLogError, EventOrigin,
+    StructuredAIOutput,
+)
 
 __all__ = [
     "Candle",
@@ -68,6 +85,33 @@ __all__ = [
     "parse_local_bytes",
     "record_to_dict",
     "write_audit_reports",
+    "ChallengeModePolicy",
+    "ChallengePolicyError",
+    "build_disabled_pair_registry",
+    "DisabledPairRegistry",
+    "EligibilityDecision",
+    "MarketRequest",
+    "MarketSnapshot",
+    "is_challenge_spot_market_allowed",
+    "load_challenge_mode_policy",
+    "normalize_spot_pair",
+    "ChallengeRiskLimits",
+    "RiskGateDecision",
+    "RiskObservation",
+    "RiskProposal",
+    "evaluate_challenge_risk",
+    "load_challenge_risk_limits",
+    "DispatchResult",
+    "ExecutionMode",
+    "dispatch_order_intent",
+    "SettlementReadiness",
+    "SettlementSnapshot",
+    "validate_settlement_readiness",
+    "DecisionAuditLog",
+    "DecisionEvent",
+    "DecisionLogError",
+    "EventOrigin",
+    "StructuredAIOutput",
     "load_candles",
     "run_replay",
 ]

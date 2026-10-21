@@ -15,3 +15,9 @@ metadata:
 4. Call the output a local paper ledger or modeled replay, not exchange-connected paper trading and not a real fill. Record limitations; no order API, key, private WebSocket, wallet, transfer, or withdrawal is allowed.
 5. Compare repeat runs for determinism and validate all arithmetic with tests. No strategy performance or profitability conclusion follows from successful replay.
 6. Stop and require a separate feature/legal/security review if asked to connect a feed, exchange, or Smart98 service.
+
+## Challenge-mode isolation
+
+- `backtest`, `shadow` and `dry_run` remain local record-only modes. Assert no submitter invocation in tests; `live` must return a blocker because no live adapter exists.
+- Fail closed on unknown market state, disabled-list integrity errors, missing risk limits, stale signals, unknown fees or unreconciled state. Never infer permission from absence in the excluded list.
+- Separate realized/unrealized P&L, fees, TMN cash, non-TMN assets and internal estimates. Do not mark settlement ready without exact official cutoff and a permitted evidenced conversion route.

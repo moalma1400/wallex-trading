@@ -21,3 +21,8 @@ metadata:
 9. Use `audit` with caller-supplied known symbols, interval, expected start/end, as-of/max age and per-field precision. Missing policy is unknown and blocks replay eligibility. Do not borrow synthetic fixture values as production policy.
 10. Only export candle data to Feature 002 after an eligible audit. The output remains the existing seven-column schema; it is not exchange-connected paper trading. Inspect the sidecar, hashes and warnings, and retain the audit report with any result.
 11. For undocumented source semantics (trade IDs, pagination, timestamp boundaries, retention, depth atomicity or numeric units), preserve the supplied representation and record unknowns. Official docs and fixtures are not runtime access/permission evidence.
+
+## Challenge market-eligibility boundary
+
+- The Feature 004 disabled-pair JSON is derived from its raw user-provided list; it is not an active-market registry. The absence of a pair from it must never be treated as permission or proof of orderability.
+- Require current, trusted, noncontradictory source evidence and explicit freshness/orderability/Spot states before any internal eligibility result. Missing thresholds or source provenance block. Synthetic metadata passes only in explicit test-only mode.

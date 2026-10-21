@@ -11,3 +11,10 @@
 - Never select a strategy, market, timeframe, fee, leverage, capital amount, or risk tolerance for the user. Require explicit inputs for simulation assumptions; do not treat examples as exchange evidence.
 - Run `python3 scripts/validate_sources.py`, `python3 scripts/validate_doc_links.py`, the applicable offline test suite, and `git diff --check` before proposing changes. Validators and tests must not use the network.
 - Do not commit secrets, private account data, generated caches, or local tool environments.
+
+## Feature 004 — challenge-specific constraints
+
+- Treat `docs/knowledge-base/` and `specs/004-wallex-hackathon-policy/` as the challenge knowledge base. The uploaded brief is user-provided evidence, not independently official-verified; use the five evidence tags defined there. Keep proposed scoring explicitly proposed.
+- Preserve the raw disabled-market list verbatim and derive a single canonical list; absence from exclusions is never authorization. Challenge eligibility, risk and settlement must fail closed on missing, stale, contradictory or untrusted evidence.
+- Spot-only. Never add margin, leverage, borrowing, shorting, derivatives, deposits, transfers, withdrawals, account access or live order submission. Backtest/shadow/dry-run remain offline and Feature 002's next-bar-open/cost contracts stay unchanged.
+- Do not store member PII, credentials, or private account/order data. No audio was available; do not claim audio review/transcription.
