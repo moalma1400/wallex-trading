@@ -44,7 +44,7 @@ No direct Wallex application/API calls or direct-access fallback. No withdrawal,
 ## Open questions
 
 - What approved, versioned Smart98 contract documents the mediation path and tool schemas?
-- Which actual public tools and fields are available, and what are timeout, retry, pagination, and truncation semantics?
+- Which Smart98-mediated market-data and challenge-account order tools/fields are actually available, and what are their permissions, timeout, retry/idempotency, partial-fill, cancellation, pagination and truncation semantics?
 - How are market-data retrieval time and source provenance represented?
 - What evidence is required for current jurisdiction/compliance approval before any real exchange use?
 
