@@ -34,5 +34,5 @@ Proposed text:
 - [ ] Constitution version and amendment record are updated only after acceptance.
 - [ ] AGENTS.md is changed only after acceptance.
 - [ ] Feature 005 spec/plan/tasks are approved before implementation.
-- [ ] Exact Smart98 contract and read-only tool schemas are independently evidenced.
+- [ ] Exact Smart98 mediation contract, market-data schemas, challenge-account permissions, and order lifecycle schemas are independently evidenced.
 - [ ] Existing PR #1 remains open and unmerged; no second PR is created.
