@@ -8,6 +8,16 @@ Feature Specification: Fully Automated Smart98-Mediated Wallex Challenge Agent
 
 The owner approved preparing a formal scope/governance proposal. The current constitution v1.1.0 and AGENTS.md remain authoritative and require offline-only work, so this feature is not permission to implement an adapter or perform network requests. It proposes a narrowly bounded future capability: public, read-only Spot market data through Smart98 only.
 
+## Competition context and automation priority
+
+This is a time-bounded trading hackathon, not a bug-bounty/security-testing engagement. The product goal is an autonomous agent capable of repeated market-data → decision → risk check → order execution → order/fill reconciliation cycles throughout the approximately two-day trading window described by the owner. The product must not be reduced to an offline-only research tool, signal recommender, or workflow that requires a human to approve every trade.
+
+Within official challenge rules and verified dedicated-account permissions, the agent may use available Skills, MCP servers, tools, AI models, Agentic AI frameworks, and market-analysis utilities. The system should select tools based on verified capability and reliability, not impose a bug-bounty-specific prohibition merely because this is a financial platform. Tool availability alone does not prove a tool's exact schema, side effects, or permission scope; these must be verified before wiring them into execution.
+
+Every evaluated trading decision and order must be algorithmic. A deterministic risk gate, allowed-market registry, order-state reconciliation, safe handling of timeouts/retries, and audit logs remain mandatory. The agent must not perform prohibited account actions, manual evaluated trades, self-trading, wash trading, or market manipulation. “Use any skill/MCP/tool” means use any suitable tool within the challenge's verified permissions and rules, not bypass those rules or risk controls.
+
+This section records the intended product scope. It does not itself amend the current constitution or authorize live network/account actions; the governance proposal must be reviewed and accepted before implementation.
+
 ## User story
 
 As a hackathon participant, I want an autonomous, auditable trading agent that obtains permitted market data, decides, applies deterministic risk checks, submits and manages permitted orders, and records every decision through Smart98-mediated tools, so that all evaluated trades are algorithmic rather than manually placed.
