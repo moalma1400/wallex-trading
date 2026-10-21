@@ -51,6 +51,20 @@ No direct Wallex application/API calls or direct-access fallback. No withdrawal,
 11. Live execution stays disabled until governance, exact tool contract, challenge-account permissions, compliance review and an explicit separate activation decision are recorded.
 12. Existing PR #1 is updated in place only after review; no second PR, force-push, or merge.
 
+## Technical judging criteria and evidence matrix
+
+The owner-provided rubric describes 150 technical points across five criteria. Until independently confirmed by the organizer, retain its provenance as user-provided/proposed; nevertheless, use it as a core engineering acceptance matrix rather than documentation-only guidance.
+
+| Criterion | Points (provided rubric; confirmation pending) | Required implementation evidence |
+|---|---:|---|
+| Strategy logic | 40 | Explainable entry/exit hypotheses, supporting and contradictory evidence, strategy tests, and reproducible decisions. |
+| Genuine AI use | 35 | Model output materially influences decisions; record model/prompt versions and input/output; tests distinguish AI analysis from deterministic rules. |
+| Risk and capital management | 30 | Deterministic pre-trade controls, configured order-size/exposure limits, fee-aware sizing, loss/drawdown gates, and fail-closed tests. |
+| Reproducibility | 25 | Run guide, versioned code/config/data, traceable decision/order/fill/fee records, and repeatable tests. |
+| Backtesting and shadow testing | 20 | Chronological evaluation, no lookahead leakage, explicit costs, relevant metrics, and proof shadow mode cannot submit real orders. |
+
+Maintain a traceability matrix mapping each criterion to source files/Skills, specification/task IDs, automated tests, evidence artifacts, and status (PASS, PARTIAL, FAIL, or NOT TESTED). Never claim points earned or tests passed without recorded evidence. Preserve Feature 002's next-bar-open/cost contract. The AI model may inform strategy decisions but must never override deterministic risk or challenge-eligibility gates.
+
 ## Open questions
 
 - What approved, versioned Smart98 contract documents the mediation path and tool schemas?
