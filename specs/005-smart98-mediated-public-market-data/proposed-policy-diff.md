@@ -20,6 +20,14 @@ Proposed text:
 
 > The current implementation phase permits local/offline, strategy-neutral research tools using synthetic or user-supplied files. Only if Feature 005 and the corresponding governance amendment are explicitly accepted may a narrowly scoped public, read-only Spot market-data adapter be implemented, and then only through a verified Smart98-mediated interface. Never connect the trading application directly to Wallex or use direct access as fallback. Do not implement private account reads, credentials in the application/model context, order submission/amendment/cancellation, transfers, deposits, withdrawals, wallet operations, margin, leverage, borrowing, shorting, derivatives, or any other state-changing capability. Keep adapters opt-in and fail-closed; reuse the canonical disabled-pair registry and deterministic risk gates. Tests and validators must not use the network. No production smoke test is authorized by this exception.
 
+## Proposed explicit statement: hackathon is not bug bounty
+
+Add the following to the constitution amendment rationale and to `AGENTS.md` after the amendment is accepted:
+
+> This repository's target is a time-bounded autonomous trading hackathon, not a bug-bounty or security-testing project. Do not import bug-bounty-specific restrictions that prevent the intended trading agent from operating. Within official challenge rules and verified dedicated challenge-account permissions, the agent may use suitable Skills, MCP servers, tools, AI models, Agentic AI frameworks and market-analysis utilities to perform the complete evaluated workflow autonomously: market-data retrieval, decision-making, deterministic risk validation, permitted order submission, order/fill management, and auditable logging. Manual trades do not count as evaluated algorithmic performance. This does not authorize prohibited account actions, out-of-scope markets, direct Wallex fallback, manipulation, self-trading, wash trading, or bypassing risk controls. Verify real tool schemas and permissions; do not invent them.
+
+This addition is proposed only. It does not become effective until reviewed and accepted, and it does not independently activate a live adapter.
+
 ## Other policy references requiring review
 
 - README.md: update the phase description only after the amendment is accepted.
