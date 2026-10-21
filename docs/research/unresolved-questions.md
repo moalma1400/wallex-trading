@@ -88,3 +88,17 @@ These are separate from the official API documentation gaps above. The written a
 10. Can the original audio or raw ASR transcript be supplied to verify the inline cleaned working transcript? The Persian transcript is now archived as `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT`, but no audio binary is available; wording, speaker identity/affiliation, the 00:03:33-to-00:03:54 gap, prize amount(s), MCP claim, and demo consequences remain unverified.
 
 Until traceable answers are supplied, cutoff, market currentness, API/account permissions, fees, risk thresholds, conversion routes and final scoring stay unresolved; related code remains fail-closed and live execution absent.
+
+
+## Feature 005 — Smart98-mediated public Spot market data (proposal, 2026-10-22)
+
+The owner authorized preparing a governance amendment proposal. This is not acceptance of the amendment and does not override the current offline-only constitution or AGENTS.md.
+
+1. Which exact constitution and AGENTS.md amendment will be accepted, and who reviews/accepts it? Until accepted, the existing offline-only boundary remains binding.
+2. What canonical Smart98 documentation and version define the supported mediation interface, transport, auth, tool catalog, tool schemas, permissions, error/timeout behavior, and secret isolation?
+3. Which tools are confirmed strictly public/read-only? Tool names or marketing examples are insufficient; inspect schemas and side effects without invoking any write-capable tool.
+4. What are the precise timestamp units, retrieval timestamps, candle completeness/truncation and pagination semantics, depth limits, recent-trade limits, symbol naming, and rate/error behavior?
+5. What current, independent jurisdiction/compliance review is required before any real Wallex use? This proposal does not determine legality or eligibility.
+6. Does the owner approve implementation after the governance and contract evidence gates pass? The present approval covers preparing this proposal only.
+
+**Current decision state:** constitution amendment not accepted; AGENTS.md amendment not accepted; adapter implementation not authorized; network/runtime testing not authorized; all private and state-changing capabilities remain prohibited. See [Feature 005 spec](../../specs/005-smart98-mediated-public-market-data/spec.md), [plan](../../specs/005-smart98-mediated-public-market-data/plan.md), [tasks](../../specs/005-smart98-mediated-public-market-data/tasks.md), and [governance amendment proposal](../../specs/005-smart98-mediated-public-market-data/governance-amendment-proposal.md).
