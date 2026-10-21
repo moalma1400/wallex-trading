@@ -1,0 +1,1 @@
+{"result":{"markets":[{"symbol":"SYNTHETIC_XYZ","base_asset":"SYNTHETIC","quote_asset":"UNIT","is_spot":true,"is_otc":false,"is_margin":false,"amount_precision":4,"price_precision":2}]}}

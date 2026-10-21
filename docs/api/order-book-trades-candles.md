@@ -13,3 +13,7 @@ The new candle guide documents only `1m`, `1h`, and `1d` channel examples (`cand
 The v2 trade feed sends new public trades and does not replay messages missed during disconnect. Buy/sell depth feeds publish complete snapshots (not deltas), but no initial snapshot is sent on subscription; reconnect does not recover missed snapshots. These are feed reliability constraints, not a runtime validation of either feed. [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade) · [MOD-SOCKET-BUY-DEPTH](https://developers.wallex.ir/docs/socket-buy-depth) · [MOD-SOCKET-SELL-DEPTH](https://developers.wallex.ir/docs/socket-sell-depth) · [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol)
 
 Rate limits, pagination, REST timestamp boundaries, maximum history windows, candle boundary alignment, market precision, and endpoint-specific auth remain unresolved or only partially documented. No request or WebSocket connection was made.
+
+## Local Feature 003 boundary
+
+Feature 003 imports only caller-provided local files and preserves original bytes. Its strict canonical records retain decimals and timezone/provenance; it does not choose among the conflicting modern/generated/legacy hosts, auth annotations, requiredness or numeric encodings. See [research and explicit unknowns](../../specs/003-historical-market-data/research.md), [discrepancy register](../research/discrepancies.md), and [pipeline note](historical-data-pipeline.md). No pagination, history-retention, timestamp-boundary or numeric rate-limit assumption is encoded.

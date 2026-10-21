@@ -9,6 +9,7 @@
 - [کارمزدها و هزینه‌ها](fees-and-costs.md)
 - [حساب و کلید API](account-and-api-keys.md)
 - [وب‌سوکت و داده بازار](websocket-and-market-data.md)
+- [داده تاریخی و کنترل کیفیت محلی (Feature 003)](historical-market-data.md)
 - [ریسک‌های عملیاتی](operational-risks.md)
 - [واژه‌نامه](glossary.md)
 

@@ -22,3 +22,6 @@ secrets/
 
 # Local-only tool/agent state (Spec Kit project instructions remain versioned)
 .specify/local/
+
+# Feature 003 local-only market data store/reports
+.local-market-data/

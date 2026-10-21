@@ -96,8 +96,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "GET /v1/udf/history and query/response fields; docs table marks fields Optional and lists resolutions.",
-      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time.",
+      "claims_summary": "GET /v1/udf/history; the prose table marks `symbol`, `resolution`, `from`, and `to` optional and lists one resolution set. It documents UDF arrays `t,c,o,h,l,v`; generated and Swagger evidence has different requiredness/example lists, so those contracts remain separate.",
+      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -156,8 +156,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "GET /v1/depth returns ask/bid; documentation cautions frequent requests may encounter rate limits.",
-      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time.",
+      "claims_summary": "GET /v1/depth returns bid/ask levels and the prose warns that repeated polling may encounter rate limits without giving a numerical ceiling. Examples mix numeric fields and string `sum`; generated/spec representations differ. No request was made.",
+      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -196,8 +196,8 @@
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "GET /v1/trades, optional symbol according to parameter table, response latestTrades; frequent polling may be rate-limited.",
-      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session; no publisher date was exposed. This documents the text, not current runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time.",
+      "claims_summary": "GET /v1/trades returns recent-trade fields including `symbol`, decimal-like `quantity`, `price`, `sum`, `isBuyOrder`, and timestamp. The prose calls `symbol` optional; generated page marks it required and shows x-api-key. Repeated polling warning is qualitative; no numerical limit, pagination or stable trade ID is established.",
+      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session; no publisher date was exposed. This documents the text, not current runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -236,8 +236,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "GET /hector/web/v1/markets and market metadata field names; values are examples/schema, not current runtime data.",
-      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time.",
+      "claims_summary": "GET /hector/web/v1/markets and market metadata field names include `amount_precision` and `price_precision`; values/examples do not establish current state or precision semantics. Generated host/security annotations differ; no request was made.",
+      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -436,8 +436,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Generated page documents `GET https://api.wallex.com/v1/udf/history`; query fields symbol/resolution/from/to are marked required and response is UDF arrays s/t/c/o/h/l/v. This differs from the basic UDF page table marking these fields Optional. x-api-key is shown; no request made.",
-      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request.",
+      "claims_summary": "Generated page states GET https://api.wallex.com/v1/udf/history, marks symbol/resolution/from/to required, and shows UDF arrays plus a different resolution example set. It differs from the basic page requiredness/resolutions and host statement; no request.",
+      "confidence_and_evidence_notes": "The exact official generated page was returned as one complete reader chunk and inspected on 2026-10-21. Timestamp is the session snapshot compilation time, not an exact per-request time. Documentation text only; no API or private account request. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -798,8 +798,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Generated endpoint page states GET //api.wallex.com/depth/all and ask/bid arrays; no version prefix is shown. Leading double-slash form and host differ from other official references; no runtime test.",
-      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
+      "claims_summary": "Generated page states GET //api.wallex.com/depth/all and bid/ask arrays without a version prefix, differing from legacy /v2/depth/all. Documentation only; no route was called.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -818,8 +818,8 @@
       "topics": [
         "Spot / orders"
       ],
-      "claims_summary": "Generated page states GET https://api.wallex.com/v1/trades with required symbol and latestTrades fields (quantity, price, sum, isBuyOrder, timestamp); it documents x-api-key. Host differs from overview; no request made.",
-      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
+      "claims_summary": "Generated page states GET https://api.wallex.com/v1/trades with required symbol, latestTrades fields (`quantity`, `price`, `sum`, `isBuyOrder`, `timestamp`) and x-api-key annotation. This remains distinct from the prose contract; no request.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -878,8 +878,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Generated endpoint page states GET https://api.wallex.com/v1/depth?symbol=... and ask/bid price/quantity/sum fields. Example numeric representations vary; schema is not runtime-verified.",
-      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
+      "claims_summary": "Generated page states GET https://api.wallex.com/v1/depth?symbol=... and bid/ask level fields; examples/schema show numeric depth fields, differing from some prose representation. It documents x-api-key; no request or runtime validation.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -898,8 +898,8 @@
       "topics": [
         "Market data / market discovery"
       ],
-      "claims_summary": "Generated endpoint page states GET https://api.wallex.com/hector/web/v1/markets and lists market metadata fields including spot/OTC/margin flags and precision fields. This conflicts with the developer overview host api.wallex.ir; no runtime test.",
-      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only.",
+      "claims_summary": "Generated page gives GET https://api.wallex.com/hector/web/v1/markets, market fields including spot/OTC/margin flags and precision fields, and an x-api-key security annotation. It differs from overview/basic host statements; documentation only.",
+      "confidence_and_evidence_notes": "The exact official page body was returned as one complete reader chunk and inspected during the 2026-10-21 UTC research session. The page reader does not expose per-request timestamps, so retrieved_at_utc is the compilation snapshot, not an exact individual request time. No Wallex endpoint was called; the summary records documentation text only. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -1640,8 +1640,8 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Full three-method page reviewed: v1 websocket is described as deprecated (still working), new integrations should use Centrifugo v2; all-price sends changes only, no initial value/history, and channel names are case-sensitive. No connection opened.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
+      "claims_summary": "V2 Centrifugo channel `public:all@price` publishes changed-market prices only, without initial snapshot or history/replay. V1 `/ws` is described as deprecated; no connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -1660,8 +1660,8 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Full page reviewed: orderbook buy-depth messages are full snapshots rather than deltas; subscription sends no initial snapshot; v1 is described as deprecated; dropped events are not replayed. No connection opened.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
+      "claims_summary": "V2 buy-depth publication is a full snapshot, not delta; subscription gives no initial book and missed publications cannot be recovered from channel history. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -1680,8 +1680,8 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Full page reviewed: candle channel supports 1m/1h/1d examples and UDF OHLCV payload; open candle updates replace by `t`; UDF history and up to 10 channel messages within 2 minutes are described for synchronization. No connection opened.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
+      "claims_summary": "V2 candle updates replace the open candle by timestamp `t`, not offset; guide gives 1m/1h/1d examples, up to 10 recent messages retained for two minutes, and directs UDF reload after reconnect. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -1720,8 +1720,8 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Full page reviewed: v2 all-fairPrice periodic full price snapshots with `ts` and `prices`; page states ~20 second cadence, sometimes 35 seconds, missing symbols possible, and no history/replay. No connection opened.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
+      "claims_summary": "V2 `public:all@fairPrice` publishes full snapshots approximately every 20 seconds (sometimes about 35); page recommends a REST snapshot and another after over 60 seconds without a message, and notes `prices` can omit unavailable symbols. No history/replay; no connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -1860,8 +1860,8 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Full page reviewed: v2 public trade messages include `isBuyOrder`, quantity/price decimal strings, and timestamp; no initial trade/history or reconnect replay is described; v1 is deprecated. No connection opened.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
+      "claims_summary": "V2 `public:<SYMBOL>@trade` emits new trades only, with decimal strings and ISO timestamp; no initial/history/replay. The documented `isBuyOrder` maker-side meaning is retained without reinterpretation. No connection opened.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
@@ -2576,8 +2576,8 @@
         "API schema",
         "partial artifact review"
       ],
-      "claims_summary": "The page reader returned the initial chunk of an OpenAPI/Swagger artifact. It declares host api.wallex.com and includes wallet, bank/IBAN, and money-withdrawal routes. Remaining chunks were not reviewed and no byte-for-byte local copy/hash was preserved.",
-      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "claims_summary": "All six page-reader chunks were examined for market-data evidence: UDF arrays, recent-trade fields, market metadata (including amount_precision/price_precision), and depth examples/schema. Reader output is transformed; it is not a byte-exact archive, raw checksum or exhaustive artifact review.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-BASIC-SERVICES"
       ],
@@ -2598,8 +2598,8 @@
         "API schema",
         "partial artifact review"
       ],
-      "claims_summary": "Initial artifact chunk declares host api.wallex.com and shows market/depth and account-order paths. It is clipped and not a complete endpoint/schema review or raw-file archive.",
-      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "claims_summary": "All three page-reader chunks were examined for relevant market metadata and depth schemas; private Spot order/trade resource definitions were kept distinct from public recent trades. Reader output is transformed; no exact-byte archive/checksum or exhaustive artifact review.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-GENERATED-SPOT"
       ],
@@ -2620,8 +2620,8 @@
         "API schema",
         "partial artifact review"
       ],
-      "claims_summary": "Initial artifact chunk declares host api.wallex.ir and margin-trade paths including order/position reads and state-changing position operations. Remaining content is unreviewed; no runtime access.",
-      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "claims_summary": "Only chunk 0 of 5 was reviewed. The remaining chunks are not reviewed; returned reader text is transformed, not an exact-byte archive. No runtime access.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "MOD-GENERATED-WALLEX-MARGIN-TRADE-API"
       ],
@@ -2642,8 +2642,8 @@
         "API schema",
         "partial artifact review"
       ],
-      "claims_summary": "Initial artifact chunk declares host api.wallex.ir and includes OTC markets, quote, and easy-trade order operations. The page reader returned further chunks; not exhaustively reviewed or preserved byte-for-byte.",
-      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "claims_summary": "Only chunk 0 of 2 was reviewed. The remaining chunk is not reviewed; returned reader text is transformed, not an exact-byte archive. No runtime access.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "OTC-INTRO"
       ],
@@ -2664,8 +2664,8 @@
         "API schema",
         "partial artifact review"
       ],
-      "claims_summary": "Initial artifact chunk declares server https://api.wallex.ir and includes trade-credit/sub-account operations; the reader reports many further chunks. It is partial and not a byte-for-byte local archive.",
-      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made.",
+      "claims_summary": "Only chunk 0 of 16 was reviewed. Remaining chunks are not reviewed; returned reader text is transformed, not an exact-byte archive. No runtime access.",
+      "confidence_and_evidence_notes": "Retrieved through the official documentation page reader on 2026-10-21. The response is transformed into text and chunked; exact original bytes, full file, content hash, and publisher release metadata were not preserved. No API requests were made. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
       "related_source_ids": [
         "CREDIT-INTRO"
       ],

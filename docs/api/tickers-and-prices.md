@@ -1,7 +1,7 @@
 # Tickers and prices
 
-The legacy reference describes market statistics within `GET /v1/markets` and a global crypto statistics endpoint `GET /v1/currencies/stats`. Examples include bid/ask/last prices, 24h/7d changes and volume; examples include old dated values. [LEGACY-API](https://api-docs.wallex.ir/)
+The legacy reference describes market statistics within `GET /v1/markets` and `GET /v1/currencies/stats`; the newer market metadata page documents `/hector/web/v1/markets`. Examples may contain dated values. Preserve these source contracts separately. [LEGACY-API](https://api-docs.wallex.ir/) · [MARKETS](https://developers.wallex.ir/docs/basic-services-markets) · [D-012](../research/discrepancies.md)
 
-The modern sitemap contains pages for `public:all@price` and `public:all@fairPrice` WebSocket channels, but only `socket-intro` was reviewed in this pass for the names and public channel classification. Payload contracts and semantics for individual price channels remain not reviewed. [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [MOD-SITEMAP](https://developers.wallex.ir/sitemap.xml)
+The v2 `public:all@price` WebSocket page describes incremental changed-price messages without an initial snapshot or history. `public:all@fairPrice` describes periodic full snapshots with `ts` and `prices`, with temporarily omitted symbols possible. Fair price is not last-trade price or a substitute for market metadata. No feed is connected by this repository. [MOD-SOCKET-ALL-PRICE](https://developers.wallex.ir/docs/socket-all-price) · [MOD-SOCKET-FAIR-PRICE](https://developers.wallex.ir/docs/socket-fair-price)
 
-Do not treat market statistics or examples as execution prices, guarantees, or current values.
+No timestamp boundary, numerical rate limit, REST pagination, maximum history window, or entitlement is assumed. Do not treat documentation as runtime availability, execution price, guarantee, or current value. Feature 003 models fair-price snapshots only where a source event timestamp is present; its import remains local and user-supplied. [Feature 003 pipeline](historical-data-pipeline.md)

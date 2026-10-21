@@ -16,6 +16,9 @@ The project uses the official [GitHub Spec Kit](https://github.com/github/spec-k
 
 - [Feature 001: official documentation inventory](specs/001-wallex-official-documentation-inventory/spec.md) — in progress
 - [Feature 002: offline research kernel](specs/002-offline-research-kernel/spec.md) — initial offline slice delivered
+- [Feature 003: historical market data and quality](specs/003-historical-market-data/spec.md) — local-only import/audit/export; no network provider
+- [Repository roadmap](specs/ROADMAP.md)
+- [Feature 003 quickstart](specs/003-historical-market-data/quickstart.md)
 - [Feature 002 quickstart](specs/002-offline-research-kernel/quickstart.md)
 - [Research source register](docs/research/source-register.yaml)
 - [Coverage matrix](docs/research/coverage-matrix.md)

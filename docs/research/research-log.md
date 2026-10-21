@@ -105,3 +105,16 @@ These counts do not mean complete content coverage. The 88 `not_started` entries
 - `PYTHONPATH=src python3 -m unittest discover -s tests -v`: **PASS**, 16 synthetic/offline unit tests (including arithmetic total-return assertion versus explicit initial cash).
 - `python3 scripts/check_market_data.py tests/fixtures/synthetic_ohlcv.csv --interval-seconds 60`: **PASS**, three synthetic rows are structurally valid only.
 - `python3 -m py_compile scripts/validate_sources.py scripts/validate_doc_links.py scripts/check_market_data.py src/wallex_research/*.py tests/test_*.py` and `git diff --check`: **PASS**. Feature 002 task checklist is fully checked; Feature 001 and whole-repository research remain incomplete.
+
+## Feature 003 historical-market-data evidence and implementation follow-up
+
+### Scope and method
+
+- Revisited the official Basic markets, UDF candles, latest trades and depth prose pages; corresponding generated markets, candle-history, latest-trades and depth pages; the selected all-price, fair-price, public-trade, buy-depth and candle WebSocket pages; and the returned Basic Services/Spot specification chunks relevant to market data.
+- No REST route or WebSocket was contacted. Documentation examples are not evidence of current runtime access or account entitlement. Basic/Spot artifacts were read as transformed chunks (6/6 and 3/3 respectively), not retrieved as exact bytes; no archive or checksum was fabricated. Margin, OTC and Trade Credit remain partially reviewed (1/5, 1/2 and 1/16 chunks).
+- Maintained separate modern prose/generated, legacy and REST/WebSocket claims. Added [D-017](discrepancies.md) for depth numeric representations and [D-018](discrepancies.md) for security annotation differences, without selecting an implementation contract.
+- Important unknowns retained: numerical polling limits, REST pagination, history retention, timestamp inclusivity/alignment, endpoint auth and runtime availability. The documentation only gives qualitative polling warnings.
+
+### Feature outcome boundary
+
+Feature 003 adds local-only import and audit support backed by synthetic fixtures. The implementation does not claim the source data is Wallex data and does not enable a provider/network path. Check test/validator outcomes in [Feature 003 research](../../specs/003-historical-market-data/research.md) after validation is complete.

@@ -11,3 +11,5 @@ This documentation set is an evidence-backed snapshot, not a substitute for curr
 - [Research log](research/research-log.md)
 
 Status words describe documentary review, not capability availability. `reviewed` means the official page content was inspected through the research tool; `not_started` means a URL appeared in official sitemap/navigation but the page content has not yet been reviewed. No production API endpoint or account was accessed.
+
+Feature 003 local historical-data implementation: [English architecture note](api/historical-data-pipeline.md), [Persian-first summary](fa/historical-market-data.md), and [repository roadmap](../specs/ROADMAP.md). The code is offline-only; official documentation does not prove live availability or permission.
