@@ -17,17 +17,19 @@ Changes must trace from specification through plan, tasks, artifacts, and valida
 ### V. Financial Credential and Personal-Data Protection
 Never commit API keys, access tokens, cookies, account identifiers, personal data, or secrets. Do not create or use a real Wallex API key for documentation research. Use placeholders only and minimize any sensitive examples.
 
-### VI. Explicit Approval for Account-Changing Actions
-No live orders, cancellations, amendments, transfers, withdrawals, or other account-changing actions may be made without separate, explicit user approval for the specific activity. Public documentation research must not call production API endpoints to experiment.
+### VI. Challenge-Scoped Autonomous Trading Authorization
+This repository supports a time-bounded trading competition, not a bug-bounty engagement. Once the owner explicitly activates a verified challenge run, permitted Spot trading decisions and order lifecycle actions may execute autonomously through verified Smart98-mediated tools without per-order human approval; manual trades do not count as algorithmic performance. This authorization is strictly limited to the verified dedicated challenge account, official competition window and rules, permitted Spot markets, and configured deterministic risk limits. It does not authorize withdrawals, transfers, deposits, wallet operations, margin, leverage, borrowing, shorting, derivatives, OTC execution, market manipulation, wash/self-trading, or any unverified action. Public documentation must never be probed by direct production API calls.
 
 ### VII. Risk Before Automation
 Document risk controls, permissions, failure handling, and a defined test process before implementing automated trading. A documented capability is not proof of runtime availability, authorization, safety, or suitability. Do not claim a strategy is profitable or safe without appropriate evidence.
 
-### VIII. Current Phase Boundary
-The current phase includes continued official-documentation research and specification, plus local, offline-only, strategy-neutral research tooling. Permitted implementation is limited to synthetic or user-supplied local fixtures for data models, validation, deterministic replay, backtesting, risk checks, and paper-ledger simulation. No code may call Wallex or Smart98, retrieve public data automatically, connect to an account or live feed, or submit, modify, or cancel real orders. Strategy selection and user-specific assets, periods, fees, leverage, capital, and risk tolerances remain unset; any required parameters must be explicitly supplied by the caller. Spot-only simulation is permitted; leveraged or margin execution is not.
+### VIII. Current Phase Boundary and Smart98-Mediated Integration
+Feature 005 is approved to implement a narrowly scoped Smart98-mediated adapter for verified public, read-only Wallex Spot market data, using only actual documented/observed tool contracts and sanitized fixtures. All application access intended for Wallex must pass through Smart98; direct Wallex API calls and direct-access fallbacks are prohibited. Public read-only data retrieval through verified Smart98 tools may be used to validate the adapter when the tool contract and access path are confirmed; never experiment against direct Wallex production endpoints or use private credentials.
 
-### IX. Jurisdiction and Compliance Gate
-No real exchange access or use may be enabled by this project. Any future proposal must first specify the applicable jurisdiction and purpose, and obtain independent, current legal/compliance review covering sanctions, access restrictions, exchange eligibility, and local law. This is a gate, not a guarantee of legality or individualized legal advice. A successful code test or public API contract does not satisfy this gate.
+Backtesting, shadow testing, dry-run, and unit/CI tests remain offline and must never submit real orders. Actual challenge-account order execution is a separate activation boundary: implementation must fail closed until the official challenge window/rules, dedicated challenge-account permissions, allowed Spot markets, actual Smart98 order-tool contracts, deterministic risk limits, reconciliation, and an explicit owner activation decision are recorded. Once that activation gate is satisfied, permitted Spot orders may run autonomously without per-order approval. This does not authorize prohibited or unverified account actions. Strategy, market, timeframe, fees, capital, and risk values must come from verified challenge rules or explicit owner inputs; never invent defaults.
+
+### IX. Competition Rules, Eligibility, and Compliance
+This project must not treat bug-bounty restrictions as the governing product model for the trading hackathon. The owner-provided challenge brief is user-provided evidence until independently confirmed; claims about official permissions, market eligibility, account access, scoring, and settlement must retain that provenance. Before a live challenge run, record the official rules available to the team, competition window, permitted market list, dedicated challenge-account permissions, and any applicable access/compliance constraints. Do not claim that this constitution establishes legal eligibility or overrides exchange terms or local law. If eligibility or a required permission is unknown or contradictory, do not activate live execution.
 
 ## Development and Research Constraints
 
@@ -36,7 +38,7 @@ No real exchange access or use may be enabled by this project. Any future propos
 - Do not copy entire source pages. Write concise, structured original summaries.
 - Record inaccessible pages, broken navigation, contradictory claims, and open questions honestly.
 - Offline software must be deterministic, network-free, and use only caller-supplied local data. Do not embed example market, timeframe, fee, capital, strategy, leverage, or risk settings as defaults.
-- Keep Smart98 and exchange integrations behind future, unspecified interfaces; do not invent their contracts or add adapters.
+- Implement Wallex market-data and any later authorized challenge order integration only through Smart98, using verified contracts; never invent transport, auth, schemas, tool names, permissions, or configuration. Keep public data, challenge-account reads, and state-changing order tools explicitly separated.
 - Avoid unnecessary packages, services, databases, bots, credentials, or infrastructure.
 - No license is selected yet; do not add one without owner approval.
 
@@ -44,8 +46,8 @@ No real exchange access or use may be enabled by this project. Any future propos
 
 This constitution governs all specifications, plans, tasks, research, implementation, and review in this repository. Any feature that conflicts with it must be revised or explicitly deferred; the constitution itself can be amended only through a reviewed, documented change. Every pull request must check evidence quality, credential hygiene, trading-boundary compliance, and traceability. Acceptance criteria are not considered met without recorded validation evidence. Where user decisions are required, document the question and do not substitute an invented requirement.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-21 | **Last Amended**: 2026-10-21
+**Version**: 1.2.0 | **Ratified**: 2026-10-21 | **Last Amended**: 2026-10-22
 
 ### Amendment record
 
-Version 1.1.0 implements the owner's explicit scope expansion: local offline research/data-quality/replay/backtest/paper-ledger code is now permitted under the safeguards above. It does not authorize live exchange use, network data retrieval, account access, strategy selection, or leveraged execution. A jurisdiction-specific legal/compliance review is required before any future real exchange use.
+Version 1.1.0 authorized local offline research only. Version 1.2.0 records the owner's explicit competition-scope decision: verified public read-only Spot market data may be integrated through Smart98, and a separately gated, owner-activated challenge run may autonomously execute only verified permitted Spot orders without per-order approval. Direct Wallex calls, prohibited products/actions, unverified tools, and live execution before the activation gate remain prohibited.
