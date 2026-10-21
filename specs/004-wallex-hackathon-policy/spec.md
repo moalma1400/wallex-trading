@@ -10,7 +10,7 @@
 
 Provide an auditable, searchable knowledge base and purely offline, fail-closed controls for the provided spot-only challenge brief. Preserve the source-list appendix byte-for-byte and derive one deterministic normalized pair registry with explicit duplicate/malformed reporting. Keep all challenge facts tagged `PROVIDED_BY_CHALLENGE_BRIEF`, `OFFICIAL_SOURCE_VERIFIED`, `INFERRED`, `UNRESOLVED`, or `REQUIRES_ORGANIZER_CONFIRMATION`. None of the supplied challenge terms is independently official-verified in this feature.
 
-There is no live market/account access, order adapter, credential, deposit/transfer/withdrawal code, real challenge account data, or account member PII. Backtest/shadow/dry-run are isolated. Existing Feature 002 causal next-bar-open replay and explicit cost interface remain unchanged. No strategy, market, fee, AI provider, official market status, cutoff, conversion route, numeric risk limit, final rubric or profitability is invented. Proposed rubric is labeled proposed. Audio review remains incomplete because no audio was attached.
+Feature 004 remains the challenge-policy and offline-control source of truth. The separate Feature 005 now governs the approved Smart98-mediated public read-only Spot market-data adapter. Feature 004 itself adds no order adapter, private-account access, credentials, deposit/transfer/withdrawal code, real challenge-account data, or account member PII. Backtest/shadow/dry-run are isolated. Existing Feature 002 causal next-bar-open replay and explicit cost interface remain unchanged. No strategy, market, fee, AI provider, official market status, cutoff, conversion route, numeric risk limit, final rubric or profitability is invented. Proposed rubric is labeled proposed. Audio review remains incomplete because no audio was attached.
 
 ## User Scenarios & Testing
 
@@ -40,7 +40,7 @@ As an operator, I can distinguish realized and unrealized P&L, fees, TMN cash, n
 - **FR-002**: Register the attachment as a repository-local user-provided source with verified content hash and no fabricated public URL/retrieval time. Do not grant it official status.
 - **FR-003**: Preserve the raw supplied disabled-market list verbatim. Derive an uppercase strict `BASE/QUOTE` canonical list, report raw/unique/duplicate/duplicate-excess/malformed counts, and refuse malformed or duplicate runtime registries. Do not maintain a second copy of canonical pairs.
 - **FR-004**: Apply spot-only policy. Deny margin, leverage, borrowing, shorts, derivatives, manual performance trades, self/coordinated/wash trading, artificial volume, manipulation, disabled pairs, withdrawals, transfers, deposits and unverified settlement routes.
-- **FR-005**: Default live execution off; do not implement network calls or live adapters. Offline backtest/shadow/dry-run cannot invoke a submitter; live dispatch must fail closed with a machine-readable reason.
+- **FR-005**: Default live execution off. Feature 004 does not implement a network adapter; the separately approved Feature 005 may implement verified public read-only Spot market data through Smart98 only. Offline backtest/shadow/dry-run cannot invoke a submitter; live dispatch must fail closed with a machine-readable reason until a separate explicit activation gate is satisfied.
 - **FR-006**: Eligibility requires explicit challenge context, valid spot metadata, active/orderable/enabled trusted state, not disabled, fresh and noncontradictory source evidence, strategy and risk approvals, supported quote/settlement path, verified precision/minimum order semantics, and complete configuration. “Not disabled” alone MUST NOT authorize.
 - **FR-007**: Risk evaluation is offline and configurable; missing/invalid limits or unknown reconciliation/data/signal/cost state veto proposals. Internal limits are not exchange or organizer limits.
 - **FR-008**: Preserve a versioned, deterministic, provenance-complete decision/trade-event contract and append-only local log; validate typed payloads, provenance, model/prompt evidence for AI events, timestamps, code/config identifiers and safe fields.
@@ -56,7 +56,7 @@ As an operator, I can distinguish realized and unrealized P&L, fees, TMN cash, n
 
 - **SC-001**: Rules and exclusions have a single linked source of truth, intact raw evidence, deterministic canonical data and complete provenance.
 - **SC-002**: All unknown/untrusted/stale/contradictory/unconfigured policy inputs deny market/risk/settlement approval with machine-readable reasons.
-- **SC-003**: Offline modes demonstrably cannot submit orders; live mode remains unimplemented and blocked.
+- **SC-003**: Offline modes demonstrably cannot submit orders; Feature 005 public read-only data access remains separate from order execution; live order dispatch remains unimplemented and blocked until separately activated.
 - **SC-004**: Event records are deterministic, versioned, reproducible, auditable and reject secret/PII/exchange-origin data.
 - **SC-005**: TMN settlement readiness only reports a value when cutoff, reconciliation, costs and inventory conditions are evidenced; estimates are not presented as official valuation.
 - **SC-006**: Existing Feature 002 behavior remains regression-tested and unchanged.
@@ -64,4 +64,4 @@ As an operator, I can distinguish realized and unrealized P&L, fees, TMN cash, n
 
 ## Deferred and unresolved decisions
 
-Official event timing and cutoff; current disabled/orderable markets and update process; account setup/funding/credit terms; exact feed/API/order/precision/fee/rate semantics; freshness thresholds; strategy; numeric risk limits; allowed TMN conversion routes; settlement rules; final scoring/tie-breaks; data retention and privacy requirements; model/AI evaluation details; submission/video mechanics; and audio contents. All require a traceable organizer/official source. This feature does not authorize any live activity.
+Official event timing and cutoff; current disabled/orderable markets and update process; account setup/funding/credit terms; exact feed/API/order/precision/fee/rate semantics; freshness thresholds; strategy; numeric risk limits; allowed TMN conversion routes; settlement rules; final scoring/tie-breaks; data retention and privacy requirements; model/AI evaluation details; submission/video mechanics; and audio contents. All require a traceable organizer/official source. This feature does not authorize live account/order activity. Public read-only market-data integration is governed by Feature 005 and constitution v1.2.0.
