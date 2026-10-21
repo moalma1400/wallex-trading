@@ -1,6 +1,6 @@
-Feature Specification: Smart98-Mediated Public Spot Market Data
+Feature Specification: Fully Automated Smart98-Mediated Wallex Challenge Agent
 
-**Feature**: 005-smart98-mediated-public-market-data
+**Feature**: 005-smart98-mediated-public-market-data (scope revision proposed)
 **Status**: Draft for governance review; implementation not authorized
 **Date**: 2026-10-22
 
@@ -10,32 +10,36 @@ The owner approved preparing a formal scope/governance proposal. The current con
 
 ## User story
 
-As an offline researcher, I want a provider-neutral contract for public Spot market observations, so that any future approved Smart98-mediated feed can be validated and audited without coupling strategy/replay logic to MCP tool names or enabling account actions.
+As a hackathon participant, I want an autonomous, auditable trading agent that obtains permitted market data, decides, applies deterministic risk checks, submits and manages permitted orders, and records every decision through Smart98-mediated tools, so that all evaluated trades are algorithmic rather than manually placed.
 
-## Scope proposed for later approval
+## Scope proposed for later governance approval
 
-- Public market metadata, candles, public order-book snapshots, recent public trades, and ticker observations only when actual tool schemas and read-only semantics are verified.
-- Internal provider-neutral types/interfaces with provenance and retrieval timestamps.
-- Strict schema/data-quality checks, UTC timestamps, Decimal-safe numeric parsing, freshness and completeness controls, fail-closed eligibility.
-- Mock-only tests and offline deterministic validators.
-- Optional adapter configuration disabled by default; unknown configuration must fail closed.
+- Public market metadata, candles, order-book snapshots, recent public trades and ticker observations through verified Smart98-mediated tools.
+- Autonomous decision-making and trade execution through verified, explicitly authorized Smart98-mediated order tools for the challenge account only.
+- Order lifecycle management: acknowledgements, status polling, fills/partial fills, cancellation only when explicitly permitted, idempotency and reconciliation according to verified contracts.
+- Provider-neutral interfaces with provenance, timestamps, Decimal-safe parsing, freshness/completeness validation and fail-closed eligibility.
+- Deterministic risk gate outside the LLM; the model cannot bypass capital, market, order-size, drawdown, or challenge-policy controls.
+- Audit record for every decision and order lifecycle event, without credentials or unnecessary personal data.
+- Offline backtest and isolated shadow testing; fixtures by default. Any live account action requires the approved governance and authorization gates below.
 
 ## Exclusions
 
-No direct Wallex application/API calls; no private account reads, credentials, account/order history, order placement/amendment/cancellation, transfers, deposits, withdrawals, wallet operations, margin, leverage, borrowing, shorting, derivatives, OTC execution, or any other state change. No live smoke test is authorized. No strategy, pair, timeframe, fees, capital, or risk preferences are selected.
+No direct Wallex application/API calls or direct-access fallback. No withdrawal, transfer, deposit, wallet operation, margin, leverage, borrowing, shorting, derivatives, OTC execution, or any operation outside the challenge's verified permitted Spot markets and account permissions. No manual trading is accepted as evaluated algorithmic performance. No live execution is authorized by this draft. No strategy, pair, timeframe, fees, capital, or risk preferences are silently selected; challenge-specific parameters must come from verified rules or explicit owner inputs.
 
-## Acceptance criteria (only after governance approval)
+## Acceptance criteria (only after governance and account/tool authorization)
 
 1. Accepted amendments explicitly permit only the described public read-only exception and retain all other prohibitions.
 2. Smart98-mediated transport, authentication boundary, tool schemas, permissions, and source/version are supported by authoritative evidence; no assumptions are coded as facts.
-3. Public tool calls are classified read-only based on verified contract, not name alone.
-4. The existing canonical disabled-pair registry and eligibility/risk checks are reused; no competing allowlist is added.
-5. Data records preserve source/tool/version, retrieval time, observation time when supplied, symbol, interval, completeness, and validation status.
-6. Invalid numeric values, timestamp units, inconsistent arrays, duplicate/out-of-order candles, stale/partial data, unsupported markets, and contradictory metadata fail closed with stable reasons.
-7. Decimal values are constructed from original decimal strings where possible; binary float conversion is not used as the source of truth.
-8. Unit tests, validators, CI, replay and backtests remain offline and deterministic.
-9. No credentials or private account data enter source, fixtures, logs, model context, or artifacts.
-10. Existing PR #1 is updated in place only after review; no second PR, force-push, or merge.
+3. Every tool is classified by verified schema and permissions; public data and state-changing order tools are separated explicitly.
+4. Order execution is exclusively algorithmic through the verified Smart98-mediated interface; the trading app never connects directly to Wallex.
+5. Deterministic risk checks precede every order and cannot be overridden by the LLM; market eligibility reuses the canonical disabled-pair registry and fail-closed gates.
+6. Data records preserve source/tool/version, retrieval time, observation time when supplied, symbol, interval, completeness and validation status.
+7. Invalid numeric values, timestamps, inconsistent arrays, duplicate/out-of-order candles, stale/partial data, unsupported markets and contradictory metadata fail closed.
+8. Order handling covers uncertain timeouts and retries without duplicate orders, partial fills, cancellations where authorized, and reconciliation against verified order/fill records.
+9. Each decision/order has an auditable reason trail and exact algorithm version; no credentials or unnecessary personal data enter logs or artifacts.
+10. Backtests and shadow tests cannot invoke the live submitter; tests and CI stay offline/deterministic.
+11. Live execution stays disabled until governance, exact tool contract, challenge-account permissions, compliance review and an explicit separate activation decision are recorded.
+12. Existing PR #1 is updated in place only after review; no second PR, force-push, or merge.
 
 ## Open questions
 
@@ -46,4 +50,4 @@ No direct Wallex application/API calls; no private account reads, credentials, a
 
 ## Governance status
 
-The spec is a proposal. Current offline-only requirements remain binding. No adapter implementation, Smart98 configuration change, production request, or live integration is authorized by this artifact.
+The spec is a proposal. Current offline-only requirements remain binding until formally amended. No adapter implementation, Smart98 configuration change, production request, or live integration is authorized by this artifact.
