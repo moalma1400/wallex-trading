@@ -1,0 +1,12 @@
+# Spec Kit setup record
+
+- Official project: [github/spec-kit](https://github.com/github/spec-kit)
+- Release verified: [`v1.2.2`](https://github.com/github/spec-kit/releases/tag/v1.2.2), shown as latest on the release page retrieved 2026-10-21 UTC.
+- Installed CLI version: `1.2.2` (`specify version`).
+- Installation route: official source install pinned to release tag `v1.2.2`; `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.2.2`. `uv` was installed in a temporary Python virtual environment because the system Python is externally managed; that environment is not part of this repository.
+- Initialization command actually run: `specify init wallex-trading --non-interactive --ignore-agent-tools --integration generic --integration-options="--commands-dir .agents/skills --skills"` from `/tmp` into a new temporary directory. Generated canonical Spec Kit files were copied into this already-initialized repository after review. The existing repository was non-empty; `--force` was not used.
+- Integration: `generic` with skills output. Arena Agent Mode is not listed as a native Spec Kit integration and there is no verified native integration. Generic is Spec Kit's documented bring-your-own-agent integration; generated skills provide the workflow instructions, which are followed through this environment's normal repository editing and shell tools rather than by claiming slash commands were invoked.
+- Script type: `sh`.
+- Generated structure retained: `.specify/` memory, templates, scripts, workflow registry/workflow files, initialization options, integration manifests; `.agents/skills/` for constitution, specify, clarify, plan, tasks, analyze, checklist, implement, converge, and task-to-issues.
+- Verified integration: `specify integration list` in the temporary Spec Kit project showed `generic` installed/default; `specify integration list` in the repository is also run as part of validation after initialization.
+- Official installation and command references: [installation guide](https://github.github.com/spec-kit/installation.html), [core command reference](https://github.github.com/spec-kit/reference/core.html), [integrations index](https://github.github.com/spec-kit/integrations/index.html), and [generic integration](https://github.github.com/spec-kit/integrations/generic.html).
