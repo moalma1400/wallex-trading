@@ -31,7 +31,8 @@
 - [x] `python3 scripts/validate_doc_links.py` passed: 45 internal local Markdown links resolved and 139 source citations matched exact register IDs/URLs; external URLs were not network-checked.
 - [x] `git diff --check` passed at the review point.
 - [ ] Remote external links and all 115 page URLs have not been independently checked for current HTTP availability; no remote URL rewriting was performed.
-- [ ] Final publication commit, remote verification, PR creation and clean-tree check remain pending until the final push attempt.
+- [x] Research commit was pushed to the fixed Arena branch; remote branch SHA matched; repository visibility is private and `main` is the default branch; PR #1 targeting `main` is open and unmerged; final local tree was clean after push.
+- [x] Repository description update was attempted but blocked by HTTP 403 (`Resource not accessible by integration`); the repo's description remains blank and was not silently changed.
 
 ## Safety and completion
 

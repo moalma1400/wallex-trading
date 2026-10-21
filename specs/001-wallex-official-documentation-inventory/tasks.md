@@ -71,9 +71,11 @@ description: "Task list for official Wallex documentation inventory"
 ## Phase 6: Publication and review
 
 - [x] T032 Push the initial scaffold commit only to the fixed Arena session branch; do not change `main` or create a new branch.
-- [ ] T033 Commit and push research changes to `arena/81f9fa39-wallex-trading` after validation.
-- [ ] T034 Open a pull request to `main` if GitHub permissions permit; include actual source counts/limitations and leave unmerged.
-- [ ] T035 Verify remote commit SHA, private visibility, PR status, and final local git status; report any real permission blocker.
+- [x] T033 Commit and push research changes to `arena/81f9fa39-wallex-trading` after validation.
+- [x] T034 Open a pull request to `main` if GitHub permissions permit; include actual source counts/limitations and leave unmerged.
+- [x] T035 Verify remote commit SHA, private visibility, PR status, and final local git status; report any real permission blocker.
+
+**Publication note**: The private repository existed before this task, and `main` remains its default branch. Repository description update via `gh repo edit` returned HTTP 403 `Resource not accessible by integration`; its description is still blank. PR creation succeeded and PR #1 remains open/unmerged. Arena policy required use of the fixed session branch rather than a new descriptive research branch or pushing `main`.
 
 ## Dependencies and execution order
 
