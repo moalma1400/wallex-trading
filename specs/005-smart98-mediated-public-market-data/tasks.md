@@ -3,7 +3,7 @@
 **Status: Blocked pending governance review; not an execution authorization.**
 
 - [ ] T001 Review proposed constitution amendment; retain offline-only baseline until accepted.
-- [ ] T002 Review proposed AGENTS.md amendment and explicit public-read-only boundary.
+- [ ] T002 Review proposed AGENTS.md amendment and explicit autonomous challenge-account Spot trading boundary.
 - [ ] T003 Verify authoritative Smart98 mediation/tool contract, exact schemas/permissions, and source/version for market data and challenge-account order lifecycle tools.
 - [ ] T004 Review security, privacy, risk, and jurisdiction/compliance gates.
 - [ ] T005 Inspect existing market data models, source register, disabled-pair registry, replay/shadow interfaces, and validators.
