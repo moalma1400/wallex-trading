@@ -1,6 +1,8 @@
 # Requirements checklist: Feature 004
 
-- [x] User attachment is explicitly user-provided, not official-verified.
+- [x] Written challenge brief is explicitly user-provided, not official-verified.
+- [x] Inline Persian cleaned working transcript is preserved separately and explicitly not audio-verified.
+- [x] Transcript provenance, speaker/timestamp/ASR uncertainty, and source-reconciliation status are recorded.
 - [x] Evidence statuses and organizer-confirmation gates are defined.
 - [x] Raw disabled-pair list is preserved; canonical list is generated, hashed, deterministic and not duplicated in prose.
 - [x] Eligibility is Spot-only, pure/offline, fail-closed and machine-readable.

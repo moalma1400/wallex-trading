@@ -11,6 +11,7 @@
 - [وب‌سوکت و داده بازار](websocket-and-market-data.md)
 - [داده تاریخی و کنترل کیفیت محلی (Feature 003)](historical-market-data.md)
 - [خلاصه هکاتون Wallex/Starcoach (Feature 004؛ مبتنی بر فایل کاربر و تأییدنشده)](wallex-hackathon.md)
+- [تحلیل ترنسکریپت فارسی و تطبیق ادعاها (صوت در دسترس نیست)](../knowledge-base/wallex-hackathon-audio-transcript-fa.md)
 - [ریسک‌های عملیاتی](operational-risks.md)
 - [واژه‌نامه](glossary.md)
 

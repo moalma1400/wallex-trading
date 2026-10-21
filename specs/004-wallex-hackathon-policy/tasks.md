@@ -32,4 +32,11 @@
 - [x] T017 Run all focused/full tests, source and document validators, compile check and `git diff --check`; record exact outcome.
 - [x] T018 Review Feature 002 regression, event/market/risk/settlement paths, diff, PII/secrets and branch/PR/worktree state.
 - [ ] T019 Obtain official organizer confirmation of event cutoff, market list/orderability, API/account/fee/risk/settlement/conversion rules and final scoring. External confirmation cannot be inferred from local tests.
-- [ ] T020 Audio review/transcription if the actual audio becomes available; no claim of review until then.
+- [ ] T020 Review/compare the original audio and raw ASR only if they become available; the inline cleaned transcript is not an audio substitute.
+
+## Phase 5: Transcript provenance and reconciliation update
+
+- [x] T021 Preserve the inline Persian cleaned working transcript verbatim as a distinct user-provided source artifact; do not present it as audio-verified.
+- [x] T022 Add source-register provenance, hash, timing/speaker uncertainty, and transcript-versus-written-brief/official-docs reconciliation.
+- [x] T023 Update the Persian KB, transcript links, market tri-state explanation, and unresolved questions without changing the disabled list or trading behavior.
+- [x] T024 Run source/doc-link checks, applicable tests, secret/network scan, and final branch/PR status report after the transcript update.

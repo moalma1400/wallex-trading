@@ -53,6 +53,6 @@ These are separate from the official API documentation gaps above. The written a
 7. Confirm exact realized/unrealized P&L, fee, cutoff snapshot and final-value formula, approximate two-day settlement and zeroing mechanics.
 8. Is the detailed 150/150 sub-rubric still only proposed? What is the final rubric, ranking method, tie-break and activity/volume interpretation?
 9. Confirm submission repository, exact run/log artifacts, video duration/format and any AI disclosure/model replay requirements. What participant privacy handling is expected? This repository must not collect member PII.
-10. Is there an audio recording or other written/official source to reconcile? No audio was available in the workspace; audio review/transcription remains incomplete.
+10. Can the original audio or raw ASR transcript be supplied to verify the inline cleaned working transcript? The Persian transcript is now archived as `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT`, but no audio binary is available; wording, speaker identity/affiliation, the 00:03:33-to-00:03:54 gap, prize amount(s), MCP claim, and demo consequences remain unverified.
 
 Until traceable answers are supplied, cutoff, market currentness, API/account permissions, fees, risk thresholds, conversion routes and final scoring stay unresolved; related code remains fail-closed and live execution absent.

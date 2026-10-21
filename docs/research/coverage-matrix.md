@@ -194,6 +194,7 @@ All available chunks for Basic Services (6/6) and Spot (3/3) were examined for r
 
 | Source ID | Source | Status | Scope and limits |
 |---|---|---|---|
-| `USER-WALLEX-HACKATHON-BRIEF` | Arena attachment `arena_wallex_hackathon_knowledge_base_prompt.md` (URL unavailable) | Reviewed as user-provided, not official verified | Challenge rules/market exclusions inform Feature 004 KB and offline tests. The raw disabled-pair appendix is hash-verified; no official terms were independently confirmed. Audio was not available. |
+| `USER-WALLEX-HACKATHON-BRIEF` | Arena attachment `arena_wallex_hackathon_knowledge_base_prompt.md` (URL unavailable) | Reviewed as user-provided, not official verified | Challenge rules/market exclusions inform Feature 004 KB and offline tests. The raw disabled-pair appendix is hash-verified; no official terms were independently confirmed. |
+| `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT` | Persian cleaned working transcript supplied inline in Arena message; preserved at `user-sources/wallex_hackathon_audio_transcript_fa.md` | Reviewed as user-provided transcript, not audio-verified | Approximate 00:00:00–00:03:54 metadata; last text at 00:03:33. Contains uncertain ASR, including 80M prize and Wallex MCP claims; no audio binary or official competition source available. |
 
 See the [Feature 004 challenge KB](../knowledge-base/README.md). This supplemental record does not change the 115-page official sitemap counts or the official source totals.

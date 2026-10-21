@@ -11,9 +11,17 @@
 - Quote assets found: `TMN`, `USDT`; list membership is not authorization. Internal quote allowlist is `TMN` only until settlement conversion is verified.
 - The user-provided list may be outdated. It is not a real-time feed and does not establish that a non-listed pair exists, is spot, is active, orderable, challenge-eligible or permitted today.
 
-## Fail-closed decision
+## Fail-closed decision and tri-state interpretation
 
-`src/wallex_research/challenge.py` implements a pure local decision and returns machine-readable decision/reason codes. Every condition must pass. Unknown, missing, stale, future-dated, contradictory, malformed, untrusted or unconfigured facts produce denial; no network call or exchange adapter is used.
+`src/wallex_research/challenge.py` implements a pure local decision and returns machine-readable `eligible` plus reason/warning codes (not a separate `status` field). For challenge-facing documentation and reporting, classify it as follows:
+
+| Status | Meaning | Action |
+|---|---|---|
+| `ELIGIBLE` | Every required gate passed with positive, current, trusted evidence of Spot, active/orderable state and challenge permission, plus strategy/risk approvals. | Candidate may pass the local policy gate only; this is not account/API authorization. |
+| `INACTIVE` | Authoritative evidence explicitly says inactive/non-orderable, or an authoritative challenge restriction excludes it. | Reject. |
+| `UNKNOWN` | Required state is absent, stale, future-dated, contradictory, synthetic outside test-only mode, untrusted, or permission is unverified. | Reject. |
+
+A false `eligible` value is always a rejection even if a report does not further classify the market. The three-state terms describe the market/permission evidence, while non-Spot intent, strategy veto, manual origin, risk veto and invalid order semantics are independent blockers. No network call or exchange adapter is used. Historical price data never establishes current market eligibility; any future challenge-specific backtest/shadow/paper or live candidate must carry the same eligibility evidence and rerun the gate for the relevant as-of time.
 
 1. Challenge policy is explicitly enabled for the requested offline evaluation context. The repository’s defaults keep live trading off; live execution is not implemented.
 2. Pair parses as strict ASCII alphanumeric `BASE/QUOTE` and is normalized uppercase. Whitespace/underscore/extra separators are rejected rather than guessed.

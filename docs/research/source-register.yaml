@@ -2689,20 +2689,60 @@
         "scoring rubric"
       ],
       "claims_summary": "The attachment is user-provided challenge material. Its statements about duration, 5,000,000-TMN capital, account restrictions, settlement, market exclusions, judging and submissions are not independently verified as official policy. The raw disabled-pair list is preserved separately; canonical JSON records its SHA-256, counts, duplicates, malformed entries and sorted unique pairs.",
-      "confidence_and_evidence_notes": "Primary provenance is the user-provided attachment, not an official Wallex/organizer URL. The full attachment is preserved locally with SHA-256 da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144; the extracted raw pair-list file has separate SHA-256 48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0. Neither hash implies official verification or covers the transfer envelope. The audio mentioned by the task was not present in the available attachments and has not been reviewed.",
-      "related_source_ids": [],
+      "confidence_and_evidence_notes": "Primary provenance is the user-provided attachment, not an official Wallex/organizer URL. The full attachment is preserved locally with SHA-256 da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144; the extracted raw pair-list file has separate SHA-256 48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0. Neither hash implies official verification or covers the transfer envelope. No original audio file was present with the written attachment. A cleaned working transcript was supplied separately inline later and is registered as USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT; it has not been independently audio-verified.",
+      "related_source_ids": [
+        "USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT"
+      ],
       "research_status": "reviewed",
       "source_kind": "user_provided",
       "source_file": "docs/research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md",
       "source_file_sha256": "da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144",
       "source_attachment_name": "arena_wallex_hackathon_knowledge_base_prompt.md",
-      "audio_review_status": "not_accessible_in_workspace",
+      "audio_review_status": "original_audio_not_accessible; inline_cleaned_transcript_registered_separately",
       "derived_files": [
         {
           "path": "config/challenge/wallex_disabled_spot_pairs_raw.txt",
           "sha256": "48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0"
         }
       ]
+    },
+    {
+      "source_id": "USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT",
+      "title": "User-supplied Persian cleaned working transcript of Wallex/Starcoach hackathon audio briefing",
+      "url": null,
+      "official_domain": null,
+      "documentation_type": "User-provided speech-to-text transcript; cleaned reconstruction, not audio-verified",
+      "discovery_path": "Transcript supplied inline in an Arena user message; exact wording and timestamps are preserved at docs/research/user-sources/wallex_hackathon_audio_transcript_fa.md.",
+      "retrieved_at_utc": null,
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "Wallex/Starcoach hackathon",
+        "transcript claims",
+        "API and MCP mention",
+        "backtesting and shadow testing",
+        "prize and demo claims",
+        "market restrictions"
+      ],
+      "claims_summary": "Transcript text reports algorithmic market analysis/trading, engine-over-UI emphasis, AI/tool flexibility, Wallex API and MCP, backtesting/shadow testing, capital settlement, an 80-million-Toman Wallex prize plus an unclear separate prize, demo submission consequences, restricted markets/Wash Trading, and reproducibility. Claims remain transcript-only unless cross-referenced to other sources.",
+      "confidence_and_evidence_notes": "This is the cleaned working transcript supplied by the user, described as reconstructed from noisy speech-to-text. It is not a raw ASR dump or audio file and has not been independently heard or verified. File SHA-256 c7831200b22590f5b076e43fbe6834d4c1905023abcd03297e20c34dcc732a5e identifies only this supplied transcript text. The transcript metadata identifies Sara Behboudi and an approximate 00:00:00–00:03:54 range; the last visible segment is 00:03:33. The introduction and the word 'پردکتور' at 00:00:05 are unclear; no correction is inferred. No claim is official policy based solely on this source.",
+      "related_source_ids": [
+        "USER-WALLEX-HACKATHON-BRIEF",
+        "MOD-INTRO",
+        "MARKETS",
+        "SPOT-MARKETS",
+        "MOD-GENERATED-POST-ACCOUNT-ORDERS"
+      ],
+      "research_status": "reviewed",
+      "source_kind": "user_provided",
+      "source_file": "docs/research/user-sources/wallex_hackathon_audio_transcript_fa.md",
+      "source_file_sha256": "c7831200b22590f5b076e43fbe6834d4c1905023abcd03297e20c34dcc732a5e",
+      "source_material_type": "inline_user_supplied_cleaned_working_transcript",
+      "language": "fa",
+      "speaker_as_identified": "Sara Behboudi (reported in transcript; identity/affiliation not independently verified)",
+      "timestamp_range_as_supplied": "approximately 00:00:00–00:03:54; last visible transcript segment at 00:03:33",
+      "audio_file_status": "not_present_in_repository_or_available_task_attachments",
+      "audio_review_status": "not_performed; transcript_not_independently_audio_verified"
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."

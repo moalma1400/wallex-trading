@@ -16,6 +16,6 @@ No challenge-term claim is independently marked `OFFICIAL_SOURCE_VERIFIED`. All 
 
 ## Not provided/verified
 
-No official event dates/time zone/cutoff, current market-orderability source, API/account rules, fees, risk limits, precision/minimums, freshness limits, allowed conversion route, final rubric/tie-breaks, exact settlement/reconciliation contract, data privacy policy, or audio. Do not fill these gaps from unrelated Wallex market-data docs. The code blocks unknowns rather than inventing fields or values.
+No official event dates/time zone/cutoff, current market-orderability source, API/account rules, fees, risk limits, precision/minimums, freshness limits, allowed conversion route, final rubric/tie-breaks, exact settlement/reconciliation contract, or data privacy policy is verified. The later Arena message supplied a cleaned Persian working transcript, archived separately as `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT`; the original audio and raw ASR are still unavailable, so transcript wording/claims are not audio-verified. Do not fill gaps from unrelated Wallex market-data docs. The code blocks unknowns rather than inventing fields or values.
 
 Feature 002 replay semantics remain next-bar-open with explicit cost interfaces. Feature 003's local provenance data does not prove live market eligibility. No profitability inference follows from synthetic/historical replay.

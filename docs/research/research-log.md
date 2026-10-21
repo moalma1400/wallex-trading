@@ -140,3 +140,15 @@ Feature 003 adds local-only import and audit support backed by synthetic fixture
 - Challenge source/config audit: **PASS**; full archived attachment and extracted raw pair block match exactly; 345 raw/unique pairs, no duplicates or malformed entries; raw-list SHA-256 `48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0`; cutoff remains null; execution scope offline-only.
 - Offline source scan: **PASS**, no network request clients in new challenge modules; credential-pattern scan of 50 changed/untracked files: **PASS**.
 - No dedicated Spec Kit Markdown validator exists in the repository; new spec/checklist links are covered by the document-link validator. External official sources were not fetched or validated.
+
+## Transcript integration follow-up — 2026-10-21
+
+- Added the inline user-supplied Persian cleaned working transcript as source `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT`; verbatim text-file SHA-256 `c7831200b22590f5b076e43fbe6834d4c1905023abcd03297e20c34dcc732a5e`. It is not a raw ASR transcript or an audio file. No audio binary was available; listening/verification remains incomplete.
+- Preserved timestamps and uncertain wording unchanged. The metadata says approximately `00:00:00–00:03:54`, while the last visible segment is `00:03:33`; speaker identity/affiliation and ambiguous words are not independently verified.
+- Added a Persian synthesis and reconciliation table. The 80-million-Toman Wallex prize and separate prize are transcript-only/unverified; the earlier written user brief states 5,000,000 Toman but is not official. Video deadline/format/consequence, MCP capabilities/permissions and current eligible markets remain unverified.
+- Official Wallex API documentation already present in the register supports only page-level documentation claims for market metadata/Spot/order schema; it does not verify contest permission or runtime. No MCP source is registered. No new API/MCP service, pair-list edit, code/trading behavior change, or live action was made.
+- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: **PASS**, 55 tests; no replay/execution code changed.
+- `python3 scripts/validate_sources.py`: **PASS**, 134 source records; reviewed=72, not_started=51, in_progress=5, blocked=6. Transcript file hash matches the local user-source record.
+- `python3 scripts/validate_doc_links.py`: **PASS**, 155 relative Markdown links and 245 registered citations; external network links not tested.
+- `python3 -m py_compile scripts/*.py src/wallex_research/*.py tests/test_*.py` and `git diff --check`: **PASS**.
+- Transcript hash audit: **PASS**, `c7831200b22590f5b076e43fbe6834d4c1905023abcd03297e20c34dcc732a5e`; no audio binary was found.

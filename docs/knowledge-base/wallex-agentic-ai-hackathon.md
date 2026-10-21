@@ -1,6 +1,6 @@
 # Wallex / Starcoach Agentic AI Hackathon — challenge knowledge base
 
-**Repository scope:** Spot-only, offline policy and research support. **Current authority:** user-provided challenge attachment only. No organizer audio, official challenge page, account rules, market feed, or live order was accessed for this change. Every challenge-specific assertion below is tagged by evidence status; no user-supplied term is silently presented as an independently verified official rule.
+**Repository scope:** Spot-only, offline policy and research support. **Challenge-term evidence:** user-provided written brief plus a separately supplied cleaned working transcript. No original organizer audio or official challenge rules page/account source was accessed; the transcript was not audio-verified. Every challenge-specific assertion below is tagged by evidence status; no user-supplied term is silently presented as an independently verified official rule.
 
 | Evidence tag | Meaning here |
 |---|---|
@@ -10,7 +10,7 @@
 | `UNRESOLVED` | Missing or conflicting evidence; no value is assumed. |
 | `REQUIRES_ORGANIZER_CONFIRMATION` | Blocked until an organizer confirms it in a traceable channel. |
 
-The source record is `USER-WALLEX-HACKATHON-BRIEF` in the [source register](../research/source-register.yaml). The full attachment is preserved verbatim at [`docs/research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md`](../research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md), SHA-256 `da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144`. Its URL and UTC retrieval instant are `null`: this was an Arena attachment, not a public URL, and no exact UTC receive time was supplied. The list-only raw appendix is separately preserved byte-for-byte at `config/challenge/wallex_disabled_spot_pairs_raw.txt`; its SHA-256 is `48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0`. The two hashes cover distinct files.
+The source record is `USER-WALLEX-HACKATHON-BRIEF` in the [source register](../research/source-register.yaml). The full attachment is preserved verbatim at [`docs/research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md`](../research/user-sources/arena_wallex_hackathon_knowledge_base_prompt.md), SHA-256 `da60ec1e3421f50990766b97ec611891f2d94a4226ffc64e301d343b0bebe144`. Its URL and UTC retrieval instant are `null`: this was an Arena attachment, not a public URL, and no exact UTC receive time was supplied. The list-only raw appendix is separately preserved byte-for-byte at `config/challenge/wallex_disabled_spot_pairs_raw.txt`; its SHA-256 is `48a9d12c5660929bf2044c30535864eb4f008d0580aa3e0cf75f5b528242eba0`. The two hashes cover distinct files. The later inline Persian cleaned working transcript is separately preserved at [`wallex_hackathon_audio_transcript_fa.md`](../research/user-sources/wallex_hackathon_audio_transcript_fa.md), source ID `USER-WALLEX-HACKATHON-AUDIO-TRANSCRIPT`, SHA-256 `c7831200b22590f5b076e43fbe6834d4c1905023abcd03297e20c34dcc732a5e`. It is not an audio file or a raw ASR dump; its speaker/date/range and wording caveats are recorded in the source register. See the [Persian reconciliation article](wallex-hackathon-audio-transcript-fa.md).
 
 ## Purpose and challenge flow
 
@@ -123,4 +123,4 @@ No canonical official challenge URL was included with the attachment, and this e
 
 Required organizer confirmations include: official event/start/end times and time zone; current disabled pairs and refresh process; account allocation/credit meaning and no-withdrawal rule; legal account entitlement; exact API/feed/auth/rate/fee/order constraints; TMN/USDT conversion and cutoff procedure; settlement details; final score rubric; data-logging/privacy policy; AI evaluation expectations; and any versioned submission/demo requirements.
 
-**Audio review:** the available upload list contained only the written `.md` attachment. No audio was accessible, so audio review/transcription is incomplete and no audio-derived terms are claimed.
+**Audio review:** no original audio binary is present in the repository or available task attachments. The user later supplied a Persian cleaned working transcript inline; that exact text is archived and analyzed, but has not been independently heard or verified against audio. The original raw ASR/audio may contain differences; review remains incomplete.

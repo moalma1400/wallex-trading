@@ -18,5 +18,5 @@ metadata:
 7. Preserve Feature 002 causal next-bar-open semantics and explicit cost interfaces. Do not claim synthetic or historical replay proves profitability. No current-model historical backfill or post-hoc AI rationale.
 8. Preserve versioned, deterministic event provenance and typed payloads. Never store credentials, member PII, private account/order data or exchange-origin events in fixtures/logs/CI.
 9. Settlement requires official exact cutoff, reconciled balances, known fees/unrealized value, TMN-only ending state, and evidenced permitted conversion. Keep estimates separate from official valuation; stale/inferred conversions block.
-10. Present detailed rubric only as proposed until organizers confirm. Keep judge/demo procedures offline and label synthetic output. If audio is absent, state that review/transcription is incomplete.
+10. Present detailed rubric only as proposed until organizers confirm. Keep judge/demo procedures offline and label synthetic output. If only a cleaned transcript is supplied without audio, preserve it as a distinct user transcript, label it unverified, and state audio review remains incomplete.
 11. Before finishing, run challenge/full offline tests, source and document validators, `git diff --check`; inspect changed files for network/account/secret/PII paths. Report exact commands and branch/PR/worktree state.
