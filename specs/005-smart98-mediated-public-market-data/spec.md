@@ -1,12 +1,12 @@
 Feature Specification: Fully Automated Smart98-Mediated Wallex Challenge Agent
 
-**Feature**: 005-smart98-mediated-public-market-data (scope revision proposed)
-**Status**: Draft for governance review; implementation not authorized
+**Feature**: 005-smart98-mediated-public-market-data
+**Status**: Approved for implementation of verified Smart98-mediated public read-only Spot market-data adapter and offline tests; autonomous order execution remains separately gated
 **Date**: 2026-10-22
 
 ## Context
 
-The owner approved preparing a formal scope/governance proposal. The current constitution v1.1.0 and AGENTS.md remain authoritative and require offline-only work, so this feature is not permission to implement an adapter or perform network requests. It proposes a narrowly bounded future capability: public, read-only Spot market data through Smart98 only.
+The owner explicitly directed that repository policy be corrected to match the trading-competition objective. Constitution v1.2.0 and AGENTS.md now authorize implementation of a narrowly bounded Smart98-mediated adapter for verified public, read-only Spot market data. This approval does not authorize live order execution or direct Wallex application calls. Any public-data validation through Smart98 requires the actual tool contract and access path to be verified first.
 
 ## Competition context and automation priority
 
@@ -16,7 +16,7 @@ Within official challenge rules and verified dedicated-account permissions, the 
 
 Every evaluated trading decision and order must be algorithmic. A deterministic risk gate, allowed-market registry, order-state reconciliation, safe handling of timeouts/retries, and audit logs remain mandatory. The agent must not perform prohibited account actions, manual evaluated trades, self-trading, wash trading, or market manipulation. “Use any skill/MCP/tool” means use any suitable tool within the challenge's verified permissions and rules, not bypass those rules or risk controls.
 
-This section records the intended product scope. It does not itself amend the current constitution or authorize live network/account actions; the governance proposal must be reviewed and accepted before implementation.
+This section records the approved product scope. The constitution and AGENTS.md have been amended to permit the bounded public read-only Smart98 adapter. Live account/order actions remain disabled until their separate activation gate is satisfied.
 
 ## User story
 
@@ -60,4 +60,4 @@ No direct Wallex application/API calls or direct-access fallback. No withdrawal,
 
 ## Governance status
 
-The spec is a proposal. Current offline-only requirements remain binding until formally amended. No adapter implementation, Smart98 configuration change, production request, or live integration is authorized by this artifact.
+The scope amendment is recorded in constitution v1.2.0 and `AGENTS.md`. Implementation is authorized for verified public read-only Spot market data through Smart98, offline mocks/tests, and documentation. This does not authorize configuring new MCPs on the owner's behalf, direct Wallex calls, private account access, or live order execution. Live execution requires the separate activation gate above and must remain disabled during this implementation task.
