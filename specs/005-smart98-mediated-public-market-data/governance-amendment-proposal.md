@@ -1,40 +1,46 @@
-# Governance amendment proposal: Smart98-mediated public market data
+# Governance amendment proposal: autonomous Smart98-mediated Wallex challenge agent
 
 **Status: PROPOSED FOR REVIEW — NOT EFFECTIVE**
 **Date:** 2026-10-22
 
-The repository owner authorized preparing a narrow proposal for a future Smart98-mediated, public read-only Spot market-data interface. This document records a proposal only; it does not authorize implementation or network/runtime testing.
+The repository owner has clarified that the intended hackathon product must autonomously perform the evaluated trading workflow. Manual trades do not count as valid algorithmic performance under the requirements supplied by the owner. This proposal records that target but does not itself authorize implementation, network requests, account access, or live orders.
 
-## Current baseline
+## Current governing baseline
 
-The current constitution (v1.1.0) and AGENTS.md require local/offline work and prohibit network adapters. Those rules remain binding until an explicit governance amendment is reviewed and accepted through the repository process.
+The current constitution (v1.1.0), AGENTS.md, and Features 001–004 require offline-only implementation and prohibit Smart98/Wallex network adapters. Those rules remain binding until an explicit amendment is reviewed and accepted through repository governance. The owner-provided challenge text is requirements evidence, not independent proof of the actual Smart98 tool contract, account permissions, or any legal/compliance conclusion.
 
 ## Proposed scope, if separately accepted
 
-- Public read-only market metadata, candles, order-book snapshots, recent trades, and ticker observations, only where the actual Smart98-mediated tool contract and read-only behavior are verified.
-- A provider-neutral internal interface; the application must never call Wallex directly or fall back to a direct endpoint.
-- Source provenance, UTC retrieval times, schema/data-quality validation, Decimal-safe numeric parsing, freshness checks, and fail-closed eligibility.
-- Sanitized fixtures and offline deterministic tests by default.
+- A fully automated, auditable agent for the dedicated hackathon challenge account.
+- Public market data and permitted market metadata through verified Smart98-mediated tools.
+- Algorithmic signal generation, buy/sell decisions, deterministic risk checks, and order submission through verified, explicitly authorized Smart98-mediated Spot trading tools.
+- Order lifecycle management based on verified contracts: acknowledgements, status, partial/full fills, timeouts, safe retry/idempotency, reconciliation, and cancellation only where expressly permitted.
+- Decision/order audit logs with rationale, input/source timestamps, algorithm/model version, risk result, tool result, order/fill identifiers, fees, and realized outcomes; no credentials or unnecessary personal data.
+- Backtesting and shadow testing isolated from live order submission.
+- No direct Wallex application/API access or fallback; Smart98 is the required mediation layer.
 
-## Out of scope
+## Explicit exclusions
 
-No private account data, account credentials, state-changing operations, order execution, money movement, margin/leverage, derivatives, or strategy selection. No production requests or live smoke tests are authorized by this proposal. No model-visible secrets or private account data may be stored in the repository.
+This proposal does not authorize withdrawals, transfers, deposits, wallet operations, margin, leverage, borrowing, shorting, derivatives, OTC execution, or actions outside the verified permitted Spot markets and challenge account permissions. It does not authorize manual trades as evaluated performance. It does not authorize collecting or storing team members' phone numbers, national IDs, birth dates, credentials, or private account data in the trading repository or agent logs. It does not select a strategy, pair, timeframe, fee assumption, capital, or risk tolerance beyond independently verified challenge rules and explicit owner inputs.
 
-## Gates before implementation
+## Required acceptance gates before implementation
 
-1. Review and accept the constitution and AGENTS.md amendments.
-2. Review Feature 005 specification, plan, and security/data-flow assessment.
-3. Verify exact Smart98 tool names, schemas, transport/auth boundary, and read-only semantics from authoritative evidence.
-4. Reuse the existing canonical disabled-pair registry and eligibility/risk gates; do not introduce a competing allowlist.
-5. Validate timestamps, response completeness, symbol mapping, Decimal handling, staleness, and failures with mocked fixtures.
-6. Keep tests and validators offline and deterministic; fail closed when evidence or configuration is unknown.
-7. Preserve the existing PR #1; do not merge or force-push as part of this proposal.
+1. Review and accept the constitution and AGENTS.md amendments, keeping unrelated prohibitions explicit.
+2. Accept the Feature 005 spec, plan, tasks, and security/data-flow review.
+3. Verify and version the actual Smart98 mediation contract: transport, authentication/secret boundary, tool catalog, schemas, permissions, errors/timeouts, and order lifecycle semantics. Do not infer behavior from tool names.
+4. Verify the dedicated challenge-account permissions and exact allowed market list. Reuse the canonical disabled-pair registry; absence from exclusions is not authorization.
+5. Define deterministic risk limits and order constraints from official challenge rules or explicit owner input; the LLM must not override the risk gate.
+6. Validate timeout ambiguity, retry idempotency, partial fills, order-state reconciliation, market-data freshness/completeness, decimal precision, and final realized-TMN settlement with sanitized fixtures.
+7. Keep tests/validators/replay/backtests offline and deterministic. Any future live activation requires a separate explicit decision and a controlled authorization procedure; this proposal is not that activation.
+8. Document current jurisdiction/compliance/security review requirements before actual exchange use. This proposal does not determine whether use is lawful or permitted.
+9. Preserve PR #1; do not merge or force-push as part of the proposal.
 
 ## Decision status
 
 - Governance amendment accepted: **NO — pending review**
 - Feature 005 implementation authorized: **NO — pending review**
 - Network/runtime testing authorized: **NO**
-- Any private or state-changing capability authorized: **NO**
+- Challenge-account trading authorized: **NO**
+- Withdrawals/transfers/deposits and leveraged/derivative capabilities authorized: **NO**
 
-The offline-only baseline remains in force until a reviewed decision explicitly changes these statuses.
+Until these statuses change through an explicit reviewed decision, the existing offline-only baseline remains in force.
