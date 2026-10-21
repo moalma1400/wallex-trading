@@ -21,7 +21,7 @@
 - [x] The basic-services and Spot Swagger assets' available reader chunks were reviewed for market-data relevance; the reader output is transformed, not byte-exact. No source bytes/checksums are fabricated.
 - [ ] Remaining Margin, OTC and Trade Credit artifact chunks and true byte-level archives/checksums remain incomplete; these are not required for this Spot-only local implementation.
 - [x] Final repository test suite, offline source/link validators, compilation, whitespace and heuristic secret review: see [validation record](../research.md#validation-record).
-- [ ] Commit/push only to the fixed session branch; PR #1 stays open and unmerged.
+- [x] Committed/pushed only to the fixed session branch; PR #1 remains open and unmerged.
 
 ## Limitations
 
