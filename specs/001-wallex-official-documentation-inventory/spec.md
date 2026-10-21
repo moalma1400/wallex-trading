@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-wallex-official-documentation-inventory`
 **Created**: 2026-10-21
-**Status**: Draft
+**Status**: In Progress
 **Input**: Establish a comprehensive, source-backed inventory and Persian-first knowledge base of public official Wallex trading-related documentation; this is a documentation research feature, not order execution.
 
 ## User Scenarios & Testing

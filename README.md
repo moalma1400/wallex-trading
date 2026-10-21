@@ -6,7 +6,7 @@
 
 This private repository establishes a Persian-first, source-backed knowledge base about publicly available official Wallex trading and API documentation. The current phase is documentation research and specification. It does **not** implement a trading strategy, connect to a Wallex account, call production APIs, place or cancel orders, transfer assets, or provide individualized buy/sell recommendations.
 
-Documented capabilities do not prove that a feature is currently available at runtime, suitable or profitable, or permitted for every account or use. Fees, symbols, limits, access, and platform behavior can change; check the dated official sources before relying on any value.
+Documented capabilities do not prove that a feature is currently available at runtime, suitable or profitable, or permitted for every account or use. Fees, symbols, limits, access, and platform behavior can change; check the dated official sources before relying on any value. Official U.S. Treasury/OFAC materials in the research record also describe sanctions designation and potential non-U.S.-person exposure; this repository is not legal advice, and no use or transaction should proceed without independent, current legal/compliance review.
 
 ## Spec-Driven Development
 
