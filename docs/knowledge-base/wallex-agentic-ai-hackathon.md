@@ -14,6 +14,10 @@ The source record is `USER-WALLEX-HACKATHON-BRIEF` in the [source register](../r
 
 > **HIGH-PRIORITY FINANCIAL RISK — unresolved:** Existing official Wallex source summaries describe a general credit plan with a 30-day term, daily credit fee, and warning/liquidation levels (`CREDIT-TYPES`). Separately, the user-supplied excerpt claims a three-day, 5,000,000-Toman arrangement, daily-prorated example fee, forced instant sale, and no assets/money returned in liquidation. The user-provided hackathon brief also says the team does not pay a capital shortfall. These sources do **not** establish whether the general product applies to Starcoach, whether the three-day terms are a special package, or whether fees/deficits/liquidation liability are waived or superseded. Do not call the 5,000,000-Toman figure risk-free, owned, withdrawable, fee-free, or proof that a team/member can never owe a loss. See the [credit-plan reconciliation and organizer questions](wallex-credit-plan-reconciliation.md).
 
+## Integration boundary: Smart98 mediation
+
+The project context specifies Smart98 as the organizational AI Agent platform and mandatory layer for any future Wallex API/MCP access intended for the agent. This is an architecture requirement supplied by the user, not independent evidence of Smart98 capabilities. No Smart98 runtime/docs/interface or authoritative Wallex MCP tools were verified; no transport, tool names, credentials, schemas, or permissions are assumed. The repository must not connect directly to Wallex. See the integration-layer evidence table, proposed read-only internal `MarketDataPort`, and exact verification checklist in [Feature 004 challenge-control architecture](../api/challenge-architecture.md#smart98-mediated-integration-research-documentation-only). Current code remains offline-only; shadow is record-only and live order operations remain disabled.
+
 ## Purpose and challenge flow
 
 - **`PROVIDED_BY_CHALLENGE_BRIEF`** — The challenge is described as part of the Starcoach Agentic AI hackathon with Wallex. Each team has three days to develop, run, and evaluate an algorithm.

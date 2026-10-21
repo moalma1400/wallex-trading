@@ -80,7 +80,7 @@ As a contributor, I can use a local paper ledger and shared agent skills while k
 - **FR-010**: Results MUST report assumptions and modeled fees/slippage, returns, and drawdown without profitability claims or execution guarantees.
 - **FR-011**: Runtime and tests MUST use only the Python standard library and MUST work offline.
 - **FR-012**: The system MUST contain no credential loading, user/account-data collection, or exchange execution adapter.
-- **FR-013**: Smart98 MUST remain an unspecified future strategy-signal provider boundary only; no endpoint, authentication, payload, capability, or SDK may be invented.
+- **FR-013**: Any future Wallex API or MCP access intended for the trading agent MUST be mediated by Smart98; the trading application MUST NOT connect directly to Wallex. Smart98 is identified by user-provided project context as the intended organizational AI Agent platform, but its technical interface and capabilities remain unspecified. Keep any future provider behind a configurable, provider-neutral internal market-data/tool port; do not invent a Smart98 endpoint, authentication method, transport, tool name, payload, permission, or SDK. No adapter is implemented in this feature.
 - **FR-014**: Documentation MUST preserve Feature 001's incomplete status and source conflicts; the offline kernel MUST not be presented as a validated Wallex API implementation.
 - **FR-015**: Before any future real exchange-use proposal, documentation MUST require an independent, current, jurisdiction-specific legal/compliance gate, including sanctions and access restrictions, without guaranteeing legality.
 

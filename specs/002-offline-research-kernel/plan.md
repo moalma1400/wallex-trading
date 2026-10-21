@@ -61,4 +61,4 @@ specs/002-offline-research-kernel/
 
 ## Complexity Tracking
 
-No constitution violations or extra services are introduced. The local signal port is a small domain boundary for future strategies/Smart98 research outputs, not an integration contract.
+No constitution violations or extra services are introduced. The existing local target-exposure input remains a caller-supplied strategy output. Any future market-data integration must use a provider-neutral internal port and, for Wallex access, a verified Smart98-mediated route; the port is not a Smart98/Wallex integration contract and no adapter is implemented.

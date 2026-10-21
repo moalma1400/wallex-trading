@@ -50,10 +50,27 @@ Until authoritative, traceable hackathon-specific evidence resolves these questi
 15. Which candle resolutions are available for historical UDF data versus live WebSocket channels, and what are their boundary/timezone guarantees? The two pages expose different lists; see `D-014`.
 16. Can the official OpenAPI/Swagger artifacts be retrieved as complete original bytes with version/date/checksum so the repository can preserve and validate them locally? Current page-reader responses are transformed and chunked; five artifact records are `in_progress`, not full captures.
 17. What is the complete schema/authentication/permissions and lifecycle contract for every generated Spot, account, Margin, OTC, trade-credit, and private WebSocket operation? The current review leaves 51 sitemap pages `not_started`; one sitemap URL returned localized not-found content, and its replacement/status is unknown.
-18. Do Smart98 public docs or a reviewed user-supplied interface contract exist? None was verified in this checkout, so no adapter or endpoint has been invented.
+18. Smart98 is the intended organizational AI Agent platform and mandatory mediator per user project context, but what versioned contract, transport, auth, tool catalog, schemas, error/timeouts/logging, and Wallex MCP/API compatibility are actually supported? See the expanded Smart98 evidence checklist below; no adapter or endpoint has been invented.
 19. Which UDF-history field requiredness and resolution set is canonical? The basic page marks fields Optional; generated `candle-history` and the legacy reference mark them Required, and the modern pages show different resolution examples. See `D-008` and `D-015`; no runtime call is permitted.
 20. Does the sitemap-listed `/docs/weekly` have a replacement or is it retired? The page reader returned a localized not-found body without an HTTP status; the source is `blocked`/`inaccessible` and no reason is inferred.
 
+
+### Smart98-mediated Wallex access — evidence needed (all presently `UNKNOWN`)
+
+The current user context identifies Smart98's role as an organizational AI Agent platform and mandatory mediation layer, but that is not a technical capability confirmation. No Smart98 documentation or runtime contract exists in this checkout; the Arena connector lookup returned `unsupported`, so this session could not inspect platform tools. Do not interpret that as evidence the platform itself is unavailable.
+
+1. What is the canonical Smart98 product/version and owner-approved documentation location? What environment, supported deployment model, network/egress boundary, and service identity apply?
+2. Which MCP transports and versions does Smart98 support? How are MCP servers registered, reviewed, enabled, versioned, disabled, and isolated? What demonstrates compatibility with a specifically identified Wallex MCP release?
+3. How are tools discovered and allow-listed for a particular agent/workflow? Can the platform enforce separate least-privilege groups for public market-data reads, account-sensitive reads, and state-changing tools?
+4. What exact authentication/delegation model is used? Who holds Wallex credentials, how are they scoped/rotated/revoked, and what proof establishes that secrets never enter model context, prompts, repository, tool output, or logs?
+5. Where are tool descriptions and versioned input/output schemas documented? How are schema validation, provenance, untrusted output, sensitive-field redaction, and model-visible result shaping handled?
+6. What are error, timeout, retry, cancellation, rate-limit, partial-output, and idempotency semantics? How do tool failures propagate to the agent and deterministic application without being misreported as successful data/actions?
+7. Which request/response metadata is logged (actor, tool, version, timestamps, provenance, policy decision, result, errors)? What retention, redaction, access, and audit-export controls apply?
+8. For Wallex MCP specifically: provide canonical publisher/repository/URL, release/version, source/license, transport, tool inventory, schemas, auth, permissions, side effects, upstream service, limits, and security/disclosure contact. No authoritative Wallex MCP source is registered today.
+9. Does Smart98 officially approve and support the identified Wallex API/MCP integration, and exactly which **read-only market data** tool(s) may be exposed to shadow workflows? No access is allowed based only on an MCP/tool being listed or present.
+10. What separate non-production certification/test plan can prove the exact Smart98-to-Wallex route while excluding account actions and production requests? This documentation task does not perform that test.
+
+Until evidence is supplied and reviewed, transport compatibility, tool discovery, schemas, authentication, error propagation, timeouts, logging, permissions, and Smart98-to-Wallex reachability remain `UNKNOWN`. Direct Wallex application access is not an acceptable fallback.
 
 ## Wallex / Starcoach hackathon (Feature 004) — organizer confirmation required
 

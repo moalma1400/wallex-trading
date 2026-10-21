@@ -6,6 +6,10 @@
 
 `USER-WALLEX-CREDIT-PLAN-EXCERPT` is registered as a user-provided source, not an official Wallex page. Only an English bullet summary was supplied; the user reports that the underlying source is Persian. URL and dates remain `UNKNOWN`; the eligible-market list is absent and the permission table is malformed. Previously reviewed official `CREDIT-INTRO` supports account separation; `CREDIT-TYPES` summarizes a general 30-day credit plan with daily fee and warning/liquidation levels. Neither source verifies the excerpt's exact amounts/example or applicability to Starcoach. Full provenance and claim reconciliation are in [`wallex-credit-plan-reconciliation.md`](../knowledge-base/wallex-credit-plan-reconciliation.md). No market-list inference is made.
 
+## Smart98 / Wallex MCP integration evidence — outside sitemap scope
+
+No Smart98 documentation, runtime contract, tool catalog, MCP registry/configuration, or Wallex MCP implementation is present in the source register. The user's project context supplies Smart98's required role as organizational AI Agent platform and mandatory mediator; that is a requirement, not independently verified product capability. The Arena Smart98 connector lookup returned `unsupported` for this session, so no platform tools/runtime could be queried. The only Wallex MCP mention found is in the unverified user transcript. See the [Smart98-mediated architecture matrix](../api/challenge-architecture.md#smart98-mediated-integration-research-documentation-only) and the [open evidence checklist](unresolved-questions.md). No external Smart98/MCP endpoint or source is guessed, and this is not counted as a Wallex sitemap page.
+
 ## Counts: developer documentation sitemap pages only
 
 Counts below use the 115 unique `/docs...` URLs returned by the official developers.wallex.ir sitemap, not arbitrary pages guessed during research. `not_started` means the exact page URL is in the official sitemap but the body has not yet been reviewed. Sitemap coverage is a discoverability snapshot, not a claim that the entire public web is exhaustively crawled.

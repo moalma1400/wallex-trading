@@ -15,7 +15,7 @@ All values are caller data or derived local simulation values. The models do not
 
 - `timestamp: datetime` — time the caller's decision is observed; must match one candle close.
 - `fraction: Decimal` — requested Spot exposure as a fraction of equity, constrained to `[0, maximum_spot_exposure]`.
-- There is no embedded strategy or signal-generation method. A future Smart98 or other strategy adapter is explicitly deferred pending its own contract and review.
+- There is no embedded strategy or signal-generation method. Smart98 is the user-specified future mediation platform, not a strategy provider. A provider-neutral internal read-only `MarketDataPort` is a proposed seam only; Smart98/Wallex-specific adapters and all external contracts are deferred pending authoritative docs and separate review.
 
 ### `SimulationConfig`
 
