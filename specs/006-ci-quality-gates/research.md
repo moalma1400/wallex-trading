@@ -21,5 +21,5 @@
 ## Limitations
 
 - This repository environment has no verified native Spec Kit integration; these artifacts were authored by manually applying the generated repository skill instructions, not by invoking a native Spec Kit command.
-- GitHub Actions behavior and workflow syntax still require confirmation from an actual run after the workflow is pushed.
+- Hosted GitHub Actions validation succeeded on 2026-10-22 after removing an unsupported `cache: false` input from `actions/setup-python`. Run 5 at commit `f3aa86a1b8e9c1935084b66db3d52733766b1e6c` completed successfully: 135 source records validated; 180 local Markdown links resolved; 248 citations matched; compileall passed; pytest reported 145 passed and 24 subtests passed; changed-line whitespace check passed.
 - Installing pytest requires package-index access on the runner. The project's validators and tests themselves must remain offline with respect to Wallex and Smart98.
