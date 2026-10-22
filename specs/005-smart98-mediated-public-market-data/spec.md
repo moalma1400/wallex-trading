@@ -50,7 +50,7 @@ No direct Wallex application/API calls or direct-access fallback. No withdrawal,
 9. Each decision/order has an auditable reason trail and exact algorithm version; no credentials or unnecessary personal data enter logs or artifacts.
 10. Backtests and shadow tests cannot invoke the live submitter; tests and CI stay offline/deterministic.
 11. Live execution stays disabled until governance, exact tool contract, challenge-account permissions, compliance review and an explicit separate activation decision are recorded.
-12. Existing PR #1 is updated in place only after review; no second PR, force-push, or merge.
+12. Delivery must not modify `main`, rewrite history, or merge. PR #1 is already merged (current GitHub state); do not attempt to update/reopen it. The existing project delivery plan prohibits a replacement PR without explicit owner direction; record that blockage and keep all changes on the active feature branch.
 
 ## Technical judging criteria and evidence matrix
 
