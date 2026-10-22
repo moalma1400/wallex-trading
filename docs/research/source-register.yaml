@@ -2788,6 +2788,50 @@
         "account-permissions table formatting corrupted",
         "no verbatim Persian original provided"
       ]
+    },
+    {
+      "source_id": "USER-WALLEX-CREDIT-PLAN-UI-OBSERVATION",
+      "title": "User-provided screenshot of the Wallex «هکاتون استارکوچ» credit-plan UI",
+      "url": null,
+      "official_domain": null,
+      "documentation_type": "User-provided account UI screenshot; visual observation only, not independently authenticated",
+      "discovery_path": "Screenshot attachment supplied in the conversation on 2026-10-22; observations preserved in docs/research/user-sources/wallex_credit_plan_ui_observation_2026-10-22.md. The attachment has no public URL.",
+      "retrieved_at_utc": null,
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "credit plan",
+        "account-specific UI observation",
+        "credit repayment wording",
+        "account permissions",
+        "plan duration",
+        "liquidation",
+        "Smart98-mediated API boundaries"
+      ],
+      "claims_summary": "Screenshot displays the plan title «هکاتون استارکوچ | والکس», 5,000,000 TMN trading credit, 0 Toman entry/user assets, a three-day duration, and the wording «بازپرداخت اعتبار ۳ روز رایگان!». It shows a main-vs-credit permission table and describes Instant Sell and transfer of credit-account assets to the main account at expiry/stop. The user says the plan is now available/enabled for their account, but the screen still displays an «فعال کردن طرح» button, so completion of activation is not established by the screenshot alone. Exact eligible markets, fees beyond the displayed wording, liquidation values/mechanics, debt liability, and settlement remain unverified.",
+      "confidence_and_evidence_notes": "User-supplied image attachment ksnip_20261022-185625.png, 676x882 pixels. SHA-256 of screenshot bytes: eafaed14af03fd7c7fa33f844220dd58ffb646aa0ec555fe6ed2412faee9b45d. The image itself is not archived in the repository; only this bounded visual observation and the attachment fingerprint are preserved. The screenshot is evidence of what the UI displayed, not an independently authenticated official terms page, proof of settled account state, proof that activation completed, or confirmation of endpoint-level API permissions.",
+      "related_source_ids": [
+        "USER-WALLEX-CREDIT-PLAN-EXCERPT",
+        "CREDIT-INTRO",
+        "CREDIT-TYPES",
+        "USER-WALLEX-HACKATHON-BRIEF"
+      ],
+      "research_status": "reviewed",
+      "source_kind": "user_provided",
+      "source_file": "docs/research/user-sources/wallex_credit_plan_ui_observation_2026-10-22.md",
+      "source_file_sha256": "a9f691d5a3faf410acc5576d9e772e118236604b0389131475247f4e94487fc4",
+      "source_attachment_name": "ksnip_20261022-185625.png",
+      "source_attachment_sha256": "eafaed14af03fd7c7fa33f844220dd58ffb646aa0ec555fe6ed2412faee9b45d",
+      "source_attachment_archived_in_repository": false,
+      "visual_observation_status": "reviewed",
+      "official_verification_status": "NOT_VERIFIED",
+      "completeness_limitations": [
+        "raw screenshot binary is not archived in repository; attachment hash is recorded",
+        "activation-completion state is ambiguous because UI shows an Activate plan button",
+        "eligible-market list is not visible",
+        "precise warning/liquidation values and units are not confidently readable",
+        "screen does not resolve fees after displayed three-day-free wording, deficit liability, or settlement"
+      ]
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."
