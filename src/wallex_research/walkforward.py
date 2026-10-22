@@ -193,6 +193,8 @@ def validate_walk_forward_config(
             _positive_int(strict_test_size, "strict_test_size")
         except WalkForwardError as exc:
             errors.append(str(exc))
+            # Do not compare observation counts against an invalid runtime value.
+            strict_test_size = None
 
     sorted_times = sorted(_ensure_aware(ts) for ts in all_timestamps)
     if not sorted_times:
