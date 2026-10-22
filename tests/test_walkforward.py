@@ -456,6 +456,21 @@ class ValidateWalkForwardConfigTests(unittest.TestCase):
         errors = validate_walk_forward_config([c], _day_points(14), strict_test_size=True)  # type: ignore[arg-type]
         self.assertTrue(any("strict_test_size" in e for e in errors))
 
+    def test_strict_test_size_rejects_non_integer_types_without_crashing(self) -> None:
+        c = WalkForwardConfig(
+            train_window=TimeWindow("train", BASE, BASE + timedelta(days=10)),
+            test_window=TimeWindow("test", BASE + timedelta(days=10), BASE + timedelta(days=12)),
+            min_train_observations=1,
+        )
+        for invalid in ("5", 1.5, None):
+            if invalid is None:
+                continue  # None means the optional strict-size gate is disabled.
+            with self.subTest(invalid=invalid):
+                errors = validate_walk_forward_config(
+                    [c], _day_points(14), strict_test_size=invalid  # type: ignore[arg-type]
+                )
+                self.assertTrue(any("strict_test_size" in e for e in errors))
+
     def test_min_train_observations_rejects_bool(self) -> None:
         with self.assertRaises(WalkForwardError):
             WalkForwardConfig(
