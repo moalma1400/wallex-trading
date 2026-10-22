@@ -120,6 +120,8 @@ def build_rolling_windows(
         not isinstance(validation_duration, timedelta) or validation_duration < timedelta(0)
     ):
         raise WalkForwardError("validation_duration must be a non-negative timedelta when provided")
+    if validation_duration is not None and validation_duration > train_duration:
+        raise WalkForwardError("validation_duration cannot exceed train_duration")
     _positive_int(min_train_observations, "min_train_observations")
 
     cycles: list[WalkForwardConfig] = []
