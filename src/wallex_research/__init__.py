@@ -1,3 +1,4 @@
+"""
 """Offline, strategy-neutral market-data research primitives.
 
 This package intentionally has no exchange, account, network, or credential adapter.

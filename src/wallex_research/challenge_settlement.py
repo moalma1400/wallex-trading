@@ -12,6 +12,14 @@ from .challenge import ChallengePolicyError, _decimal
 from .historical import utc_time
 
 
+BASELINE_EVIDENCE_WARNING = (
+    "The 5,000,000 Toman baseline is user-provided and not independently verified. "
+    "Do not treat it as confirmed owned/withdrawable funds, authorized capital, or "
+    "a guaranteed challenge allocation."
+)
+"""Warning emitted when the unverified default baseline is used."""
+
+
 @dataclass(frozen=True, slots=True)
 class SettlementSnapshot:
     snapshot_at_utc: datetime
@@ -101,12 +109,21 @@ def validate_settlement_readiness(
     cutoff_source_url: str | None = None,
     cutoff_source_sha256: str | None = None,
 ) -> SettlementReadiness:
-    """Readiness requires an exact official cutoff and realized TMN-only balances."""
+    """Readiness requires an exact official cutoff and realized TMN-only balances.
+
+    The 5,000,000 Toman default is user-provided and unverified; a warning
+    code UNVERIFIED_BASELINE is always emitted when the default is used without
+    independent verification evidence.
+    """
     capital = _decimal(initial_capital_tmn, "initial_capital_tmn")
     if capital != Decimal("5000000"):
         raise ChallengePolicyError("challenge baseline must match the user-provided 5,000,000-TMN brief")
     reasons: list[str] = []
     warnings: list[str] = []
+
+    # Always warn about the unverified baseline
+    warnings.append("UNVERIFIED_BASELINE")
+
     cutoff_synthetic = cutoff_evidence_status == "SYNTHETIC_FIXTURE" and allow_synthetic_fixture_evidence
     cutoff_official = cutoff_evidence_status == "OFFICIAL_SOURCE_VERIFIED"
     cutoff_provenance_valid = (
