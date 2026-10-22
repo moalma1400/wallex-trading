@@ -1,0 +1,47 @@
+name: Public market data MCP discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/github-native-market-data
+    paths:
+      - ".github/workflows/public-market-data.yml"
+      - "src/wallex_research/public_market_data.py"
+      - "tests/test_public_market_data.py"
+  schedule:
+    - cron: '17 */2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-market-data-mcp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || vars.ENABLE_PUBLIC_MARKET_DATA == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Discover official Wallex MCP tools (public read-only discovery)
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src:. python -m wallex_research.public_market_data --network --out-dir reports/public-market-data wallex list
+      - name: Discover official CoinGecko MCP tools (public endpoint; no secret required)
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src:. python -m wallex_research.public_market_data --network --out-dir reports/public-market-data coingecko list
+      - name: Upload MCP catalogs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-data-mcp-catalogs-${{ github.run_id }}
+          path: reports/public-market-data/*.json
+          if-no-files-found: warn
+          retention-days: 14
