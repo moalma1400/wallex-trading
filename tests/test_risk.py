@@ -52,14 +52,41 @@ class TestValidateSufficientFunds(unittest.TestCase):
     """AUDIT-001: Numeric sufficiency checks."""
 
     def test_sufficient_funds_passes(self) -> None:
-        validate_sufficient_funds(Decimal("100"), Decimal("200"))
+        validate_sufficient_funds(
+            Decimal("100"), Decimal("200"),
+            available_balance_known=True, available_balance_verified=True,
+        )
+
+    def test_known_flag_cannot_make_missing_amount_pass(self) -> None:
+        with self.assertRaises(InsufficientFundsError):
+            validate_sufficient_funds(
+                Decimal("100"), None,
+                available_balance_known=True, available_balance_verified=True,
+            )
+
+    def test_default_evidence_flags_fail_closed(self) -> None:
+        with self.assertRaises(InsufficientFundsError):
+            validate_sufficient_funds(Decimal("0"), Decimal("200"))
+
+    def test_invalid_boolean_evidence_fails_closed(self) -> None:
+        with self.assertRaises(InsufficientFundsError):
+            validate_sufficient_funds(
+                Decimal("100"), Decimal("200"),
+                available_balance_known="true", available_balance_verified=True,
+            )  # type: ignore[arg-type]
 
     def test_insufficient_funds_raises(self) -> None:
         with self.assertRaises(InsufficientFundsError):
-            validate_sufficient_funds(Decimal("300"), Decimal("200"))
+            validate_sufficient_funds(
+                Decimal("300"), Decimal("200"),
+                available_balance_known=True, available_balance_verified=True,
+            )
 
     def test_exact_funds_passes(self) -> None:
-        validate_sufficient_funds(Decimal("200"), Decimal("200"))
+        validate_sufficient_funds(
+            Decimal("200"), Decimal("200"),
+            available_balance_known=True, available_balance_verified=True,
+        )
 
     def test_unknown_amount_raises(self) -> None:
         with self.assertRaises(InsufficientFundsError):
@@ -98,7 +125,23 @@ class TestValidateCapitalEvidence(unittest.TestCase):
     """AUDIT-002: Capital provenance checks."""
 
     def test_known_and_verified_passes(self) -> None:
-        validate_capital_evidence(Decimal("5000000"), capital_known=True, capital_verified=True)
+        validate_capital_evidence(
+            Decimal("5000000"), capital_known=True, capital_verified=True,
+            capital_source="synthetic-test-fixture:capital",
+        )
+
+    def test_missing_capital_amount_cannot_be_verified_by_flags_alone(self) -> None:
+        with self.assertRaises(RiskViolation):
+            validate_capital_evidence(
+                None, capital_known=True, capital_verified=True,
+                capital_source="synthetic-test-fixture:capital",
+            )
+
+    def test_missing_source_identifier_cannot_pass(self) -> None:
+        with self.assertRaises(RiskViolation):
+            validate_capital_evidence(
+                Decimal("5000000"), capital_known=True, capital_verified=True,
+            )
 
     def test_unknown_raises(self) -> None:
         with self.assertRaises(RiskViolation):
@@ -113,7 +156,8 @@ class TestValidateCapitalEvidence(unittest.TestCase):
     def test_zero_capital_raises(self) -> None:
         with self.assertRaises(RiskViolation):
             validate_capital_evidence(
-                Decimal("0"), capital_known=True, capital_verified=True
+                Decimal("0"), capital_known=True, capital_verified=True,
+                capital_source="synthetic-test-fixture:capital",
             )
 
 

@@ -80,6 +80,8 @@ class SettlementReadiness:
     evidence_status: str
     cutoff_evidence_status: str
     cutoff_source_id: str | None
+    capital_evidence_status: str
+    capital_source_id: str | None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -95,6 +97,8 @@ class SettlementReadiness:
             "evidence_status": self.evidence_status,
             "cutoff_evidence_status": self.cutoff_evidence_status,
             "cutoff_source_id": self.cutoff_source_id,
+            "capital_evidence_status": self.capital_evidence_status,
+            "capital_source_id": self.capital_source_id,
         }
 
 
@@ -108,21 +112,38 @@ def validate_settlement_readiness(
     cutoff_source_id: str | None = None,
     cutoff_source_url: str | None = None,
     cutoff_source_sha256: str | None = None,
+    capital_evidence_status: str = "UNRESOLVED",
+    capital_source_id: str | None = None,
+    capital_source_url: str | None = None,
+    capital_source_sha256: str | None = None,
 ) -> SettlementReadiness:
-    """Readiness requires an exact official cutoff and realized TMN-only balances.
+    """Readiness requires a verified baseline, exact cutoff, and reconciled balances.
 
-    The 5,000,000 Toman default is user-provided and unverified; a warning
-    code UNVERIFIED_BASELINE is always emitted when the default is used without
-    independent verification evidence.
+    Synthetic capital evidence is reported only when the explicit fixture flag
+    is set; it never clears the UNVERIFIED_BASELINE readiness blocker.
     """
+    if not isinstance(allow_synthetic_fixture_evidence, bool):
+        raise ChallengePolicyError("allow_synthetic_fixture_evidence must be an explicit boolean")
     capital = _decimal(initial_capital_tmn, "initial_capital_tmn")
     if capital != Decimal("5000000"):
         raise ChallengePolicyError("challenge baseline must match the user-provided 5,000,000-TMN brief")
     reasons: list[str] = []
     warnings: list[str] = []
 
-    # Always warn about the unverified baseline
-    warnings.append("UNVERIFIED_BASELINE")
+    capital_synthetic = capital_evidence_status == "SYNTHETIC_FIXTURE" and allow_synthetic_fixture_evidence
+    capital_official = capital_evidence_status == "OFFICIAL_SOURCE_VERIFIED"
+    capital_provenance_valid = (
+        isinstance(capital_source_id, str) and bool(capital_source_id.strip())
+        and isinstance(capital_source_url, str) and capital_source_url.startswith("https://")
+        and isinstance(capital_source_sha256, str) and re.fullmatch(r"[0-9a-f]{64}", capital_source_sha256) is not None
+    )
+    if capital_official and not capital_provenance_valid:
+        reasons.append("CAPITAL_EVIDENCE_PROVENANCE_MISSING")
+    if not (capital_official and capital_provenance_valid):
+        warnings.append("UNVERIFIED_BASELINE")
+        reasons.append("UNVERIFIED_BASELINE")
+    if capital_synthetic:
+        warnings.append("SYNTHETIC_CAPITAL_NOT_OFFICIAL_EVIDENCE")
 
     cutoff_synthetic = cutoff_evidence_status == "SYNTHETIC_FIXTURE" and allow_synthetic_fixture_evidence
     cutoff_official = cutoff_evidence_status == "OFFICIAL_SOURCE_VERIFIED"
@@ -181,4 +202,6 @@ def validate_settlement_readiness(
         snapshot.evidence_status,
         cutoff_evidence_status,
         cutoff_source_id,
+        capital_evidence_status,
+        capital_source_id,
     )

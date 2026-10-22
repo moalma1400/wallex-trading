@@ -19,5 +19,5 @@ metadata:
 ## Challenge-specific gate
 
 - For Feature 004, load limits from `config/challenge/wallex_hackathon_policy.json`; null or missing limits are an explicit veto, not an invitation to choose defaults. The loader ignores numeric values unless configuration status is `REVIEWED_INTERNAL` with evidence status. These are internal controls, not official Wallex/organizer limits.
-- Require independent strategy approval, reconciled local state, fresh trusted metadata, known fees/costs, and a supported settlement quote. Normalize pair syntax before evaluating.
-- Preserve machine-readable blocker reasons and deterministic audit references. Do not add an order-submission action.
+- Require independently sourced capital and available-balance evidence, complete official provenance for non-synthetic evidence, independent strategy approval, reconciled local state, fresh trusted metadata, known fees/costs, and a supported settlement quote. Synthetic evidence clears gates only under an explicit offline-fixture flag; an unverified brief baseline is a blocker, not only a warning. Do not treat a TMN buy-balance check as sufficient for a Spot sell; until base-asset balance/fee handling is validated, sell proposals must block.
+- Preserve machine-readable blocker reasons and deterministic audit references. Trace all callers before claiming a veto protects an intent: the risk evaluator is not connected to the record-only dispatcher or any order-submission path. Do not add an order-submission action.

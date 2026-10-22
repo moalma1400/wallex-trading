@@ -22,15 +22,18 @@ class MarketMeta:
     symbol: str
     base_asset: str
     quote_asset: str
-    is_spot: bool
+    is_spot: Optional[bool]
     amount_precision: int
     price_precision: int
-    min_notional: Optional[Decimal]
+    otc_min_notional: Optional[Decimal]
     is_risky: bool
     is_tmn_based: bool
     is_usdt_based: bool
     created_at: datetime.datetime
     source: DataSource = DataSource.MCP_SMART98
+    market_type_enabled: Optional[bool] = None
+    retrieved_at: Optional[datetime.datetime] = None
+    source_timestamp: Optional[datetime.datetime] = None
 
 
 @dataclass(frozen=True)
@@ -52,8 +55,8 @@ class Candle:
 class Ticker:
     """Current market ticker data (point-in-time)."""
     symbol: str
-    bid: Decimal
-    ask: Decimal
+    bid: Optional[Decimal]
+    ask: Optional[Decimal]
     last: Decimal
     volume_24h: Decimal
     change_24h: Decimal
@@ -61,6 +64,7 @@ class Ticker:
     low_24h: Decimal
     retrieved_at: datetime.datetime = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))
     source: DataSource = DataSource.MCP_SMART98
+    source_timestamp: Optional[datetime.datetime] = None
 
 
 @dataclass(frozen=True)
@@ -76,6 +80,7 @@ class OrderBook:
     bids: Tuple[OrderBookLevel, ...]
     retrieved_at: datetime.datetime = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))
     source: DataSource = DataSource.MCP_SMART98
+    source_timestamp: Optional[datetime.datetime] = None
 
 
 @dataclass(frozen=True)
@@ -95,6 +100,7 @@ class Eligibility(Enum):
     NOT_SPOT = auto()
     NO_METADATA = auto()
     STALE = auto()
+    INACTIVE = auto()
 
 
 @dataclass(frozen=True)

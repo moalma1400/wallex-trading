@@ -6,12 +6,14 @@ them. This module validates intents only and has no order submission capability.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 from .challenge import ChallengePolicyError, _decimal, normalize_spot_pair
+from .risk import InsufficientFundsError, RiskViolation, validate_capital_evidence, validate_sufficient_funds
 
 
 LIMIT_NAMES = (
@@ -99,10 +101,14 @@ class RiskProposal:
     estimated_slippage_basis_points: Decimal | str | int
     liquidity_utilization_percent: Decimal | str | int
     estimated_total_cost_basis_points: Decimal | str | int
+    side: str
     fees_known: bool
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "pair", normalize_spot_pair(self.pair))
+        if not isinstance(self.side, str) or self.side.strip().upper() not in {"BUY", "SELL"}:
+            raise ChallengePolicyError("risk proposal side must be BUY or SELL")
+        object.__setattr__(self, "side", self.side.strip().upper())
         for name in (
             "notional_tmn", "asset_exposure_after_tmn", "total_deployed_after_tmn",
             "worst_case_loss_tmn", "projected_drawdown_percent",
@@ -152,16 +158,93 @@ class RiskGateDecision:
         return {"allowed": self.allowed, "reason_codes": list(self.reason_codes)}
 
 
+def _verified_evidence(
+    status: str,
+    source_id: str | None,
+    source_url: str | None,
+    source_sha256: str | None,
+    allow_synthetic_fixture_evidence: bool,
+) -> bool:
+    if status == "SYNTHETIC_FIXTURE":
+        return allow_synthetic_fixture_evidence is True and isinstance(source_id, str) and bool(source_id.strip())
+    return (
+        status == "OFFICIAL_SOURCE_VERIFIED"
+        and isinstance(source_id, str) and bool(source_id.strip())
+        and isinstance(source_url, str) and source_url.startswith("https://")
+        and isinstance(source_sha256, str) and re.fullmatch(r"[0-9a-f]{64}", source_sha256) is not None
+    )
+
+
 def evaluate_challenge_risk(
     proposal: RiskProposal,
     observation: RiskObservation,
     limits: ChallengeRiskLimits,
     *,
     initial_capital_tmn: Decimal | str | int = "5000000",
+    capital_evidence_status: str = "UNRESOLVED",
+    capital_source_id: str | None = None,
+    capital_source_url: str | None = None,
+    capital_source_sha256: str | None = None,
+    available_balance_tmn: Decimal | str | int | None = None,
+    available_balance_evidence_status: str = "UNRESOLVED",
+    available_balance_source_id: str | None = None,
+    available_balance_source_url: str | None = None,
+    available_balance_source_sha256: str | None = None,
+    allow_synthetic_fixture_evidence: bool = False,
 ) -> RiskGateDecision:
-    """Evaluate caller-configured limits; missing evidence/limits block the intent."""
+    """Evaluate caller-configured limits; only traceable evidence can clear gates.
+
+    Synthetic evidence is accepted solely when the explicit offline-fixture flag
+    is set. It does not establish actual challenge capital or account balance.
+    SELL proposals remain blocked until base-asset balance validation exists.
+    """
+    if not isinstance(allow_synthetic_fixture_evidence, bool):
+        raise ChallengePolicyError("allow_synthetic_fixture_evidence must be an explicit boolean")
     capital = _decimal(initial_capital_tmn, "initial_capital_tmn")
     reasons: list[str] = [f"RISK_LIMIT_MISSING:{name}" for name in limits.missing_limits]
+    if proposal.side == "SELL":
+        reasons.append("SELL_BASE_BALANCE_VALIDATION_NOT_IMPLEMENTED")
+    if not _verified_evidence(
+        capital_evidence_status, capital_source_id, capital_source_url,
+        capital_source_sha256, allow_synthetic_fixture_evidence,
+    ):
+        reasons.append("UNVERIFIED_BASELINE")
+    else:
+        try:
+            validate_capital_evidence(
+                initial_capital_tmn,
+                capital_known=True,
+                capital_verified=True,
+                capital_source=capital_source_id,
+            )
+        except RiskViolation:
+            reasons.append("UNVERIFIED_BASELINE")
+
+    balance_evidence_valid = _verified_evidence(
+        available_balance_evidence_status, available_balance_source_id,
+        available_balance_source_url, available_balance_source_sha256,
+        allow_synthetic_fixture_evidence,
+    )
+    if not balance_evidence_valid:
+        reasons.append("AVAILABLE_BALANCE_PROVENANCE_MISSING")
+    try:
+        required_amount = proposal.notional_tmn * (
+            Decimal(1) + proposal.estimated_total_cost_basis_points / Decimal(10000)
+        )
+        validate_sufficient_funds(
+            required_amount,
+            available_balance_tmn,
+            available_balance_known=balance_evidence_valid,
+            available_balance_verified=balance_evidence_valid,
+            error_label="available Spot balance",
+        )
+    except InsufficientFundsError:
+        if available_balance_tmn is None:
+            reasons.append("AVAILABLE_BALANCE_UNKNOWN")
+        elif not balance_evidence_valid:
+            reasons.append("AVAILABLE_BALANCE_UNVERIFIED")
+        else:
+            reasons.append("AVAILABLE_BALANCE_INSUFFICIENT")
     order_limit = limits.maximum_order_notional_tmn
     if order_limit is not None and order_limit >= capital:
         reasons.append("MAX_ORDER_MUST_BE_LESS_THAN_INITIAL_CAPITAL")

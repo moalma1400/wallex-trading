@@ -141,10 +141,30 @@ def good_proposal(**overrides):
         estimated_slippage_basis_points="2",
         liquidity_utilization_percent="5",
         estimated_total_cost_basis_points="10",
+        side="BUY",
         fees_known=True,
     )
     values.update(overrides)
     return RiskProposal(**values)
+
+
+def evaluate_with_synthetic_evidence(proposal=None, observation=None, limits=None, **evidence):
+    values = dict(
+        initial_capital_tmn="5000000",
+        capital_evidence_status="SYNTHETIC_FIXTURE",
+        capital_source_id="SYNTHETIC_FIXTURE:capital",
+        available_balance_tmn="1000000",
+        available_balance_evidence_status="SYNTHETIC_FIXTURE",
+        available_balance_source_id="SYNTHETIC_FIXTURE:balance",
+        allow_synthetic_fixture_evidence=True,
+    )
+    values.update(evidence)
+    return evaluate_challenge_risk(
+        proposal or good_proposal(),
+        observation or good_observation(),
+        limits or good_risk_limits(),
+        **values,
+    )
 
 
 class DisabledPairsAndEligibilityTests(unittest.TestCase):
@@ -329,6 +349,17 @@ class DisabledPairsAndEligibilityTests(unittest.TestCase):
         for code in ("NON_SPOT_INSTRUMENT", "LEVERAGE_FORBIDDEN", "MARGIN_FORBIDDEN", "BORROWING_FORBIDDEN", "SHORT_SELLING_FORBIDDEN"):
             self.assertIn(code, decision.reason_codes)
 
+    def test_synthetic_evidence_flag_requires_boolean_type(self):
+        with self.assertRaises(ChallengePolicyError):
+            is_challenge_spot_market_allowed(
+                request(), good_market(), configured_policy(), DisabledPairRegistry.load(CONFIG),
+                now_utc=NOW, allow_synthetic_fixture_evidence=1,
+            )  # type: ignore[arg-type]
+        with self.assertRaises(ChallengePolicyError):
+            validate_market_order_amounts(
+                good_market(), "1", "1", allow_synthetic_fixture_evidence=1,
+            )  # type: ignore[arg-type]
+
     def test_unsafe_mode_flags_cannot_be_enabled(self):
         for field in ("leverage_enabled", "margin_enabled", "borrowing_enabled", "short_selling_enabled", "withdrawals_enabled", "transfers_enabled", "deposits_enabled", "manual_trading_counts", "live_trading_enabled_by_default"):
             with self.subTest(field=field), self.assertRaises(ChallengePolicyError):
@@ -356,16 +387,51 @@ class RiskAndModeIsolationTests(unittest.TestCase):
         result = evaluate_challenge_risk(good_proposal(), good_observation(), ChallengeRiskLimits())
         self.assertFalse(result.allowed)
         self.assertIn("RISK_LIMIT_MISSING:maximum_order_notional_tmn", result.reason_codes)
+        self.assertIn("UNVERIFIED_BASELINE", result.reason_codes)
+        self.assertIn("AVAILABLE_BALANCE_UNKNOWN", result.reason_codes)
         limits = good_risk_limits()
-        missing_state = evaluate_challenge_risk(good_proposal(), good_observation(account_reconciled=None), limits)
+        missing_state = evaluate_with_synthetic_evidence(
+            good_proposal(), good_observation(account_reconciled=None), limits,
+        )
         self.assertFalse(missing_state.allowed)
         self.assertIn("ACCOUNT_RECONCILIATION_NOT_CONFIRMED", missing_state.reason_codes)
 
+    def test_sell_side_blocks_without_base_asset_balance_validation(self):
+        result = evaluate_with_synthetic_evidence(good_proposal(side="SELL"))
+        self.assertFalse(result.allowed)
+        self.assertIn("SELL_BASE_BALANCE_VALIDATION_NOT_IMPLEMENTED", result.reason_codes)
+
+    def test_synthetic_evidence_cannot_clear_live_style_gate_without_fixture_opt_in(self):
+        result = evaluate_challenge_risk(
+            good_proposal(), good_observation(), good_risk_limits(),
+            capital_evidence_status="SYNTHETIC_FIXTURE",
+            capital_source_id="SYNTHETIC_FIXTURE:capital",
+            available_balance_tmn="1000000",
+            available_balance_evidence_status="SYNTHETIC_FIXTURE",
+            available_balance_source_id="SYNTHETIC_FIXTURE:balance",
+        )
+        self.assertFalse(result.allowed)
+        self.assertIn("UNVERIFIED_BASELINE", result.reason_codes)
+        self.assertIn("AVAILABLE_BALANCE_PROVENANCE_MISSING", result.reason_codes)
+
+    def test_capital_and_available_balance_evidence_are_mandatory(self):
+        no_capital = evaluate_with_synthetic_evidence(capital_evidence_status="UNRESOLVED")
+        self.assertFalse(no_capital.allowed)
+        self.assertIn("UNVERIFIED_BASELINE", no_capital.reason_codes)
+
+        no_balance = evaluate_with_synthetic_evidence(available_balance_tmn=None)
+        self.assertFalse(no_balance.allowed)
+        self.assertIn("AVAILABLE_BALANCE_UNKNOWN", no_balance.reason_codes)
+
+        insufficient = evaluate_with_synthetic_evidence(available_balance_tmn="1")
+        self.assertFalse(insufficient.allowed)
+        self.assertIn("AVAILABLE_BALANCE_INSUFFICIENT", insufficient.reason_codes)
+
     def test_explicit_risk_limits_allow_only_with_all_gates_and_block_breaches(self):
         limits = good_risk_limits()
-        allowed = evaluate_challenge_risk(good_proposal(), good_observation(), limits)
+        allowed = evaluate_with_synthetic_evidence(good_proposal(), good_observation(), limits)
         self.assertTrue(allowed.allowed, allowed.reason_codes)
-        blocked = evaluate_challenge_risk(
+        blocked = evaluate_with_synthetic_evidence(
             good_proposal(notional_tmn="600000", projected_drawdown_percent="9", estimated_spread_basis_points="120", estimated_slippage_basis_points="60", liquidity_utilization_percent="25"),
             good_observation(market_data_age_seconds=31, consecutive_errors=3), limits,
         )
@@ -375,7 +441,9 @@ class RiskAndModeIsolationTests(unittest.TestCase):
     def test_risk_limits_never_allow_full_capital_single_order(self):
         values = {name: getattr(good_risk_limits(), name) for name in good_risk_limits().__dataclass_fields__}
         values["maximum_order_notional_tmn"] = "5000000"
-        decision = evaluate_challenge_risk(good_proposal(), good_observation(), ChallengeRiskLimits(**values))
+        decision = evaluate_with_synthetic_evidence(
+            good_proposal(), good_observation(), ChallengeRiskLimits(**values),
+        )
         self.assertIn("MAX_ORDER_MUST_BE_LESS_THAN_INITIAL_CAPITAL", decision.reason_codes)
 
     def test_backtest_shadow_and_dry_run_never_call_submit_adapter_live_fails_closed(self):
@@ -472,23 +540,51 @@ class DecisionLogAndSettlementTests(unittest.TestCase):
         self.assertIsNone(result.final_value_tmn)
         self.assertIsNone(result.net_return_percent)
 
-    def test_tmn_only_end_state_uses_exact_brief_return_formula(self):
+    def test_synthetic_tmn_only_end_state_cannot_clear_baseline_blocker(self):
         cutoff = NOW
         snap = SettlementSnapshot(
             cutoff, {"TMN": "5250000", "BTC": "0"}, "300000", "0", "50000", True, True,
             valuation_status="INTERNAL_ESTIMATE", evidence_status="SYNTHETIC_FIXTURE",
         )
         result = validate_settlement_readiness(
-            snap, official_cutoff_utc=cutoff, cutoff_evidence_status="SYNTHETIC_FIXTURE", allow_synthetic_fixture_evidence=True,
+            snap, official_cutoff_utc=cutoff, cutoff_evidence_status="SYNTHETIC_FIXTURE",
+            allow_synthetic_fixture_evidence=True, capital_evidence_status="SYNTHETIC_FIXTURE",
         )
-        self.assertTrue(result.ready, result.reason_codes)
+        self.assertFalse(result.ready, result.reason_codes)
+        self.assertIn("UNVERIFIED_BASELINE", result.reason_codes)
+        self.assertIn("UNVERIFIED_BASELINE", result.warning_codes)
         self.assertIn("SYNTHETIC_FIXTURE_NOT_OFFICIAL_SETTLEMENT_EVIDENCE", result.warning_codes)
+        self.assertIn("SYNTHETIC_CAPITAL_NOT_OFFICIAL_EVIDENCE", result.warning_codes)
         self.assertEqual(result.valuation_status, "INTERNAL_ESTIMATE")
         self.assertEqual(result.evidence_status, "SYNTHETIC_FIXTURE")
-        self.assertEqual(result.final_value_tmn, Decimal("5250000"))
-        self.assertEqual(result.net_return_percent, Decimal("5.000000"))
+        self.assertIsNone(result.final_value_tmn)
+        self.assertIsNone(result.net_return_percent)
         self.assertEqual(result.realized_pnl_tmn, Decimal("300000"))
         self.assertEqual(result.fees_tmn, Decimal("50000"))
+        self.assertEqual(result.capital_evidence_status, "SYNTHETIC_FIXTURE")
+
+    def test_unverified_baseline_blocks_settlement_readiness(self):
+        cutoff = NOW
+        snap = SettlementSnapshot(
+            cutoff, {"TMN": "5250000", "BTC": "0"}, "300000", "0", "50000", True, True,
+            valuation_status="INTERNAL_ESTIMATE", evidence_status="SYNTHETIC_FIXTURE",
+        )
+        result = validate_settlement_readiness(
+            snap, official_cutoff_utc=cutoff, cutoff_evidence_status="SYNTHETIC_FIXTURE",
+            allow_synthetic_fixture_evidence=True,
+        )
+        self.assertFalse(result.ready)
+        self.assertIn("UNVERIFIED_BASELINE", result.reason_codes)
+        self.assertIn("UNVERIFIED_BASELINE", result.warning_codes)
+        self.assertIsNone(result.final_value_tmn)
+
+    def test_synthetic_settlement_flag_requires_boolean_type(self):
+        snapshot = SettlementSnapshot(NOW, {"TMN": "5000000"}, "0", "0", "0", True, True)
+        with self.assertRaises(ChallengePolicyError):
+            validate_settlement_readiness(
+                snapshot, official_cutoff_utc=NOW, cutoff_evidence_status="SYNTHETIC_FIXTURE",
+                allow_synthetic_fixture_evidence=1,
+            )  # type: ignore[arg-type]
 
     def test_official_cutoff_requires_source_provenance(self):
         snapshot = SettlementSnapshot(

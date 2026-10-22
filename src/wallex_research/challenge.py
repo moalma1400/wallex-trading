@@ -368,6 +368,8 @@ def is_challenge_spot_market_allowed(
     allow_synthetic_fixture_evidence: bool = False,
 ) -> EligibilityDecision:
     """Explain the fail-closed eligibility decision; never implies exchange access."""
+    if not isinstance(allow_synthetic_fixture_evidence, bool):
+        raise ChallengePolicyError("allow_synthetic_fixture_evidence must be an explicit boolean")
     reasons: list[str] = []
     warnings: list[str] = []
     try:
@@ -465,6 +467,8 @@ def validate_market_order_amounts(
     allow_synthetic_fixture_evidence: bool = False,
 ) -> OrderAmountDecision:
     """Validate caller-supplied decimal scale/minimums only when their semantics are verified."""
+    if not isinstance(allow_synthetic_fixture_evidence, bool):
+        raise ChallengePolicyError("allow_synthetic_fixture_evidence must be an explicit boolean")
     reasons: list[str] = []
     try:
         exact_quantity = _decimal(quantity, "quantity")

@@ -25,4 +25,6 @@ metadata:
 ## Challenge market-eligibility boundary
 
 - The Feature 004 disabled-pair JSON is derived from its raw user-provided list; it is not an active-market registry. The absence of a pair from it must never be treated as permission or proof of orderability.
-- Require current, trusted, noncontradictory source evidence and explicit freshness/orderability/Spot states before any internal eligibility result. Missing thresholds or source provenance block. Synthetic metadata passes only in explicit test-only mode.
+- Require current, trusted, noncontradictory source evidence and explicit freshness/orderability/Spot states before any internal eligibility result. Missing source-event time, challenge permission, or source provenance blocks; local retrieval time is not source-event time. Synthetic metadata passes only in explicit test-only mode.
+- Do not use a generic or absent competition scope as an allow-list entry. Require explicit per-competition authorization; false/unknown market-type enablement, unknown Spot state, prohibited risk flags, and stale/future timestamps fail closed.
+- Candle order validation must reject empty, duplicate, non-increasing, out-of-order, and gapped intervals; do not sort, deduplicate, or merely log a gap to make replay possible.

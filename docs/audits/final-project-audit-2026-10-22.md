@@ -1,174 +1,52 @@
-# Wallex Trading Repository — Final Project Audit 2026-10-22
+# Wallex Trading Repository — Readiness Review (2026-10-22)
 
-## 1. Executive Summary
+## Scope and evidence boundary
 
-**Status**: READY FOR OFFLINE TESTING
+This refresh started from PR #1 remote head `70a1f146d9b8eec5c7e541c2fe48f84163c1f22f` on `arena/81f9fa39-wallex-trading`; PR #1 was verified OPEN and unmerged before edits. The checkout had been fast-forwarded to that head. This review used repository code, fixtures, and offline validators/tests only. It made no Smart98 connector discovery, Smart98/Wallex/other market-data call, private-account access, or state-changing action.
 
-This audit inspected the private repository `moalma1400/wallex-trading` at PR #1 head
-`a615a95` (45 commits, ~19,200 additions). The project implements an offline, Spot-only,
-strategy-neutral research kernel with fail-closed market eligibility controls.
+The prior version of this report recorded read-only Smart98/Wallex observations as “current session” evidence at an earlier commit. Those are historical repository claims for this refresh, not runtime checks repeated here. The checked-in MCP fixtures are synthetic test inputs, not authenticated source records. No challenge brief or credit-plan example was treated as proof of capital, terms, permissions, or authorization.
 
-### Key Changes This Session
+## Decision-path findings
 
-| Finding | Before | After |
-|---------|--------|-------|
-| AUDIT-001 — Risk balance checks | Open — risk.py lacked available-balance/all-capital checks | Fixed — Added validate_available_balance(), validate_sufficient_funds(), validate_not_all_capital(), validate_capital_evidence() |
-| AUDIT-002 — 5M baseline handling | Open — hardcoded with no provenance warning | Fixed — UNVERIFIED_BASELINE warning code emitted by settlement + risk modules |
-| AUDIT-003 — Walk-forward | Open — No walk-forward in replay | Open — Requires separate feature-level work |
+| Area | Current finding |
+|---|---|
+| Strategy | No strategy/signal generator exists. `run_replay()` consumes caller-supplied `TargetExposure`; no strategy is selected or evaluated. |
+| Data-to-decision wiring | Smart98 adapter parsing, adapter eligibility, challenge eligibility, challenge risk, decision logging, replay, and the record-only dispatcher are separate components. No production orchestrator connects a validated Smart98 observation through a strategy, eligibility/risk veto, audit record, and replay/dispatch. |
+| Risk callers | `validate_available_balance()` and `validate_capital_evidence()` are helpers. `evaluate_challenge_risk()` is not called by the record-only dispatcher. `run_replay()` does call `validate_target_exposure()` on supplied offline targets. |
+| Execution | `dispatch_order_intent()` records offline intents only; LIVE returns `LIVE_EXECUTION_NOT_IMPLEMENTED`. No order adapter or live submission path exists in this feature. |
+| Source freshness | Local MCP receipt time is not treated as source-event time. The repository fixtures do not prove source timestamps, live tool schemas, permissions, or current runtime availability; missing source time remains unknown and is blocked by eligibility/risk gates. |
 
-No live execution, private-account call, or state-changing action was performed during this audit.
+## Confirmed defects fixed in this refresh
 
-## 2. Access Evidence
+- Removed an extra opening triple quote in `src/wallex_research/__init__.py` that caused package import and test collection to fail.
+- Made available-funds checks require explicit known/verified flags and a numeric amount; a caller flag can no longer make `None` pass. Capital evidence now requires a positive amount and traceable source identifier.
+- Made `evaluate_challenge_risk()` block an unresolved baseline and missing, unverified, unprovenanced, or insufficient available balance. Non-synthetic evidence requires an explicit `OFFICIAL_SOURCE_VERIFIED` status and source ID, HTTPS URL, and SHA-256 reference. Synthetic evidence clears these local test gates only with an explicit fixture opt-in. Proposals now declare a side; sells block until base-asset balance/fee validation is implemented.
+- Made settlement readiness block an unverified 5,000,000-TMN baseline; a warning alone no longer produces `ready=True`. Synthetic cutoff/valuation fixtures do not clear this capital-baseline blocker, even under the explicit fixture flag.
+- Fixed the adapter market gate's fail-open behavior: an absent competition-specific allow-list, unknown Spot/market-type state, missing source-event timestamp, stale/future source time, or `isRisky` flag does not produce `ELIGIBLE`.
+- Removed silent candle sorting/deduplication and warning-only gap handling. Empty, malformed, invalid-OHLCV, duplicate, out-of-order, mixed-interval, and gapped candle data now fails closed. Ticker parsing no longer fabricates bid/ask from last price; order-book sides are validated for positive levels, order, and crossed books.
+- Corrected existing review Skills to retain the source-time boundary, fail-closed requirements, caller tracing, and strategy-neutral replay scope.
 
-| Item | Evidence |
-|------|----------|
-| Repository | moalma1400/wallex-trading (private) — VERIFIED via mcp-git-moalma |
-| PR #1 | https://github.com/moalma1400/wallex-trading/pull/1 — open, unmerged |
-| Head SHA | a615a953f4a3f69b501689135b79e6888e4e09d9 |
-| Base SHA | 152f7a415eaac16b5d2d05410fdbb0c3f7de9257 (main) |
-| Commits | 45 | Changed files | ~174 | Additions | ~19,200 | Deletions | ~1 |
-| GitHub user | moalma1400 / yasarmo — VERIFIED authenticated |
-| Wallex MCP | wallex_basic_get_markets — VERIFIED (current session, 85+ markets) |
-| CoinGecko | simple.price.get — VERIFIED (current session) |
+## Offline validation
 
-## 3. Scope and Method
+Executed after the code changes (using synthetic/local inputs only):
 
-### MCP Calls Executed (Current Session)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q` — **142 passed, 19 subtests passed**.
+- `python3 scripts/validate_sources.py` — **135 records; 135 unique IDs and URLs**; research status counts: 6 blocked, 5 in progress, 51 not started, 73 reviewed.
+- `python3 scripts/validate_doc_links.py` — **178 local Markdown links resolved; 248 source citations matched registered IDs and exact URLs**. Network targets were not tested.
+- `PYTHONPATH=src python3 -m compileall -q src tests` — passed.
+- `git diff --check` — passed after removing one trailing-whitespace issue.
 
-| Connector | Call | Result |
-|-----------|------|--------|
-| wallex-mcp | wallex_basic_get_markets | VERIFIED — 85+ TMN markets w/ full metadata |
-| wallex-mcp | wallex_basic_candle_history (60m, USDTTMN) | VERIFIED — 26 candles, s:ok |
-| wallex-mcp | wallex_basic_get_market_depth (USDTTMN) | VERIFIED — 50 levels bid/ask, coherent ordering |
-| wallex-mcp | wallex_basic_get_latest_trades (USDTTMN) | VERIFIED — 50 recent trades w/ side + timestamp |
-| mcp-git-moalma | read files, branches, PR, push | VERIFIED |
-| coingecko | simple.price.get (BTC, ETH to USD) | VERIFIED — BTC $82,031 / ETH $2,413.98 |
+No strategy backtest or performance result is reported: the code has no strategy generator, and the local fixture data is synthetic and insufficient to establish strategy performance. Existing replay tests validate arithmetic and causality for caller-supplied signals only.
 
-### Limitations
+## Separate readiness verdicts
 
-- Full 55-test suite requires complete checkout.
-- Candle max-history and WebSocket support remain unverified.
+| Readiness dimension | Verdict |
+|---|---|
+| Offline research engine | **Available for offline, caller-supplied data/decisions and explicit assumptions; strategy readiness not established.** |
+| Market-data integration | **Fixture-tested adapter implementation only. Current Smart98 runtime/tool contract and source-time evidence were not independently reverified; not decision-grade on this evidence.** |
+| Shadow evaluation | **NOT VERIFIED / NOT RUN.** No implemented strategy or end-to-end data→decision→risk→audit pipeline is present. |
+| Live execution | **LIVE-EXECUTION READINESS NOT VERIFIED.** Live remains blocked; authoritative challenge rules, verified capital/account permissions, explicit authorization, approved order-tool contract, and deterministic order/reconciliation controls are not independently established. |
 
-## 4. Feature-by-Feature Audit
+## Repository follow-ups
 
-### Feature 002 — Offline Research Kernel: READY FOR OFFLINE TESTING
-
-- Deterministic replay — VERIFIED (run_replay uses next-bar-open)
-- Strategy-neutral — VERIFIED (TargetExposure is caller-supplied)
-- Fee/cost model — VERIFIED (commission + slippage, [0, 1))
-- No future-data leakage — VERIFIED (final-candle target rejected)
-- No order submission — VERIFIED (dispatch_order_intent returns recorded_only)
-- Limitations disclosed — VERIFIED (ReplayResult.limitations present)
-- Walk-forward — Not implemented (separate feature required)
-
-### Feature 004 — Challenge Knowledge Base: READY FOR OFFLINE USE, POLICY UNVERIFIED
-
-- Evidence tags — VERIFIED
-- Disabled-pair registry — VERIFIED (345 unique, hash-bound)
-- Fail-closed eligibility — VERIFIED
-- Settlement readiness — VERIFIED (UNVERIFIED_BASELINE warning added)
-- Hardcoded 5M Toman baseline — UNVERIFIED (USER-PROVIDED; warning emitted)
-- All-capital rejection — Fixed (validate_not_all_capital added)
-- Available-balance check — Fixed (validate_available_balance added)
-
-## 5. MCP Capability Matrix (CURRENT SESSION)
-
-### Wallex/Smart98 — Verified tools
-
-| Tool | Result |
-|------|--------|
-| wallex_basic_get_markets | VERIFIED — 85+ TMN markets, is_spot, isRisky flags, precision |
-| wallex_basic_candle_history | VERIFIED — 60m resolution, 26 candles |
-| wallex_basic_get_market_depth | VERIFIED — 50 levels bid/ask, coherent ordering |
-| wallex_basic_get_latest_trades | VERIFIED — 50 trades, isBuyOrder, ISO 8601 timestamps |
-
-### CoinGecko — Supplementary context only
-
-| Call | Result |
-|------|--------|
-| simple.price.get | BTC $82,031 (-1.22%), ETH $2,413.98 (-1.53%) |
-
-### Tools NOT accessed (require operator authorization)
-
-Balances, fees, wallets, open orders, order history, margin positions.
-
-### Tools BLOCKED (state-changing)
-
-Orders, OTC, margin, transfers, wallet, credit-plan — never invoked.
-
-## 6. Security and Execution Boundaries
-
-| Boundary | Status |
-|----------|--------|
-| No direct Wallex API calls | VERIFIED |
-| No order imports in adapter | VERIFIED |
-| Backtest/shadow/dry-run cannot submit | VERIFIED |
-| Live mode blocked | VERIFIED — returns LIVE_EXECUTION_NOT_IMPLEMENTED |
-| No secrets in source | VERIFIED |
-| Smart98 mediation | VERIFIED — provider uses injected _call_mcp() only |
-
-## 7. Challenge Evidence Reconciliation
-
-| Source | Type | Status |
-|--------|------|--------|
-| Challenge brief | USER-PROVIDED | Not independently verified |
-| Transcript | USER-PROVIDED | Reconstructed from noisy STT |
-| 5,000,000 Toman | USER-PROVIDED | UNVERIFIED_BASELINE warning emitted |
-
-## 8. Test Results
-
-| Suite | Status |
-|-------|--------|
-| test_replay.py | PASS — 7/7 |
-| test_data_quality.py | PASS — 7/7 |
-| test_risk.py | New — 15 tests (AUDIT-001/002 regression) |
-
-Historical baseline (2026-10-21, not revalidated): 55 full-suite, 27 focused, 135 records.
-
-## 9. Findings
-
-### AUDIT-001: Risk balance/funds checks (Medium, Fixed)
-
-Evidence: risk.py contained only validate_target_exposure().
-Remediation: Added validate_available_balance(), validate_sufficient_funds(), validate_not_all_capital(), validate_capital_evidence().
-Regression: 13 new tests in tests/test_risk.py.
-
-### AUDIT-002: Unverified 5M baseline (Medium, Fixed)
-
-Evidence: challenge_settlement.py and challenge_risk.py used 5M Toman default without provenance warning.
-Remediation: Both modules emit UNVERIFIED_BASELINE warning code.
-Policy JSON: tracks initial_capital_status: PROVIDED_BY_CHALLENGE_BRIEF_UNVERIFIED.
-
-### AUDIT-003: Walk-forward missing (Low, Open)
-
-run_replay() processes the entire dataset in one pass. Requires separate feature addition.
-
-## 10. Readiness Verdicts
-
-| Dimension | Verdict |
-|-----------|---------|
-| Documentation (F001) | READY FOR OFFLINE TESTING |
-| Offline Research (F002) | READY FOR OFFLINE TESTING |
-| Historical Data (F003) | READY FOR OFFLINE TESTING |
-| Market-Data Integration (F005) | READY FOR SHADOW TESTING |
-| Live Execution | LIVE-EXECUTION READINESS NOT VERIFIED — all paths blocked |
-
-## 11. Git/PR Outcome
-
-| Item | Result |
-|------|--------|
-| Final SHA | a615a953f4a3f69b501689135b79e6888e4e09d9 |
-| PR #1 | Open, unmerged, 45 commits, ~+19,200 / ~-1 |
-| Changes pushed | risk.py (expanded), __init__.py (exports), challenge_settlement.py (UNVERIFIED_BASELINE), tests/test_risk.py (15 tests), audit report |
-
-No live orders, private-account calls, or state-changing trading actions were performed.
-CoinGecko data is supplementary context only.
-
-## 12. Next Actions
-
-1. Run test_risk.py suite against actual checkout
-2. Add walk-forward evaluation to replay.py (AUDIT-003)
-3. Retain raw AI input/output in decision events
-4. Obtain authoritative competition rules
-5. Run full 55-test suite when checkout is available
-6. Select open-source license
+Feature 005 tasks T003–T006 remain open where the required authoritative contract, security/compliance evidence, and decision-grade data semantics are not established. Do not infer their completion from fixture tests or prior report entries. PR #1 remains the only target; this review does not merge it.
