@@ -45,6 +45,12 @@ from .decision_log import (
     DecisionAuditLog, DecisionEvent, DecisionLogError, EventOrigin,
     StructuredAIOutput,
 )
+from .risk import (
+    AllCapitalError, InsufficientFundsError, RiskViolation,
+    validate_available_balance, validate_capital_evidence,
+    validate_not_all_capital, validate_sufficient_funds,
+    validate_target_exposure,
+)
 
 __all__ = [
     "Candle",
@@ -114,4 +120,13 @@ __all__ = [
     "StructuredAIOutput",
     "load_candles",
     "run_replay",
+    # Risk primitives
+    "AllCapitalError",
+    "InsufficientFundsError",
+    "RiskViolation",
+    "validate_available_balance",
+    "validate_capital_evidence",
+    "validate_not_all_capital",
+    "validate_sufficient_funds",
+    "validate_target_exposure",
 ]
