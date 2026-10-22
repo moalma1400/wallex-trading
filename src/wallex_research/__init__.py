@@ -51,6 +51,10 @@ from .risk import (
     validate_not_all_capital, validate_sufficient_funds,
     validate_target_exposure,
 )
+from .walkforward import (
+    TimeWindow, WalkForwardConfig, WalkForwardError, WalkForwardResult,
+    build_rolling_windows, split_observations, validate_walk_forward_config,
+)
 
 __all__ = [
     "Candle",
@@ -129,4 +133,12 @@ __all__ = [
     "validate_not_all_capital",
     "validate_sufficient_funds",
     "validate_target_exposure",
+    # Walk-forward primitives
+    "TimeWindow",
+    "WalkForwardConfig",
+    "WalkForwardError",
+    "WalkForwardResult",
+    "build_rolling_windows",
+    "split_observations",
+    "validate_walk_forward_config",
 ]
