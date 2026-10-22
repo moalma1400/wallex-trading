@@ -15,16 +15,16 @@
 
 **Independent Test**: Run each configured command locally with Python 3.12 and pytest installed.
 
-- [ ] T003 Add `.github/workflows/ci.yml` with least-privilege permissions and bounded execution time.
-- [ ] T004 Configure source validation, local documentation-link validation, compileall, pytest, and `git diff --check`.
-- [ ] T005 Confirm the workflow does not configure secrets, invoke Wallex/Smart98 endpoints, or perform live actions.
+- [x] T003 Add `.github/workflows/ci.yml` with least-privilege permissions and bounded execution time.
+- [x] T004 Configure source validation, local documentation-link validation, compileall, pytest, and `git diff --check`.
+- [x] T005 Confirm the workflow does not configure secrets, invoke Wallex/Smart98 endpoints, or perform live actions.
 
 ## Phase 3: User Story 2 - Main branch checks (Priority: P2)
 
 **Goal**: Run the same checks for pushes to `main`.
 
-- [ ] T006 Configure and review pull-request and push triggers.
-- [ ] T007 Run the complete validation suite, review the final diff, and record whether a real GitHub Actions run has completed.
+- [x] T006 Configure and review pull-request and push triggers.
+- [x] T007 Run the complete validation suite, review the final diff, and record whether a real GitHub Actions run has completed.
 
 ## Dependencies
 
@@ -34,4 +34,10 @@
 
 ## Completion Evidence
 
-Record local command results and the GitHub Actions run result separately. Do not describe a local test run as proof that the hosted workflow executed successfully.
+- [x] Hosted GitHub Actions run completed successfully on 2026-10-22 (workflow run 5, commit `f3aa86a1b8e9c1935084b66db3d52733766b1e6c`).
+- [x] Source validator: 135 records; 135 unique IDs and URLs.
+- [x] Documentation validator: 180 relative Markdown links resolved; 248 source citations matched register IDs and exact URLs (network links not tested).
+- [x] Python compilation passed.
+- [x] pytest: 145 passed, 24 subtests passed.
+- [x] Event diff whitespace check passed.
+- [x] No Wallex or Smart98 secrets are configured; no live trading actions are part of the workflow.
