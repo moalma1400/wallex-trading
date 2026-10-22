@@ -241,17 +241,14 @@ class BuildRollingWindowsTests(unittest.TestCase):
         self.assertEqual(v.start, cycles[0].train_window.start)
         self.assertEqual(v.end, cycles[0].train_window.end)
 
-    def test_validation_duration_greater_than_train(self) -> None:
-        """Validation duration > train duration: clipped to full train window."""
-        cycles = build_rolling_windows(
-            BASE, BASE + timedelta(days=30),
-            train_duration=timedelta(days=7), test_duration=timedelta(days=5),
-            validation_duration=timedelta(days=14),
-        )
-        v = cycles[0].validation_window
-        self.assertIsNotNone(v)
-        self.assertEqual(v.start, cycles[0].train_window.start)
-        self.assertEqual(v.end, cycles[0].train_window.end)
+    def test_validation_duration_greater_than_train_is_rejected(self) -> None:
+        """Oversized validation windows are rejected instead of silently clipped."""
+        with self.assertRaises(WalkForwardError):
+            build_rolling_windows(
+                BASE, BASE + timedelta(days=30),
+                train_duration=timedelta(days=7), test_duration=timedelta(days=5),
+                validation_duration=timedelta(days=14),
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -541,19 +538,16 @@ class IntegrationTests(unittest.TestCase):
         self.assertTrue(any("effective" in e for e in errors),
                         "Should flag zero effective training data")
 
-    def test_integration_validation_duration_greater_than_train(self) -> None:
-        """Validation > train duration: fail closed with zero effective training."""
-        cycles = build_rolling_windows(
-            BASE, BASE + timedelta(days=25),
-            train_duration=timedelta(days=5),
-            test_duration=timedelta(days=5),
-            validation_duration=timedelta(days=20),
-            min_train_observations=1,
-        )
-        points = _day_points(27)
-        errors = validate_walk_forward_config(cycles, points)
-        self.assertTrue(any("effective" in e for e in errors),
-                        "Should flag zero effective training data")
+    def test_integration_validation_duration_greater_than_train_is_rejected(self) -> None:
+        """The build step rejects validation duration longer than the training span."""
+        with self.assertRaises(WalkForwardError):
+            build_rolling_windows(
+                BASE, BASE + timedelta(days=25),
+                train_duration=timedelta(days=5),
+                test_duration=timedelta(days=5),
+                validation_duration=timedelta(days=20),
+                min_train_observations=1,
+            )
 
     def test_integration_non_utc_offsets(self) -> None:
         """Timestamps in non-UTC timezones produce correct deterministic splits."""
