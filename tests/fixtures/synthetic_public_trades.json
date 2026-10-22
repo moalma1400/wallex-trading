@@ -1,0 +1,1 @@
+{"result":{"latestTrades":[{"symbol":"SYNTHETIC_XYZ","quantity":"1.2500","price":"100.125","sum":"125.15625","isBuyOrder":true,"timestamp":"2026-01-01T00:00:01Z"},{"symbol":"SYNTHETIC_XYZ","quantity":"0.5","price":"100.25","sum":"50.125","isBuyOrder":false,"timestamp":"2026-01-01T00:00:02Z"}]}}

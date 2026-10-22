@@ -1,0 +1,27 @@
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local config, credentials, logs, and OS/editor files
+.env
+.env.*
+!.env.example
+*.log
+logs/
+secrets/
+*.pem
+*.key
+.DS_Store
+.idea/
+.vscode/
+
+# Local-only tool/agent state (Spec Kit project instructions remain versioned)
+.specify/local/
+
+# Feature 003 local-only market data store/reports
+.local-market-data/
