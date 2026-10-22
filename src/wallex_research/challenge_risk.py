@@ -13,7 +13,10 @@ from pathlib import Path
 from typing import Any
 
 from .challenge import ChallengePolicyError, _decimal, normalize_spot_pair
-from .risk import InsufficientFundsError, RiskViolation, validate_capital_evidence, validate_sufficient_funds
+from .risk import (
+    InsufficientFundsError, RiskViolation,
+    validate_capital_evidence, validate_not_all_capital, validate_sufficient_funds,
+)
 
 
 LIMIT_NAMES = (
@@ -204,6 +207,7 @@ def evaluate_challenge_risk(
     reasons: list[str] = [f"RISK_LIMIT_MISSING:{name}" for name in limits.missing_limits]
     if proposal.side == "SELL":
         reasons.append("SELL_BASE_BALANCE_VALIDATION_NOT_IMPLEMENTED")
+    capital_evidence_valid = False
     if not _verified_evidence(
         capital_evidence_status, capital_source_id, capital_source_url,
         capital_source_sha256, allow_synthetic_fixture_evidence,
@@ -217,6 +221,7 @@ def evaluate_challenge_risk(
                 capital_verified=True,
                 capital_source=capital_source_id,
             )
+            capital_evidence_valid = True
         except RiskViolation:
             reasons.append("UNVERIFIED_BASELINE")
 
@@ -246,14 +251,21 @@ def evaluate_challenge_risk(
         else:
             reasons.append("AVAILABLE_BALANCE_INSUFFICIENT")
     order_limit = limits.maximum_order_notional_tmn
-    if order_limit is not None and order_limit >= capital:
-        reasons.append("MAX_ORDER_MUST_BE_LESS_THAN_INITIAL_CAPITAL")
     deployed_limit = limits.maximum_total_deployed_tmn
-    if deployed_limit is not None and deployed_limit > capital:
-        reasons.append("MAX_TOTAL_DEPLOYED_EXCEEDS_CHALLENGE_CAPITAL")
     asset_limit = limits.maximum_asset_exposure_tmn
-    if asset_limit is not None and asset_limit > capital:
-        reasons.append("MAX_ASSET_EXPOSURE_EXCEEDS_CHALLENGE_CAPITAL")
+    # A configured/default baseline is not evidence by itself. Do not make
+    # capital-relative decisions until the provenance checks above succeed.
+    if capital_evidence_valid:
+        if order_limit is not None and order_limit >= capital:
+            reasons.append("MAX_ORDER_MUST_BE_LESS_THAN_INITIAL_CAPITAL")
+        if deployed_limit is not None and deployed_limit > capital:
+            reasons.append("MAX_TOTAL_DEPLOYED_EXCEEDS_CHALLENGE_CAPITAL")
+        if asset_limit is not None and asset_limit > capital:
+            reasons.append("MAX_ASSET_EXPOSURE_EXCEEDS_CHALLENGE_CAPITAL")
+        try:
+            validate_not_all_capital(proposal.total_deployed_after_tmn / capital)
+        except RiskViolation:
+            reasons.append("ALL_CAPITAL_EXPOSURE_BLOCKED")
 
     _above(proposal.notional_tmn, order_limit, "ORDER_NOTIONAL_LIMIT_EXCEEDED", reasons)
     _above(proposal.asset_exposure_after_tmn, asset_limit, "ASSET_EXPOSURE_LIMIT_EXCEEDED", reasons)

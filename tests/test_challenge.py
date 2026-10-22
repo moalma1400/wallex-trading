@@ -446,6 +446,39 @@ class RiskAndModeIsolationTests(unittest.TestCase):
         )
         self.assertIn("MAX_ORDER_MUST_BE_LESS_THAN_INITIAL_CAPITAL", decision.reason_codes)
 
+    def test_challenge_risk_guard_matches_replay_threshold_at_boundary(self):
+        values = {name: getattr(good_risk_limits(), name) for name in good_risk_limits().__dataclass_fields__}
+        values["maximum_total_deployed_tmn"] = "5000000"
+        limits = ChallengeRiskLimits(**values)
+        cases = (
+            ("4949995", False),  # 0.989999 of the explicitly fixture-verified capital
+            ("4950000", True),   # exact 0.99 boundary is blocked
+            ("4950005", True),   # just above the boundary is blocked
+        )
+        for deployed, blocked in cases:
+            with self.subTest(total_deployed_after_tmn=deployed):
+                decision = evaluate_with_synthetic_evidence(
+                    good_proposal(total_deployed_after_tmn=deployed),
+                    good_observation(), limits,
+                )
+                self.assertEqual("ALL_CAPITAL_EXPOSURE_BLOCKED" in decision.reason_codes, blocked)
+                self.assertEqual(decision.allowed, not blocked)
+
+    def test_unverified_default_capital_is_not_used_for_capital_relative_policy(self):
+        limits = ChallengeRiskLimits(
+            maximum_order_notional_tmn="5000000",
+            maximum_asset_exposure_tmn="5000001",
+            maximum_total_deployed_tmn="5000001",
+        )
+        decision = evaluate_challenge_risk(
+            good_proposal(), good_observation(), limits,
+            # Deliberately use the unresolved default 5,000,000 baseline.
+        )
+        self.assertIn("UNVERIFIED_BASELINE", decision.reason_codes)
+        self.assertNotIn("MAX_ORDER_MUST_BE_LESS_THAN_INITIAL_CAPITAL", decision.reason_codes)
+        self.assertNotIn("MAX_TOTAL_DEPLOYED_EXCEEDS_CHALLENGE_CAPITAL", decision.reason_codes)
+        self.assertNotIn("MAX_ASSET_EXPOSURE_EXCEEDS_CHALLENGE_CAPITAL", decision.reason_codes)
+
     def test_backtest_shadow_and_dry_run_never_call_submit_adapter_live_fails_closed(self):
         submit = Mock(side_effect=AssertionError("must never be called"))
         for mode in (ExecutionMode.BACKTEST, ExecutionMode.SHADOW, ExecutionMode.DRY_RUN):

@@ -66,6 +66,19 @@ class ReplayTests(unittest.TestCase):
         with self.assertRaises(ReplayError):
             run_replay(bars, [TargetExposure(bars[0].timestamp, Decimal("0.5"))], config(max_exposure="0.25"))
 
+    def test_all_capital_guard_applies_through_replay_at_existing_boundary(self) -> None:
+        bars = [bar(0, "100", "100"), bar(1, "100", "100")]
+        below = run_replay(
+            bars, [TargetExposure(bars[0].timestamp, Decimal("0.989999"))], config(max_exposure="1"),
+        )
+        self.assertEqual(len(below.fills), 1)
+
+        for fraction in ("0.99", "1"):
+            with self.subTest(fraction=fraction), self.assertRaisesRegex(ReplayError, "effectively all capital"):
+                run_replay(
+                    bars, [TargetExposure(bars[0].timestamp, Decimal(fraction))], config(max_exposure="1"),
+                )
+
     def test_missing_explicit_or_invalid_cost_configuration_fails_closed(self) -> None:
         with self.assertRaises(TypeError):
             SimulationConfig(initial_cash=Decimal("100"), quote_currency="Q", commission_rate=Decimal("0"), slippage_rate=Decimal("0"))  # type: ignore[call-arg]
@@ -75,7 +88,7 @@ class ReplayTests(unittest.TestCase):
     def test_partial_buy_reports_unfilled_quantity_and_cash_never_goes_negative(self) -> None:
         bars = [bar(0, "100", "100"), bar(1, "100", "100")]
         expensive = config(max_exposure="1", commission="0.5", slippage="0.2")
-        result = run_replay(bars, [TargetExposure(bars[0].timestamp, Decimal("1"))], expensive)
+        result = run_replay(bars, [TargetExposure(bars[0].timestamp, Decimal("0.989"))], expensive)
         outcome = result.orders[0]
         self.assertEqual(outcome.status, "partial")
         self.assertGreater(outcome.unfilled_quantity, Decimal("0"))

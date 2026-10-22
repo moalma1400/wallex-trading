@@ -1,6 +1,8 @@
 # Smart98 Wallex MCP — Capability Matrix
 
-**Date**: 2026-10-21
+**Date**: 2026-10-21 (historical repository snapshot; not reverified on 2026-10-22)
+
+> **Current evidence notice:** The status icons and response details below are historical repository claims only. No MCP discovery, Smart98 invocation, or live validation occurred in the 2026-10-22 review. They do not establish that a tool exists, is available, permitted, current, or schema-compatible today. The checked-in responses are synthetic fixtures. Treat all public capabilities as **UNVERIFIED for current use** until the read-only evidence request in [`final-project-audit-2026-10-22.md`](audits/final-project-audit-2026-10-22.md) is fulfilled.
 
 ## Legend
 
@@ -37,8 +39,10 @@ All order creation, cancellation, OTC execution, margin operations, IBAN registr
 ## Integration Architecture
 
 ```
-Strategy/Research → MarketDataProvider (interface) → Smart98MCPProvider (adapter) → Smart98 Wallex MCP Connector → api.wallex.ir (NOT called directly)
+Caller-provided research/data → MarketDataProvider interface → Smart98MCPProvider parser/provider → injected MCP invoker seam
 ```
+
+The repository does not contain the live MCP invoker/connector wiring or a strategy-to-risk-to-audit orchestrator. This diagram describes code boundaries only, not an operational end-to-end integration.
 
 ## Not Available via MCP
 

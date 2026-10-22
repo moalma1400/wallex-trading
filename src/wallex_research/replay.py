@@ -15,7 +15,7 @@ from .models import (
     SimulatedOrderOutcome,
     TargetExposure,
 )
-from .risk import RiskViolation, validate_target_exposure
+from .risk import RiskViolation, validate_not_all_capital, validate_target_exposure
 
 
 class ReplayError(ValueError):
@@ -54,6 +54,9 @@ def run_replay(
             raise ReplayError("final-candle target has no later bar open and cannot be executed causally")
         try:
             validate_target_exposure(target, config.maximum_spot_exposure)
+            # Reuse the established 99% all-capital rule even when a caller sets
+            # maximum_spot_exposure=1.0. Do not silently clamp the target.
+            validate_not_all_capital(target.fraction)
         except RiskViolation as exc:
             raise ReplayError(str(exc)) from exc
         exposure_by_time[target.timestamp] = target
