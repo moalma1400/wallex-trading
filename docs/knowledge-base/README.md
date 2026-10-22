@@ -4,6 +4,8 @@ This folder is the project’s challenge-specific source of truth. The challenge
 
 - [Authoritative rules, capital, timeline, scoring status, submissions, and unresolved items](wallex-agentic-ai-hackathon.md)
 - [Market eligibility and disabled-pair maintenance](wallex-hackathon-market-restrictions.md)
+- [Credit-plan terms reconciliation](wallex-credit-plan-reconciliation.md)
+- [Credit-plan UI observation (2026-10-22)](../research/user-sources/wallex_credit_plan_ui_observation_2026-10-22.md)
 - [Judge/reproduction procedure](judge-reproducibility.md)
 - [Five-minute demo checklist](demo-video-checklist.md)
 - [Persian transcript analysis and source reconciliation](wallex-hackathon-audio-transcript-fa.md)
