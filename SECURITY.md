@@ -7,11 +7,13 @@
 - If a secret is accidentally exposed, stop using it, notify the owner, revoke/rotate it through the official account interface, remove it from current files and history using an owner-approved process, and treat it as compromised. Do not paste it into issues or chat.
 - Do not collect private data from Wallex or other users. Prefer generic, synthetic examples.
 
-## Trading actions
+## Trading actions and current phase
 
-This phase permits only local/offline, strategy-neutral research tooling over synthetic or user-supplied files. No production REST request, public-data fetch, live WebSocket connection, account access, API key, order placement/cancellation/amendment, transfer/withdrawal, or account-setting change is authorized. There is no exchange adapter in scope. Public documentation does not itself grant account permission.
+Features 001–004 remain documentation or local/offline research and challenge-control work. Feature 005 is approved only for a narrowly scoped public, read-only **Spot market-data** adapter through a verified Smart98-mediated contract, plus offline tests and documentation, after its evidence/security/architecture gates pass. T003 is currently open/blocked because the operator-reported Smart98 report body and authoritative tool contract are unavailable. The existing `src/mcp_adapter/` parser/provider seam is not a live Smart98 connection and is not production-enabled. Public documentation or an operator-reported tool invocation does not itself grant account permission.
 
-Any future proposal for real exchange use requires a separate reviewed specification, explicit scope approval, security and risk review, least-privilege permissions, and an independent, current jurisdiction-specific legal/compliance gate (including sanctions and access restrictions). Passing this gate cannot be claimed by this project or guaranteed. Leveraged/margin execution, transfers, and withdrawals remain excluded. Paper simulation must be deterministic, offline, and clearly separated from any future exchange adapter.
+No direct Wallex requests or direct-access fallback are permitted. Do not install/configure MCP servers or request/create credentials. Private-account reads, live orders/cancellations/amendments, transfers, deposits, withdrawals, wallet actions, Margin, leverage, borrowing, shorting, derivatives, OTC execution, and other state-changing actions remain out of scope. Tests, CI, replay, backtests, shadow, and dry-run must remain offline with respect to Wallex and Smart98.
+
+Any future real exchange use requires verified challenge rules and dedicated-account permissions, exact tool contracts, explicit owner activation, a deterministic risk/reconciliation review, least-privilege controls, and an independent, current jurisdiction-specific legal/compliance gate (including sanctions and access restrictions). Passing this gate cannot be claimed by this project or guaranteed. Paper simulation remains deterministic, offline, and separated from any future external adapter.
 
 ## Reporting
 

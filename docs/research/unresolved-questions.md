@@ -4,7 +4,7 @@
 
 ## برای تکمیل مستندات رسمی
 
-1. برای ۸۸ صفحه sitemap جدید که وضعیت `not_started` دارند، محتوای واقعی هر صفحه، endpointها، payloadها، permissions، enums، rate limits، schemaهای Swagger و ارجاعاتش چیست؟ (فهرست کامل در ماتریس)
+1. برای ۵۱ صفحه sitemap که وضعیت `not_started` دارند، محتوای واقعی هر صفحه، endpointها، payloadها، permissions، enums، rate limits، schemaهای Swagger و ارجاعاتش چیست؟ (فهرست کامل در ماتریس؛ شمارش snapshot رسمی در 2026-10-21)
 2. آیا صفحه‌های جدید `generated/*` اسناد مستقلی هستند یا نسخه‌های تولیدشده از schema؟ version و changelog رسمی/API release notes کجاست؟
 3. آیا صفحات راهنمای صرافی/Help Center، FAQ، Terms، محدودیت‌های دسترسی، notices و اختلال سرویس از طریق ناوبری رسمی در دسترس‌اند؟ صفحه fee help با URL کشف‌شده 404 می‌دهد؛ لینک جاری جایگزین چیست؟
 4. آیا جدول commission روی `https://wallex.ir/commission` مشکل نمایش/دسترسی دارد یا عمداً خالی است؟ نرخ‌های جاری Spot برای user level/market و تاریخ مؤثرشان کجا منتشر می‌شود؟ پیشنهاد ۰٫۱٪ در مقاله رسمی چه زمان/شرایطی داشته و آیا هنوز فعال است؟
@@ -19,7 +19,7 @@
 
 ## ریسک حقوقی / compliance
 
-13. منبع OFAC رسمی اعلام می‌کند Wallex در ۲ ژوئن ۲۰۲۶ designated شده و FAQ 1257 می‌گوید اشخاص غیرآمریکایی ممکن است در صورت معامله با آن با ریسک تحریم مواجه شوند. این پروژه قوانین هلند/اتحادیه اروپا، وضعیت شخصی/حقوقی کاربر، بانک/پرداخت‌گر، یا مجاز بودن هر فعالیت را بررسی نکرده است. قبل از هرگونه استفاده، بررسی مستقل و به‌روز با مشاور حقوقی/انطباق لازم است. [US-TREASURY-WALLEX-DESIGNATION](https://home.treasury.gov/news/press-releases/sb0519) · [OFAC-FAQ-1257](https://ofac.treasury.gov/faqs/1257)
+13. منبع OFAC رسمی اعلام می‌کند Wallex در ۲ ژوئن ۲۰۲۶ designated شده و FAQ 1257 می‌گوید اشخاص غیرآمریکایی ممکن است در صورت معامله با آن با ریسک تحریم مواجه شوند. این پروژه قوانین فرانسه/اتحادیه اروپا یا هر حوزه قضایی مرتبط، وضعیت شخصی/حقوقی کاربر، بانک/پرداخت‌گر، یا مجاز بودن هر فعالیت را بررسی نکرده است؛ موقعیت تقریبی کاربر جای بررسی شخص/نهاد و شرایط واقعی را نمی‌گیرد. قبل از هرگونه استفاده، بررسی مستقل و به‌روز با مشاور حقوقی/انطباق لازم است. [US-TREASURY-WALLEX-DESIGNATION](https://home.treasury.gov/news/press-releases/sb0519) · [OFAC-FAQ-1257](https://ofac.treasury.gov/faqs/1257)
 
 ## Credit-plan / Starcoach reconciliation — added 2026-10-21
 
@@ -50,27 +50,27 @@ Until authoritative, traceable hackathon-specific evidence resolves these questi
 15. Which candle resolutions are available for historical UDF data versus live WebSocket channels, and what are their boundary/timezone guarantees? The two pages expose different lists; see `D-014`.
 16. Can the official OpenAPI/Swagger artifacts be retrieved as complete original bytes with version/date/checksum so the repository can preserve and validate them locally? Current page-reader responses are transformed and chunked; five artifact records are `in_progress`, not full captures.
 17. What is the complete schema/authentication/permissions and lifecycle contract for every generated Spot, account, Margin, OTC, trade-credit, and private WebSocket operation? The current review leaves 51 sitemap pages `not_started`; one sitemap URL returned localized not-found content, and its replacement/status is unknown.
-18. Smart98 is the intended organizational AI Agent platform and mandatory mediator per user project context, but what versioned contract, transport, auth, tool catalog, schemas, error/timeouts/logging, and Wallex MCP/API compatibility are actually supported? See the expanded Smart98 evidence checklist below; no adapter or endpoint has been invented.
+18. Smart98 is the intended organizational AI Agent platform and mandatory mediator per user project context, but what versioned contract, transport, auth, tool catalog, schemas, error/timeouts/logging, and Wallex MCP/API compatibility are actually supported? A user message dated 2026-10-22 reports an operator-supplied evidence report describing live read-only public-market-data invocations, but the report body is absent; only the aggregate operator claim is recorded. The repository contains an injected parser/provider seam in `src/mcp_adapter/`, not a verified Smart98 transport. See the dated [Feature 005 evidence review](feature-005-smart98-evidence-review-2026-10-22.md) and checklist below.
 19. Which UDF-history field requiredness and resolution set is canonical? The basic page marks fields Optional; generated `candle-history` and the legacy reference mark them Required, and the modern pages show different resolution examples. See `D-008` and `D-015`; no runtime call is permitted.
 20. Does the sitemap-listed `/docs/weekly` have a replacement or is it retired? The page reader returned a localized not-found body without an HTTP status; the source is `blocked`/`inaccessible` and no reason is inferred.
 
 
-### Smart98-mediated Wallex access — evidence needed (all presently `UNKNOWN`)
+### Smart98-mediated Wallex access — evidence needed (tool-level findings remain `UNKNOWN`)
 
-The current user context identifies Smart98's role as an organizational AI Agent platform and mandatory mediation layer, but that is not a technical capability confirmation. No Smart98 documentation or runtime contract exists in this checkout; the Arena connector lookup returned `unsupported`, so this session could not inspect platform tools. Do not interpret that as evidence the platform itself is unavailable.
+The user's project context identifies Smart98 as the intended organizational AI Agent platform and mandatory mediator; that is a requirement, not technical capability evidence. No Smart98 product documentation or runtime contract exists in this checkout. The Arena connector lookup returned `unsupported`, which does not establish that Smart98 itself is unavailable. A 2026-10-22 user message reports that an operator supplied a Smart98-generated report describing live, read-only public Wallex market-data invocations. The report body/attachment is unavailable; its [intake note](user-sources/smart98_mcp_report_notice_2026-10-22.md) preserves only the aggregate claim. Arena did not invoke or independently verify any tool. The original report's exact `UNKNOWN`, `UNVERIFIED`, `PARTIAL`, and `NOT_AVAILABLE` findings cannot be transcribed until its body is supplied.
 
-1. What is the canonical Smart98 product/version and owner-approved documentation location? What environment, supported deployment model, network/egress boundary, and service identity apply?
+1. What is the canonical Smart98 product/version and owner-approved documentation location? What environment, supported deployment model, network/egress boundary, and service identity apply? The source/version is `UNKNOWN` in the available notice.
 2. Which MCP transports and versions does Smart98 support? How are MCP servers registered, reviewed, enabled, versioned, disabled, and isolated? What demonstrates compatibility with a specifically identified Wallex MCP release?
-3. How are tools discovered and allow-listed for a particular agent/workflow? Can the platform enforce separate least-privilege groups for public market-data reads, account-sensitive reads, and state-changing tools?
-4. What exact authentication/delegation model is used? Who holds Wallex credentials, how are they scoped/rotated/revoked, and what proof establishes that secrets never enter model context, prompts, repository, tool output, or logs?
-5. Where are tool descriptions and versioned input/output schemas documented? How are schema validation, provenance, untrusted output, sensitive-field redaction, and model-visible result shaping handled?
-6. What are error, timeout, retry, cancellation, rate-limit, partial-output, and idempotency semantics? How do tool failures propagate to the agent and deterministic application without being misreported as successful data/actions?
-7. Which request/response metadata is logged (actor, tool, version, timestamps, provenance, policy decision, result, errors)? What retention, redaction, access, and audit-export controls apply?
-8. For Wallex MCP specifically: provide canonical publisher/repository/URL, release/version, source/license, transport, tool inventory, schemas, auth, permissions, side effects, upstream service, limits, and security/disclosure contact. No authoritative Wallex MCP source is registered today.
-9. Does Smart98 officially approve and support the identified Wallex API/MCP integration, and exactly which **read-only market data** tool(s) may be exposed to shadow workflows? No access is allowed based only on an MCP/tool being listed or present.
-10. What separate non-production certification/test plan can prove the exact Smart98-to-Wallex route while excluding account actions and production requests? This documentation task does not perform that test.
+3. What exact tool identifiers and versioned input/output schemas were invoked, with sanitized full request/response or exact error? No specific Spot market-metadata, candle, depth, trade, or ticker capability is individually evidenced by the available notice.
+4. How are tools discovered and allow-listed for a particular agent/workflow? Can the platform enforce separate least-privilege groups for public market-data reads, account-sensitive reads, and state-changing tools? Per-tool permissions and side effects remain `UNVERIFIED`.
+5. What exact authentication/delegation model is used? Who holds Wallex credentials, how are they scoped/rotated/revoked, and what proof establishes that secrets never enter model context, prompts, repository, tool output, or logs?
+6. What are the exact Smart98/upstream rate limits, timeout budgets, retry, cancellation, partial-output, and error-propagation semantics? The user says the report notes these gaps, but the original wording and any values/statuses are unavailable.
+7. What pagination, truncation, streaming/WebSocket, ordering, replay, and reconnect behavior is supported? The report's exact `NOT_AVAILABLE` versus `UNKNOWN` findings are not supplied; the historical capability matrix is not current proof.
+8. What are the candle input time units, inclusive/exclusive range bounds, resolution set, maximum history, gaps/partial-candle behavior, pagination, and source-event timestamp semantics? These remain `UNKNOWN`.
+9. Which request/response metadata is logged (actor, tool, version, timestamps, provenance, policy decision, result, errors)? What retention, redaction, access, and audit-export controls apply?
+10. Does Smart98 officially approve and support the exact Wallex API/MCP integration and read-only tool scopes, and what separate non-production test plan verifies it without private or state-changing actions? No production probe or new MCP configuration is authorized here.
 
-Until evidence is supplied and reviewed, transport compatibility, tool discovery, schemas, authentication, error propagation, timeouts, logging, permissions, and Smart98-to-Wallex reachability remain `UNKNOWN`. Direct Wallex application access is not an acceptable fallback.
+Until the original sanitized report and authoritative contracts are supplied and reviewed, transport compatibility, tool discovery, schemas, authentication, error propagation, timeouts, logging, permissions, rate limits, pagination/streaming, candle range semantics, and Smart98-to-Wallex reachability remain `UNKNOWN` or `UNVERIFIED`. Direct Wallex application access is not an acceptable fallback.
 
 ## Wallex / Starcoach hackathon (Feature 004) — organizer confirmation required
 
@@ -90,15 +90,14 @@ These are separate from the official API documentation gaps above. The written a
 Until traceable answers are supplied, cutoff, market currentness, API/account permissions, fees, risk thresholds, conversion routes and final scoring stay unresolved; related code remains fail-closed and live execution absent.
 
 
-## Feature 005 — Smart98-mediated public Spot market data (proposal, 2026-10-22)
+## Feature 005 — Smart98-mediated public Spot market data (2026-10-22 status)
 
-The owner authorized preparing a governance amendment proposal. This is not acceptance of the amendment and does not override the current offline-only constitution or AGENTS.md.
+The bounded public, read-only Spot market-data scope is recorded in constitution v1.2.0 and `AGENTS.md`; it is **not** authorization for direct Wallex calls, private-account reads, new MCP setup, or state-changing actions. T003 is open/blocked pending the original Smart98 evidence report and authoritative source/version, schema, permission, and mediation evidence. The user-provided report notice supplies only an aggregate operator-reported invocation claim; Arena did not independently invoke the tools. T004 security/privacy/risk/compliance review and T005 architecture inventory are recorded in [the dated review](feature-005-smart98-evidence-review-2026-10-22.md); neither review passes unresolved permissions or legal gates.
 
-1. Which exact constitution and AGENTS.md amendment will be accepted, and who reviews/accepts it? Until accepted, the existing offline-only boundary remains binding.
-2. What canonical Smart98 documentation and version define the supported mediation interface, transport, auth, tool catalog, tool schemas, permissions, error/timeout behavior, and secret isolation?
-3. Which tools are confirmed strictly public/read-only? Tool names or marketing examples are insufficient; inspect schemas and side effects without invoking any write-capable tool.
-4. What are the precise timestamp units, retrieval timestamps, candle completeness/truncation and pagination semantics, depth limits, recent-trade limits, symbol naming, and rate/error behavior?
-5. What current, independent jurisdiction/compliance review is required before any real Wallex use? This proposal does not determine legality or eligibility.
-6. Does the owner approve implementation after the governance and contract evidence gates pass? The present approval covers preparing this proposal only.
+1. What canonical Smart98 documentation and version define the mediation interface, transport, authentication/secret boundary, tool catalog/schemas, permissions, and error/timeout behavior?
+2. Which exact tools are confirmed public/read-only Spot market data, and what source/version, exact input/output schemas, side effects, and per-tool permissions establish this? The current report body is missing.
+3. What are the timestamp units/meaning, decimal representations, freshness/provenance fields, candle range/completeness/truncation/pagination semantics, depth/trade limits, streaming availability, rate limits, timeout/retry behavior, and exact `UNKNOWN`/`UNVERIFIED`/`PARTIAL`/`NOT_AVAILABLE` findings?
+4. What current official organizer rules, competition window, dedicated-account permissions, current allowed Spot list, risk limits, reconciliation requirements, and explicit owner activation decision govern any future live workflow?
+5. What current qualified jurisdiction-specific legal/compliance review is required for the relevant person/entity, exchange, counterparties, and payment rails? No legality or eligibility conclusion is inferred here.
 
-**Current decision state:** constitution amendment not accepted; AGENTS.md amendment not accepted; adapter implementation not authorized; network/runtime testing not authorized; all private and state-changing capabilities remain prohibited. See [Feature 005 spec](../../specs/005-smart98-mediated-public-market-data/spec.md), [plan](../../specs/005-smart98-mediated-public-market-data/plan.md), [tasks](../../specs/005-smart98-mediated-public-market-data/tasks.md), and [governance amendment proposal](../../specs/005-smart98-mediated-public-market-data/governance-amendment-proposal.md).
+**Current decision state:** public-market-data adapter implementation remains gated by T003–T006; the pre-existing parser/provider code is not proof that those gates passed. T004 and T005 reviews are recorded; T006–T008 remain open. T009's offline suite/validator run and T010's evidence/documentation updates are recorded in `tasks.md` and the dated review. Private reads, orders, cancellations, transfers, deposits, withdrawals, wallet actions, OTC execution, Margin, leverage, borrowing, shorts, derivatives, and direct Wallex calls remain prohibited. See [Feature 005 spec](../../specs/005-smart98-mediated-public-market-data/spec.md), [plan](../../specs/005-smart98-mediated-public-market-data/plan.md), [tasks](../../specs/005-smart98-mediated-public-market-data/tasks.md), and [T003–T005 review](feature-005-smart98-evidence-review-2026-10-22.md).

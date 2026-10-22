@@ -1,8 +1,8 @@
 # Smart98 Wallex MCP — Capability Matrix
 
-**Date**: 2026-10-21 (historical repository snapshot; not reverified on 2026-10-22)
+**Date**: 2026-10-21 (historical repository snapshot; operator report notice received 2026-10-22)
 
-> **Current evidence notice:** The status icons and response details below are historical repository claims only. No MCP discovery, Smart98 invocation, or live validation occurred in the 2026-10-22 review. They do not establish that a tool exists, is available, permitted, current, or schema-compatible today. The checked-in responses are synthetic fixtures. Treat all public capabilities as **UNVERIFIED for current use** until the read-only evidence request in [`final-project-audit-2026-10-22.md`](audits/final-project-audit-2026-10-22.md) is fulfilled.
+> **Current evidence notice:** The status icons and response details below are historical repository claims only. The user reports that an operator supplied a Smart98-generated report describing live, read-only invocation of public Wallex market-data tools, but the report body/attachment is not present. Only the aggregate operator-reported claim is recorded; no exact tool row can be matched to it. Arena did not independently invoke or verify any tool. The checked-in responses are synthetic fixtures. The historical rows do not establish that a tool exists, is available, permitted, current, or schema-compatible today. Treat tool-level public capabilities as **UNVERIFIED for current use** until the original sanitized evidence and authoritative contract are reviewed; see the [dated Feature 005 review](research/feature-005-smart98-evidence-review-2026-10-22.md) and [report notice](research/user-sources/smart98_mcp_report_notice_2026-10-22.md).
 
 ## Legend
 

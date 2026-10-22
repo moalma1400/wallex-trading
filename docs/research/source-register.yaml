@@ -2788,6 +2788,45 @@
         "account-permissions table formatting corrupted",
         "no verbatim Persian original provided"
       ]
+    },
+    {
+      "source_id": "USER-SMART98-MCP-REPORT-NOTICE-2026-10-22",
+      "title": "Feature 005 Task T003 — MCP Tool Evidence Report (title reported by user; original report unavailable)",
+      "url": null,
+      "official_domain": null,
+      "documentation_type": "User-provided Smart98 report notice; not the original report and not independently verified",
+      "discovery_path": "User message dated 2026-10-22 states that an operator supplied a Smart98-generated report and summarizes only an aggregate read-only public Wallex market-data invocation claim; original report body/attachment was not present in the prompt or workspace. A notice, not raw report content, is archived at docs/research/user-sources/smart98_mcp_report_notice_2026-10-22.md.",
+      "retrieved_at_utc": null,
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "topics": [
+        "Smart98 MCP",
+        "public Wallex market data",
+        "Feature 005 T003 evidence intake"
+      ],
+      "claims_summary": "The user reports a Smart98-generated report, dated 2026-10-22, describing live read-only invocations of public Wallex market-data tools through the existing Smart98-mediated MCP environment. The original report is unavailable; no tool-specific capability, identifier, schema, payload, timestamp/decimal representation, source/version, permission, or report status label is evidenced by the supplied notice.",
+      "confidence_and_evidence_notes": "Operator-provided report notice only. The archived source file records the user message summary; its SHA-256 identifies that notice file, not the absent Smart98 report. Arena did not independently invoke or verify the tools. No raw request/response, transcript, or report checksum is claimed. T003 remains blocked pending the original sanitized report and authoritative contract/source evidence.",
+      "related_source_ids": [
+        "MARKETS",
+        "SPOT-MARKETS",
+        "CANDLES",
+        "DEPTH",
+        "TRADES",
+        "MOD-SOCKET-FAIR-PRICE"
+      ],
+      "research_status": "blocked",
+      "source_kind": "user_provided",
+      "source_file": "docs/research/user-sources/smart98_mcp_report_notice_2026-10-22.md",
+      "source_file_sha256": "5eb99b0eebf21f9eed4b90beb3adc811cca5ccd7f5a7dd795b7d781395a7dce5",
+      "source_material_type": "user_message_report_notice_not_original_report",
+      "reported_report_date": "2026-10-22",
+      "reported_report_time_and_timezone": "UNKNOWN_NOT_SUPPLIED",
+      "original_report_available": false,
+      "original_report_checksum": null,
+      "independent_invocation_by_arena": false,
+      "tool_identifiers_and_schemas": "UNKNOWN_NOT_SUPPLIED",
+      "source_and_version": "UNKNOWN_NOT_SUPPLIED",
+      "tool_permissions_and_side_effect_proof": "UNVERIFIED"
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."

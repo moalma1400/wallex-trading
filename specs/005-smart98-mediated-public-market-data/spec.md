@@ -22,19 +22,20 @@ This section records the approved product scope. The constitution and AGENTS.md 
 
 As a hackathon participant, I want an autonomous, auditable trading agent that obtains permitted market data, decides, applies deterministic risk checks, submits and manages permitted orders, and records every decision through Smart98-mediated tools, so that all evaluated trades are algorithmic rather than manually placed.
 
-## Scope proposed for later governance approval
+## Approved public-market-data scope and separately gated execution
 
-- Public market metadata, candles, order-book snapshots, recent public trades and ticker observations through verified Smart98-mediated tools.
-- Autonomous decision-making and trade execution through verified, explicitly authorized Smart98-mediated order tools for the challenge account only.
-- Order lifecycle management: acknowledgements, status polling, fills/partial fills, cancellation only when explicitly permitted, idempotency and reconciliation according to verified contracts.
-- Provider-neutral interfaces with provenance, timestamps, Decimal-safe parsing, freshness/completeness validation and fail-closed eligibility.
-- Deterministic risk gate outside the LLM; the model cannot bypass capital, market, order-size, drawdown, or challenge-policy controls.
-- Audit record for every decision and order lifecycle event, without credentials or unnecessary personal data.
-- Offline backtest and isolated shadow testing; fixtures by default. Any live account action requires the approved governance and authorization gates below.
+For this Feature 005 implementation phase, approval is limited to:
+
+- Public Spot market metadata, candles, order-book snapshots, recent public trades, and ticker observations **only through verified Smart98-mediated read-only tools**; the exact tool list and schemas remain unverified until T003 passes.
+- Provider-neutral internal data handling with provenance, timestamps, Decimal-safe parsing, freshness/completeness validation, and fail-closed Spot eligibility; do not invent fields or thresholds.
+- Offline backtest and isolated shadow testing with sanitized fixtures. Tests and CI remain offline.
+- No private-account reads, order submission, cancellation, or other state-changing action in this phase.
+
+Autonomous challenge-account execution is a later, separate activation boundary and is not authorized by the current implementation task. If separately accepted in the future, order lifecycle handling (acknowledgements, status, partial/full fills, timeouts/retries/idempotency, cancellation where permitted, and reconciliation) must use verified contracts, dedicated-account permissions, official rules/allowed markets, deterministic risk controls, audit records, relevant compliance review, and an explicit owner activation decision.
 
 ## Exclusions
 
-No direct Wallex application/API calls or direct-access fallback. No withdrawal, transfer, deposit, wallet operation, margin, leverage, borrowing, shorting, derivatives, OTC execution, or any operation outside the challenge's verified permitted Spot markets and account permissions. No manual trading is accepted as evaluated algorithmic performance. No live execution is authorized by this draft. No strategy, pair, timeframe, fees, capital, or risk preferences are silently selected; challenge-specific parameters must come from verified rules or explicit owner inputs.
+No direct Wallex application/API calls or direct-access fallback. No withdrawal, transfer, deposit, wallet operation, margin, leverage, borrowing, shorting, derivatives, OTC execution, or any operation outside the challenge's verified permitted Spot markets and account permissions. No manual trading is accepted as evaluated algorithmic performance. No live execution is authorized in this implementation phase. No strategy, pair, timeframe, fees, capital, or risk preferences are silently selected; challenge-specific parameters must come from verified rules or explicit owner inputs.
 
 ## Acceptance criteria (only after governance and account/tool authorization)
 
