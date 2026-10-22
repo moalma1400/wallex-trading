@@ -1,6 +1,9 @@
-# MCP adapter for Wallex market data via Smart98.
-# Smart98 is the mandatory intermediary between the trading application and Wallex.
-# All market data flows through the Smart98 Wallex MCP connector exclusively.
+# MCP adapter for Wallex market data via Smart98 or the standalone MCP server.
+#
+# Smart98 remains an optional MCP host/client. The standalone MCP server
+# (Feature 007, constitution v1.3.0) is an independent mediation path for the
+# same verified public, read-only Spot market data. Data provenance is
+# labelled explicitly so standalone data is never misreported as Smart98 data.
 
 from __future__ import annotations
 
@@ -14,6 +17,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 class DataSource(Enum):
     """Provenance of market data."""
     MCP_SMART98 = auto()
+    MCP_STANDALONE = auto()
 
 
 @dataclass(frozen=True)
