@@ -93,6 +93,35 @@ def test_response_schema_is_required():
         verify(tools)
 
 
+def test_actual_reported_inputs_without_output_schemas_do_not_authorize_execution():
+    """The 2026-10-23 Smart98 report has these inputs, but no outputSchema."""
+    reported_inputs = [
+        {
+            "name": PLACE_ORDER_TOOL,
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string"}, "side": {"type": "string"},
+                    "type": {"type": "string"}, "quantity": {"type": "string"},
+                    "price": {"type": "string"}, "stop_Price": {"type": "string"},
+                    "client_id": {"type": "string"},
+                },
+                "required": ["side", "symbol", "type"],
+            },
+        },
+        {
+            "name": GET_ORDER_TOOL,
+            "inputSchema": {
+                "type": "object",
+                "properties": {"client_id": {"type": "string"}},
+                "required": ["client_id"],
+            },
+        },
+    ]
+    with pytest.raises(Smart98ContractVerificationError, match="outputSchema is missing"):
+        verify(reported_inputs)
+
+
 def test_wrong_response_envelope_fails_closed():
     tools = valid_tools()
     tools[1]["outputSchema"]["properties"] = {"data": {"type": "object"}}
