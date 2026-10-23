@@ -177,6 +177,11 @@ class ServerFrame:
     channel: str | None = None
     data: Mapping[str, Any] | None = None
     server_ping_seconds: int | None = None
+    client_id: str | None = None
+    pong_required: bool | None = None
+    # Set when a `connect` reply is structurally recognizable but not the documented
+    # acknowledgement; such a frame must never authorize a `subscribe`.
+    handshake_problem: str | None = None
 
 
 def _looks_like_legacy_handshake(payload: Mapping[str, Any]) -> bool:
@@ -192,6 +197,28 @@ def _legacy_publication(payload: Any) -> bool:
         and isinstance(payload[0], str)
         and isinstance(payload[1], dict)
     )
+
+
+def connect_reply_problem(client: Any, ping: int | None, pong: Any) -> str | None:
+    """Return why a `connect` reply is not the documented acknowledgement, if it is not.
+
+    ``/docs/socket-raw-protocol`` shows the reply as
+    ``{"id": 1, "connect": {"client": "<uuid>", "ping": 25, "pong": true}}`` and describes
+    each field: ``client`` is the unique identifier of this connection, ``ping`` is the
+    server ping interval in seconds, and ``pong`` is a flag meaning "you must answer".
+    The page calls its examples real frames exchanged with the server, but never states
+    requiredness explicitly, so requiring all three is a **fail-closed client choice**:
+    a reply that omits or mistypes a documented field is not treated as proof that the
+    connection was accepted. Additional fields are allowed, because the documented
+    private-channel reply adds ``expires``, ``ttl`` and ``subs`` to the same object.
+    """
+    if not isinstance(client, str) or not client.strip():
+        return "connect reply has no documented 'client' identifier string"
+    if ping is None or ping <= 0:
+        return "connect reply has no positive integer 'ping' interval in seconds"
+    if not isinstance(pong, bool):
+        return "connect reply has no documented boolean 'pong' flag"
+    return None
 
 
 def classify_server_message(message: str | bytes) -> ServerFrame:
@@ -244,10 +271,16 @@ def classify_server_message(message: str | bytes) -> ServerFrame:
             reply = payload["connect"]
             if not isinstance(reply, dict):
                 return ServerFrame(FRAME_MALFORMED)
+            client = reply.get("client")
+            pong = reply.get("pong")
+            ping = _int_or_none(reply.get("ping"))
             return ServerFrame(
                 FRAME_HANDSHAKE,
                 request_id=_int_or_none(payload.get("id")),
-                server_ping_seconds=_int_or_none(reply.get("ping")),
+                server_ping_seconds=ping,
+                client_id=client if isinstance(client, str) else None,
+                pong_required=pong if isinstance(pong, bool) else None,
+                handshake_problem=connect_reply_problem(client, ping, pong),
             )
         if "subscribe" in payload:
             if not isinstance(payload["subscribe"], dict):
@@ -361,6 +394,8 @@ class CandleWriter:
         self.reconnect_count = 0
         self.connection_errors = 0
         self.handshake_frames = 0
+        self.malformed_handshakes = 0
+        self.last_handshake_error: str | None = None
         self.subscription_ack_frames = 0
         self.server_ping_frames = 0
         self.server_pongs_sent = 0
@@ -456,6 +491,8 @@ class CandleWriter:
             "late_or_out_of_order_trades_ignored": self.late_trades_ignored,
             "other_channel_publications_ignored": self.other_channel_publications_ignored,
             "handshake_frames_received": self.handshake_frames,
+            "malformed_handshake_frames_received": self.malformed_handshakes,
+            "last_handshake_error": self.last_handshake_error,
             "subscription_ack_frames_received": self.subscription_ack_frames,
             "server_ping_frames_received": self.server_ping_frames,
             "server_pongs_sent": self.server_pongs_sent,
@@ -593,6 +630,7 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                     connect_acked = False
                     subscribe_requested = False
                     subscribe_acked = False
+                    rejected_connect_reply: str | None = None
                     last_rx = now()
 
                     while True:
@@ -608,9 +646,11 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                             if deadline is not None and now() >= deadline:
                                 break
                             if not connect_acked and now() >= connect_deadline:
+                                detail = (f"; the last connect reply was rejected: {rejected_connect_reply}"
+                                          if rejected_connect_reply else "")
                                 raise TimeoutError(
                                     "no documented connect acknowledgement within "
-                                    f"{ack_timeout_seconds:g}s")
+                                    f"{ack_timeout_seconds:g}s{detail}")
                             if (not subscribe_acked and subscribe_deadline is not None
                                     and now() >= subscribe_deadline):
                                 raise TimeoutError(
@@ -647,6 +687,15 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                                     # An ack that does not answer our connect command
                                     # (or repeats it) proves nothing about this session.
                                     writer.unknown_frames += 1
+                                    continue
+                                if frame.handshake_problem is not None:
+                                    # A `connect` object without the documented fields is
+                                    # not proof that the connection was accepted: count it,
+                                    # keep waiting for a valid reply, and never subscribe.
+                                    writer.malformed_handshakes += 1
+                                    writer.last_handshake_error = _short(frame.handshake_problem)
+                                    rejected_connect_reply = frame.handshake_problem
+                                    writer.write_manifest(force=True)
                                     continue
                                 writer.handshake_frames += 1
                                 connect_acked = True

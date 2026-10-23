@@ -58,6 +58,32 @@ A connection the server never accepted can therefore never reach `status: "subsc
 never sent can never be "acknowledged". The cost is one extra round trip (tens of milliseconds). This is a
 **stricter client choice, not a documented requirement**; the page-internal difference is recorded as `D-023`.
 
+### What a connect reply must contain before `subscribe` is sent
+
+The documented reply is
+`{"id": 1, "connect": {"client": "<uuid>", "ping": 25, "pong": true}}`, and the page describes each field: `client` is
+the unique identifier of this connection, `ping` is the server ping interval in seconds, and `pong` is the flag that
+means "you must answer". The page also states that **every example on it is a real frame exchanged with the server**.
+The recorder therefore accepts a connect reply only when all three fields are present and well-formed:
+
+| Field | Accepted form | Rejected example |
+| --- | --- | --- |
+| `client` | non-empty string | missing, `""`, `42` |
+| `ping` | positive integer number of seconds (an integral `25.0` or `"25"` is also accepted) | missing, `0`, `-25`, `true`, `"twenty-five"` |
+| `pong` | JSON boolean (`true` or `false`) | missing, `"true"`, `1` |
+
+Additional fields are allowed and ignored, because the documented private-channel reply adds `expires`, `ttl` and
+`subs` to the same object. A reply that fails this check is **not** treated as an acknowledgement: the frame is counted
+in `malformed_handshake_frames_received`, its reason is stored in `last_handshake_error`, no `subscribe` is sent, the
+recorder keeps waiting for a valid reply until the acknowledgement deadline, and the connection is then retried with
+the rejection reason attached to the timeout message.
+
+Two honest caveats. First, the page never states that those fields are *required* — it shows them in every example and
+tabulates their meaning, nothing more. Requiring them is a **fail-closed client choice**, recorded as an open question:
+if Wallex ever omits one of them, the recorder refuses to subscribe and says why in the manifest instead of recording
+nothing silently. Second, `pong: false` is accepted as a documented boolean value; the recorder still echoes `{}`
+whenever the server sends the heartbeat, because step 4 says to return the empty object whenever it arrives.
+
 ### Which page says what (retrieval conflict, resolved as page structure)
 
 The four socket pages do not contradict each other: **each page documents both generations**, and
@@ -143,7 +169,8 @@ in place.
 | `malformed_or_unmatched_messages` | **structural** failures only: non-JSON, non-text, invalid envelope, invalid price/quantity/timestamp |
 | `late_or_out_of_order_trades_ignored` | trades for an already-closed bucket |
 | `other_channel_publications_ignored` | publications for a different channel (never turned into candles) |
-| `handshake_frames_received`, `subscription_ack_frames_received` | documented handshake and subscription acknowledgements |
+| `handshake_frames_received`, `subscription_ack_frames_received` | documented handshake and subscription acknowledgements that passed validation |
+| `malformed_handshake_frames_received`, `last_handshake_error` | connect replies that were recognizable but missing a documented field or carrying the wrong type; `last_handshake_error` names the field, bounded to 200 characters |
 | `server_ping_frames_received`, `server_pongs_sent` | documented `{}` heartbeats and the echoes sent back |
 | `server_error_frames_received`, `last_server_error`, `last_subscription_error_code`, `last_subscription_error_message` | documented error frames, without credentials |
 | `unknown_frames_ignored`, `legacy_v1_frames_ignored` | valid-but-unrecognized frames and deprecated v1 frames; **not** counted as malformed |
@@ -207,7 +234,12 @@ connect error or a wrong connect id cannot produce a subscription; a subscriptio
 the request that was actually sent; heartbeats and multi-message frames keep working around both acknowledgements; an
 error answering another command is not reported as a subscription rejection; a real `websockets`
 `ConnectionClosed` carrying a `3501` close is treated as fatal and never retried; and a subscribed session that drops
-without any trade does not exhaust the retry budget. **No deterministic test proves live behaviour.**
+without any trade does not exhaust the retry budget.
+
+Connect-reply validation is pinned the same way: eleven missing-or-mistyped shapes must all be rejected without a
+`subscribe` ever being sent, a rejected reply followed by a valid one must still subscribe (no false abort), and the
+documented private-channel extras plus `pong: false` must still be accepted. Each of the three field checks and the
+pre-subscribe gate is mutation-checked. **No deterministic test proves live behaviour.**
 
 ## Live verification status
 

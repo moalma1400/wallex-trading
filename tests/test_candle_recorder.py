@@ -292,9 +292,11 @@ def test_numeric_json_price_and_quantity_keep_decimal_precision():
 
 
 def test_numeric_request_ids_are_still_accepted():
-    frame = classify_server_message('{"id": 1.0, "connect": {"client": "x", "ping": 25}}')
+    frame = classify_server_message(
+        '{"id": 1.0, "connect": {"client": "x", "ping": 25, "pong": true}}')
     assert frame.kind == FRAME_HANDSHAKE
     assert frame.request_id == 1
+    assert frame.handshake_problem is None
 
 
 def test_unsolicited_subscription_ack_is_not_accepted_as_our_subscription(tmp_path):
@@ -621,6 +623,114 @@ def test_only_newlines_split_a_transport_frame():
     assert classify_server_message(parts[0]).kind == FRAME_PUBLICATION
     # CRLF still arrives as two clean messages because every line is stripped.
     assert split_messages('{"a": 1}\r\n{"b": 2}') == ['{"a": 1}', '{"b": 2}']
+
+
+# --------------------------------------------------------------------------
+# Documented connect reply: the fields must be present before subscribe
+# --------------------------------------------------------------------------
+CONNECT_CLIENT = "5f194d9b-57fb-45d8-bd2d-6efe83edf0ac"
+
+# Every shape below is a `connect` object that is recognizable but not the documented
+# acknowledgement: a documented field is missing or carries the wrong JSON type.
+INVALID_CONNECT_REPLIES = {
+    "missing-client": {"ping": 25, "pong": True},
+    "empty-client": {"client": "   ", "ping": 25, "pong": True},
+    "client-not-a-string": {"client": 42, "ping": 25, "pong": True},
+    "missing-ping": {"client": CONNECT_CLIENT, "pong": True},
+    "ping-not-a-number": {"client": CONNECT_CLIENT, "ping": "twenty-five", "pong": True},
+    "ping-zero": {"client": CONNECT_CLIENT, "ping": 0, "pong": True},
+    "ping-negative": {"client": CONNECT_CLIENT, "ping": -25, "pong": True},
+    "ping-boolean": {"client": CONNECT_CLIENT, "ping": True, "pong": True},
+    "missing-pong": {"client": CONNECT_CLIENT, "ping": 25},
+    "pong-not-a-boolean": {"client": CONNECT_CLIENT, "ping": 25, "pong": "true"},
+    "pong-as-int": {"client": CONNECT_CLIENT, "ping": 25, "pong": 1},
+}
+
+
+def connect_reply_with(**connect_fields):
+    """A connect reply whose ``connect`` object contains exactly the given fields."""
+    return {"id": 1, "connect": connect_fields}
+
+
+def test_documented_connect_reply_exposes_every_documented_field():
+    frame = classify_server_message(json.dumps(connect_reply()))
+    assert frame.kind == FRAME_HANDSHAKE
+    assert (frame.request_id, frame.server_ping_seconds) == (1, 25)
+    assert frame.client_id == CONNECT_CLIENT
+    assert frame.pong_required is True
+    assert frame.handshake_problem is None
+
+
+@pytest.mark.parametrize("connect_fields", INVALID_CONNECT_REPLIES.values(),
+                         ids=INVALID_CONNECT_REPLIES.keys())
+def test_connect_reply_without_the_documented_fields_is_not_a_valid_acknowledgement(connect_fields):
+    """Recognized as a connect reply, but never as proof that the connection was accepted."""
+    frame = classify_server_message(json.dumps(connect_reply_with(**connect_fields)))
+    assert frame.kind == FRAME_HANDSHAKE
+    assert frame.handshake_problem is not None
+
+
+@pytest.mark.parametrize("case", ["missing-pong", "missing-client", "ping-not-a-number", "pong-as-int"])
+def test_malformed_connect_reply_cannot_trigger_a_subscribe(tmp_path, case):
+    output = tmp_path / "candles.jsonl"
+    socket = FakeWebSocket([connect_reply_with(**INVALID_CONNECT_REPLIES[case])] + [BLOCK] * 10)
+    with pytest.raises(RuntimeError, match="reconnect limit exceeded"):
+        asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                                  reconnect_backoff_seconds=0, max_reconnect_attempts=0,
+                                  ack_timeout_seconds=0.05, clock=FakeClock()))
+
+    # Only the connect command was ever sent.
+    assert sent_json(socket) == [{"id": 1, "connect": {}}]
+    manifest = read_manifest(tmp_path)
+    assert manifest["handshake_frames_received"] == 0
+    assert manifest["malformed_handshake_frames_received"] == 1
+    assert manifest["last_handshake_error"]
+    assert manifest["subscription_ack_frames_received"] == 0
+    assert manifest["subscription_status"] == "pending"
+    assert manifest["subscription_acknowledged"] is False
+    assert manifest["status"] == "failed"
+    assert "rejected" in manifest["last_connection_error_message"]
+
+
+def test_malformed_connect_reply_then_a_valid_one_recovers(tmp_path):
+    """A rejected reply must not abort the connection: the valid one still subscribes."""
+    output = tmp_path / "candles.jsonl"
+    socket = FakeWebSocket([
+        connect_reply_with(client=CONNECT_CLIENT, ping=25),   # documented reply, no `pong`
+        connect_reply(),
+        subscribe_ack(),
+        STOP,
+    ])
+    asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                              max_runtime_seconds=1.0, reconnect_backoff_seconds=0,
+                              clock=FakeClock(), ack_timeout_seconds=1.0))
+
+    commands = sent_json(socket)
+    assert commands[0] == {"id": 1, "connect": {}}
+    assert commands[1] == {"id": 2, "subscribe": {"channel": CHANNEL}}
+    manifest = read_manifest(tmp_path)
+    assert manifest["malformed_handshake_frames_received"] == 1
+    assert manifest["handshake_frames_received"] == 1
+    assert manifest["subscription_status"] == "acknowledged"
+    assert manifest["status"] == "stopped"
+
+
+@pytest.mark.parametrize("pong", [True, False])
+def test_connect_reply_with_documented_private_fields_is_accepted(tmp_path, pong):
+    """Additional documented fields (private-channel reply) must not invalidate it."""
+    output = tmp_path / "candles.jsonl"
+    reply = {"id": 1, "connect": {"client": CONNECT_CLIENT, "expires": True, "ttl": 900,
+                                  "subs": {"private:user#42": {}}, "ping": 25, "pong": pong}}
+    socket = FakeWebSocket([reply, subscribe_ack(), STOP])
+    asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                              max_runtime_seconds=1.0, reconnect_backoff_seconds=0,
+                              clock=FakeClock(), ack_timeout_seconds=1.0))
+
+    assert [command["id"] for command in sent_json(socket)] == [1, 2]
+    manifest = read_manifest(tmp_path)
+    assert manifest["malformed_handshake_frames_received"] == 0
+    assert manifest["subscription_status"] == "acknowledged"
+    assert manifest["status"] == "stopped"
 
 
 # --------------------------------------------------------------------------

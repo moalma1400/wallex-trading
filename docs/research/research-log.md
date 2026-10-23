@@ -255,3 +255,27 @@ Wallex TLS endpoint from this environment). No commit, push, branch switch or pu
   byte-identically afterwards.
 - Evidence class: all of this is `verified_by_test` against scripted frames, plus `documented` page text. No live
   handshake, subscription acknowledgement or trade receipt was observed, so the runtime sequence remains `pending`.
+
+## Connect-reply field validation — 2026-10-23 (PR #22 follow-up)
+
+- Trigger: review observation that `classify_server_message()` accepted any `connect` object and `record_trades()` only
+  compared `id`, so a reply `{"id": 1, "connect": {}}` — or one with mistyped fields — would authorize `subscribe`.
+- Source re-read this pass: `/docs/socket-raw-protocol`, both chunks. The documented reply is
+  `{"id": 1, "connect": {"client": "<uuid>", "ping": 25, "pong": true}}`; the field table gives `client` = "unique
+  identifier of this connection", `ping` = "the server ping interval in seconds", `pong` = "if `true`, you must answer".
+  The page also states that **every example on it is a real frame exchanged with the server**. The private-channel
+  reply adds `expires`, `ttl` and `subs` to the same object.
+- What the page does **not** state: requiredness, or the JSON type of each field beyond what the example shows. The SDK
+  connection page linked from the socket overview documents SDK events only and no connect-reply fields.
+- Decision, labelled as a client choice rather than a documented requirement: require a non-empty `client` string, a
+  positive integer `ping`, and a boolean `pong`; allow extra fields. A reply that fails this is counted in a new
+  `malformed_handshake_frames_received` counter, its reason is stored in `last_handshake_error`, no `subscribe` is sent,
+  the recorder keeps waiting for a valid reply, and the eventual timeout carries the rejection reason. `pong: false` is
+  accepted; the client still echoes the `{}` heartbeat whenever it arrives, per step 4.
+- Tests: 70 → 89 recorder tests, including eleven missing-or-mistyped shapes at classification level, four end-to-end
+  cases proving no `subscribe` and no subscribed state, a recovery case proving a rejected reply followed by a valid one
+  still subscribes, and acceptance of the documented private extras with `pong` true and false. Mutation checks: removing
+  the pre-subscribe gate fails five tests; removing the `pong`, `client` or `ping` check fails three, four and six
+  respectively. Source restored byte-identically (`sha256 e320792c…`).
+- Evidence class: `documented` (reply shape and field meanings) plus `verified_by_test` (the enforcement). No live
+  session exists, so whether the real server always sends all three fields remains unverified.
