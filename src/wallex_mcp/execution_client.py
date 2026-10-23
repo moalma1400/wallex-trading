@@ -126,9 +126,6 @@ class MediatedExecutionClient:
             "type": intent.order_type,
             "price": format(Decimal(str(intent.price)), "f"),
             "quantity": format(Decimal(str(intent.quantity)), "f"),
-            "validated_notional_tmn": format(notional, "f"),
-            "policy_activation_record_id": self._policy.activation_record_id,
-            "execution_contract_version": self._contract.version,
         }
         try:
             result = self._invoke_tool(self._contract.place_order_tool, payload)
