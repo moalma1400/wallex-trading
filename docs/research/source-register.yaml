@@ -1740,12 +1740,28 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Centrifugo v2, legacy v1 status, channels and data/history limitations.",
-      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time.",
+      "claims_summary": "Centrifugo v2, legacy v1 status, channels and data/history limitations. Re-read 2026-10-23 (official page): the overview lists both generations, requires a namespace (a channel name without `:` is rejected), restricts market names to ASCII letters, digits, `_` and `-`, and describes v1 as deprecated but still supported. Documented v1 limits are a 30-minute connection lifetime, at most 50 `subscribe` commands per connection (silently ignored beyond that), a 20-second WebSocket ping with a 30-second pong window, text frames only, and 100 queued outgoing messages. Documented v2 limits are 64 channels per connection and a 25-second ping with an 8-second answer window. The page also states that v1 membership sends the current state neither, and that a first message after connecting is a connection-information object with `sid`, `upgrades`, `pingInterval` (20000 ms) and `pingTimeout` (30000 ms).",
+      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time. The 2026-10-23 re-read returned the channel table, the v1 detail section and the `sid`/`pingInterval` object verbatim. The v1 section describes the transport at a logical level only; it does not specify Socket.IO packet framing (see D-019). Runtime availability of either generation is not established. Third pass (2026-10-23T13:46:00Z): Re-read: v2 main content (Centrifugo, `wss://api.wallex.ir/connection/websocket`, channel table with `public:<SYMBOL>@trade`, `{}` heartbeat 25 s / 8 s) is followed by the section 'جزئیات ورژن ۱ (منسوخ شده)' which documents the v1 heartbeat (`۲۰ ثانیه` ping, `۳۰ ثانیه` pong window), the 30-minute connection lifetime and the 50-subscribe limit. Both generations on one page; neither statement is contradicted. Evidence class: documented page content retrieved in this pass; not runtime verification.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "reviewed"
+      "research_status": "reviewed",
+      "retrieval_history": [
+        {
+          "retrieved_at_utc": "2026-10-21T13:14:42Z",
+          "outcome": "original snapshot recorded in retrieved_at_utc"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:06:00Z",
+          "outcome": "re-read; channel list, v1/v2 limits and Engine.IO-style handshake description confirmed; runtime unverified"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:46:00Z",
+          "outcome": "re-read; v2 rules and the v1 detail section both present and consistent with the register"
+        }
+      ],
+      "reverified_at_utc": "2026-10-23T13:46:00Z",
+      "reverification_note": "Third retrieval pass (independent-content check requested by the reviewer). Every page was fetched again from the same official host in a single UTC session. Finding: the four pages do not conflict; each documents BOTH generations on one page, and `/docs/socket-trade` lists version 1 (deprecated) FIRST, before the two version-2 sections. Re-read: v2 main content (Centrifugo, `wss://api.wallex.ir/connection/websocket`, channel table with `public:<SYMBOL>@trade`, `{}` heartbeat 25 s / 8 s) is followed by the section 'جزئیات ورژن ۱ (منسوخ شده)' which documents the v1 heartbeat (`۲۰ ثانیه` ping, `۳۰ ثانیه` pong window), the 30-minute connection lifetime and the 50-subscribe limit. Both generations on one page; neither statement is contradicted."
     },
     {
       "source_id": "SOCKET-MIGRATION",
@@ -1760,12 +1776,28 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Official v1/v2 endpoint, channel, message and auth migration differences.",
-      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time.",
+      "claims_summary": "Official v1/v2 endpoint, channel, message and auth migration differences. Re-read 2026-10-23 (official page): the migration table maps v1 `wss://api.wallex.ir/ws` to v2 `wss://api.wallex.ir/connection/websocket`, `[\"subscribe\", {\"channel\": \"BTCTMN@trade\"}]` to `{\"id\": 2, \"subscribe\": {\"channel\": \"public:BTCTMN@trade\"}}`, the `[\"BTCTMN@trade\", {...}]` envelope to `{\"push\": {\"channel\": \"public:BTCTMN@trade\", \"pub\": {\"data\": {...}}}}`, and standard WebSocket ping/pong to the empty object `{}`. It also states that every channel name must carry a namespace and that every command receives an answer with the same `id`.",
+      "confidence_and_evidence_notes": "Page content was returned and inspected during the UTC research session. No publisher date was exposed by the retrieved page. High for the statements summarized as visible page content; not evidence of runtime availability. Per-request retrieval time was not exposed; retrieved_at_utc records the UTC snapshot compilation time. The 2026-10-23 re-read returned the full migration table verbatim. It is a documentation mapping, not evidence that either endpoint currently accepts connections. Third pass (2026-10-23T13:46:00Z): Re-read: the migration table maps v1 `wss://api.wallex.ir/ws` and `[\"subscribe\", {...}]` to v2 `wss://api.wallex.ir/connection/websocket` and `{ \"id\": 2, \"subscribe\": { \"channel\": \"public:...@trade\" } }`, and standard ping/pong to the empty object `{}`. Evidence class: documented page content retrieved in this pass; not runtime verification.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "reviewed"
+      "research_status": "reviewed",
+      "retrieval_history": [
+        {
+          "retrieved_at_utc": "2026-10-21T13:14:42Z",
+          "outcome": "original snapshot recorded in retrieved_at_utc"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:06:00Z",
+          "outcome": "re-read; endpoint, frame and ping/pong mappings confirmed; runtime unverified"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:46:00Z",
+          "outcome": "re-read; v1→v2 mapping unchanged"
+        }
+      ],
+      "reverified_at_utc": "2026-10-23T13:46:00Z",
+      "reverification_note": "Third retrieval pass (independent-content check requested by the reviewer). Every page was fetched again from the same official host in a single UTC session. Finding: the four pages do not conflict; each documents BOTH generations on one page, and `/docs/socket-trade` lists version 1 (deprecated) FIRST, before the two version-2 sections. Re-read: the migration table maps v1 `wss://api.wallex.ir/ws` and `[\"subscribe\", {...}]` to v2 `wss://api.wallex.ir/connection/websocket` and `{ \"id\": 2, \"subscribe\": { \"channel\": \"public:...@trade\" } }`, and standard ping/pong to the empty object `{}`."
     },
     {
       "source_id": "MOD-SOCKET-PRIVATE-CHANNEL",
@@ -1800,12 +1832,28 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "Full page reviewed: public v2 connect/subscribe frames, private token channel membership, 25-second ping/8-second response note, 64-channel cap, reconnect/no-replay limits, and candle exception are described. No websocket client was run.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee.",
+      "claims_summary": "Full page reviewed: public v2 connect/subscribe frames, private token channel membership, 25-second ping/8-second response note, 64-channel cap, reconnect/no-replay limits, and candle exception are described. No websocket client was run. Re-read 2026-10-23 (official page): the raw v2 rules state the endpoint must be exactly `wss://api.wallex.ir/connection/websocket` (a trailing slash yields 404), that messages are JSON text frames, that each command carries a unique numeric `id` answered with the same `id`, and that messages without `id` carrying `push` are channel data. The connect command is `{\"id\": 1, \"connect\": {}}` with reply `{\"id\": 1, \"connect\": {\"client\": \"<uuid>\", \"ping\": 25, \"pong\": true}}`; each channel needs its own `{\"id\": 2, \"subscribe\": {\"channel\": \"public:<SYMBOL>@trade\"}}` and a successful subscription is acknowledged with an empty `{\"id\": 2, \"subscribe\": {}}` that carries no snapshot. Publications arrive as `{\"push\": {\"channel\": ..., \"pub\": {\"data\": {...}}}}`. The server sends an empty object `{}` every 25 seconds and the client must echo `{}`; a missing answer within 8 seconds closes the connection with code 3012. Documented request errors are 102 unknown channel, 103 permission denied, 105 already subscribed, 106 limit exceeded (64 channels), 107 bad request, 108 not available and 109 token expired; documented close codes are 3005, 3008 and 3012 (may reconnect) and 3500/3501 (client fault, reconnect is futile). One transport frame may contain several newline-separated JSON messages.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. The 2026-10-23 re-read was performed with the same public page reader during a separate UTC session and returned the frames above verbatim, including both the Python and Go sample clients. This remains documented evidence: no live WebSocket subscription was completed from this environment, so server behaviour at runtime is unverified. Third pass (2026-10-23T13:46:00Z): Re-read both chunks: endpoint exactly `wss://api.wallex.ir/connection/websocket`; JSON in text frames; numeric `id` echoed in the reply; `push` without `id` marks channel data; `{}` heartbeat echoed within 8 s or close `3012`; errors 102/103/105/106/107/108/109; close codes 3005/3008/3012 retryable and 3500/3501 client-side; reconnect requires a fresh `connect` followed by `subscribe`; the Python and Go samples both split every frame on `\\n` with the comment 'یک فریم ممکن است چند پیام داشته باشد' (a frame may contain several messages). Evidence class: documented page content retrieved in this pass; not runtime verification.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "reviewed"
+      "research_status": "reviewed",
+      "retrieval_history": [
+        {
+          "retrieved_at_utc": "2026-10-21T13:41:41Z",
+          "outcome": "original snapshot recorded in retrieved_at_utc"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:06:00Z",
+          "outcome": "re-read; connect/subscribe/heartbeat/error/close-code frames and channel syntax confirmed; runtime unverified"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:46:00Z",
+          "outcome": "re-read; frames, codes and the documented newline splitting confirmed verbatim; runtime unverified"
+        }
+      ],
+      "reverified_at_utc": "2026-10-23T13:46:00Z",
+      "reverification_note": "Third retrieval pass (independent-content check requested by the reviewer). Every page was fetched again from the same official host in a single UTC session. Finding: the four pages do not conflict; each documents BOTH generations on one page, and `/docs/socket-trade` lists version 1 (deprecated) FIRST, before the two version-2 sections. Re-read both chunks: endpoint exactly `wss://api.wallex.ir/connection/websocket`; JSON in text frames; numeric `id` echoed in the reply; `push` without `id` marks channel data; `{}` heartbeat echoed within 8 s or close `3012`; errors 102/103/105/106/107/108/109; close codes 3005/3008/3012 retryable and 3500/3501 client-side; reconnect requires a fresh `connect` followed by `subscribe`; the Python and Go samples both split every frame on `\\n` with the comment 'یک فریم ممکن است چند پیام داشته باشد' (a frame may contain several messages)."
     },
     {
       "source_id": "MOD-SOCKET-SELL-DEPTH",
@@ -1860,12 +1908,28 @@
       "topics": [
         "WebSocket"
       ],
-      "claims_summary": "V2 `public:<SYMBOL>@trade` emits new trades only, with decimal strings and ISO timestamp; no initial/history/replay. The documented `isBuyOrder` maker-side meaning is retained without reinterpretation. No connection opened.",
-      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility.",
+      "claims_summary": "V2 `public:<SYMBOL>@trade` emits new trades only, with decimal strings and ISO timestamp; no initial/history/replay. The documented `isBuyOrder` maker-side meaning is retained without reinterpretation. No connection opened. Re-read 2026-10-23 (official page): the trade page documents three access methods in one page. Version 1 (deprecated) uses `wss://api.wallex.ir/ws` with `[\"subscribe\", {\"channel\": \"MARKET@trade\"}]` and answers with a two-element array `[\"<MARKET>@trade\", {\"isBuyOrder\": true, \"quantity\": \"...\", \"price\": \"...\", \"timestamp\": \"...\"}]`. Version 2 (Centrifugo) uses `wss://api.wallex.ir/connection/websocket`, channel `public:<SYMBOL>@trade`, and the same trade body inside `push.pub.data`. In both generations membership sends no initial trade, the first message arrives only after a new trade, no history/replay is kept, and `quantity`/`price` are decimal strings with an ISO-8601 `timestamp`; `isBuyOrder` identifies the maker side. The page states that v1 still works but is deprecated and that new implementations should use v2.",
+      "confidence_and_evidence_notes": "All page-reader chunks were retrieved and inspected during the 2026-10-21 UTC research session. The timestamp is the snapshot compilation time, not an exact per-request timestamp. These are official documentation statements, not a live WebSocket test or runtime guarantee. Claims are limited to text visibly returned by the official page reader; this does not establish runtime availability, authorization, limits, or eligibility. The 2026-10-23 re-read returned both the v1 and v2 sections verbatim. The page text does not state which Socket.IO framing a raw client must use on the v1 endpoint; that remains unresolved (see docs/research/discrepancies.md D-019). No live subscription was completed, so neither generation is runtime-verified. Third pass (2026-10-23T13:46:00Z): 2026-10-23 chunk 0 and chunk 1 (the final chunk, previously unread) were both fetched. Order on the page: (1) 'ورژن ۱ (منسوخ شده)' with `wss://api.wallex.ir/ws` and `[\"subscribe\", { \"channel\": \"MARKET@trade\" }]` and the two-element reply `[\"BTCTMN@trade\", {...}]`; (2) 'ورژن ۲ (سنتریفیگو) با SDK' with `wss://api.wallex.ir/connection/websocket` and channel `public:<SYMBOL>@trade`; (3) 'ورژن ۲ (سنتریفیگو) بدون SDK' with `{ \"id\": 2, \"subscribe\": { \"channel\": \"public:BTCTMN@trade\" } }` → `{ \"id\": 2, \"subscribe\": {} }` and the `push.pub.data` envelope. A retrieval that stops at the first section therefore sees only the legacy contract. Evidence class: documented page content retrieved in this pass; not runtime verification.",
       "related_source_ids": [
         "MOD-SITEMAP"
       ],
-      "research_status": "reviewed"
+      "research_status": "reviewed",
+      "retrieval_history": [
+        {
+          "retrieved_at_utc": "2026-10-21T13:41:41Z",
+          "outcome": "original snapshot recorded in retrieved_at_utc"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:06:00Z",
+          "outcome": "re-read; v1 and v2 trade envelopes, channel names and payload fields confirmed; runtime unverified"
+        },
+        {
+          "retrieved_at_utc": "2026-10-23T13:46:00Z",
+          "outcome": "re-read both chunks; page documents v1 (first) and v2 (twice); legacy-first ordering recorded; runtime unverified"
+        }
+      ],
+      "reverified_at_utc": "2026-10-23T13:46:00Z",
+      "reverification_note": "Third retrieval pass (independent-content check requested by the reviewer). Every page was fetched again from the same official host in a single UTC session. Finding: the four pages do not conflict; each documents BOTH generations on one page, and `/docs/socket-trade` lists version 1 (deprecated) FIRST, before the two version-2 sections. 2026-10-23 chunk 0 and chunk 1 (the final chunk, previously unread) were both fetched. Order on the page: (1) 'ورژن ۱ (منسوخ شده)' with `wss://api.wallex.ir/ws` and `[\"subscribe\", { \"channel\": \"MARKET@trade\" }]` and the two-element reply `[\"BTCTMN@trade\", {...}]`; (2) 'ورژن ۲ (سنتریفیگو) با SDK' with `wss://api.wallex.ir/connection/websocket` and channel `public:<SYMBOL>@trade`; (3) 'ورژن ۲ (سنتریفیگو) بدون SDK' with `{ \"id\": 2, \"subscribe\": { \"channel\": \"public:BTCTMN@trade\" } }` → `{ \"id\": 2, \"subscribe\": {} }` and the `push.pub.data` envelope. A retrieval that stops at the first section therefore sees only the legacy contract."
     },
     {
       "source_id": "SPOT-MARKETS",
@@ -2832,7 +2896,51 @@
         "precise warning/liquidation values and units are not confidently readable",
         "screen does not resolve fees after displayed three-day-free wording, deficit liability, or settlement"
       ]
+    },
+    {
+      "source_id": "LEGACY-SOCKET-TRADE-PATH",
+      "title": "صفحه ای که دنبال آن بودید پیدا نشد. | Wallex API Documentation",
+      "url": "https://developers.wallex.ir/socket/trade",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "WebSocket (legacy documentation path cited by the candle recorder)",
+      "discovery_path": "Cited as documentation_url by src/wallex_agent/candle_recorder.py before the 2026-10-23 fix and in docs/agent/CANDLE-RECORDER.md",
+      "retrieved_at_utc": "2026-10-23T13:06:00Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "inaccessible",
+      "topics": [
+        "WebSocket"
+      ],
+      "claims_summary": "On 2026-10-23 the official host returned the site's localized “page not found” body at this path; no documentation content was served. The current trade-channel documentation is /docs/socket-trade.",
+      "confidence_and_evidence_notes": "Direct public page-reader retrieval result only. No HTTP status, redirect target, publication date or removal reason was exposed, so no deprecation claim is inferred from this single observation.",
+      "related_source_ids": [
+        "MOD-SOCKET-TRADE",
+        "MOD-SITEMAP"
+      ],
+      "research_status": "blocked"
+    },
+    {
+      "source_id": "LEGACY-SOCKET-PATH",
+      "title": "صفحه ای که دنبال آن بودید پیدا نشد. | Wallex API Documentation",
+      "url": "https://developers.wallex.ir/socket",
+      "official_domain": "developers.wallex.ir",
+      "documentation_type": "WebSocket (legacy documentation path cited by the candle recorder)",
+      "discovery_path": "Cited as socket_documentation_url by src/wallex_agent/candle_recorder.py before the 2026-10-23 fix and in docs/agent/CANDLE-RECORDER.md",
+      "retrieved_at_utc": "2026-10-23T13:06:00Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "inaccessible",
+      "topics": [
+        "WebSocket"
+      ],
+      "claims_summary": "On 2026-10-23 the official host returned the site's localized “page not found” body at this path. The current socket overview is /docs/socket-intro.",
+      "confidence_and_evidence_notes": "Direct public page-reader retrieval result only. No HTTP status, redirect target, publication date or removal reason was exposed.",
+      "related_source_ids": [
+        "SOCKET-INTRO",
+        "MOD-SITEMAP"
+      ],
+      "research_status": "blocked"
     }
   ],
-  "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."
+  "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp.",
+  "reverification_snapshot_utc": "2026-10-23T13:46:00Z",
+  "reverification_note": "2026-10-23T13:46:00Z third WebSocket retrieval pass (reviewer-requested independent check): the four socket pages were fetched again and both chunks of socket-trade and socket-raw-protocol were read, including the final chunk of socket-trade that earlier passes had not examined. The pages are internally consistent and document both protocol generations; socket-trade lists version 1 first. This resolves the apparent 'legacy vs v2' conflict between retrieval paths as a page-structure/truncation artifact, not a documentation contradiction. Where each protocol is actually served at runtime remains unverified."
 }

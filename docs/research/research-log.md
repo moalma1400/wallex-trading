@@ -172,3 +172,62 @@ Feature 003 adds local-only import and audit support backed by synthetic fixture
 - Added a layer matrix and conditional data-flow proposal to `docs/api/challenge-architecture.md`; proposed a provider-neutral, read-only `MarketDataPort` (design label only, not an external tool/schema). Public market-data reads, account-sensitive reads, and order-changing tools are explicitly separated; the latter two remain disabled. Shadow is observation/decision-record-only.
 - Expanded open evidence requests for MCP transport/registration, tool discovery/allow-listing, authentication/secret boundary, schemas, error/timeouts, logging/audit, Wallex MCP authority, Smart98 compatibility, and a non-production test plan. No adapter, credential, MCP installation, Smart98 config change, or network request was made.
 - Validation: full offline suite **PASS**, 55 tests; source register **PASS**, 135 records (reviewed=73, not_started=51, in_progress=5, blocked=6); documentation links **PASS**, 174 local links / 248 registered citations; disabled-pair registry check **PASS** (345 unique, no duplicates/malformed); `py_compile` and `git diff --check` **PASS**. External URLs were not tested.
+
+## Public trade WebSocket protocol pass and candle-recorder fix — 2026-10-23
+
+- Re-read the four relevant official WebSocket pages with the public page reader: [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol), [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade), [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) and [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration). Existing `retrieved_at_utc` values (2026-10-21) and summaries were preserved; new observations were appended and indexed in `retrieval_history`; `reverification_snapshot_utc` records the new pass.
+- Confirmed from the official pages that the public v2 protocol is JSON over `wss://api.wallex.ir/connection/websocket` with `{"id": 1, "connect": {}}`, per-channel `{"id": N, "subscribe": {"channel": "public:<SYMBOL>@trade"}}`, an empty `{"id": N, "subscribe": {}}` acknowledgement, publications under `push.pub.data`, and an empty-object `{}` heartbeat that must be echoed within 8 seconds (close code `3012`). Documented request errors are 102/103/105/106/107/108/109; documented close codes are 3005/3008/3012 (retryable) and 3500/3501 (client fault). One frame may contain several newline-separated messages.
+- Confirmed from [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) that `wss://api.wallex.ir/ws` is version 1, deprecated but still documented as working, and that its first message is an Engine.IO-style `{sid, upgrades, pingInterval: 20000, pingTimeout: 30000}` object. The page describes the logical frame `["subscribe", {"channel": "..."}]` but not Socket.IO packet framing, which matches the 2026-10-23 operator evidence and is recorded as `D-019`.
+- Retrieved the two legacy documentation paths previously cited by the recorder, `https://developers.wallex.ir/socket/trade` and `https://developers.wallex.ir/socket`; both returned the site's localized not-found body with no HTTP status exposed. Registered as new `inaccessible`/`blocked` sources and recorded as `D-020`; no deprecation reason or redirect target is inferred.
+- **Root cause: strong hypothesis, not established.** The recorder connected to the deprecated v1 endpoint and wrote the logical v1 frame as a bare text frame; the documented v1 contract is a logical frame only, the endpoint's first message is Engine.IO-shaped, and no trade arrived. The Engine.IO handshake object was the single `malformed_or_unmatched_messages` entry. This explains every observation, but no retrieval or runtime evidence proves that the server ignored the frame for this reason; the alternative (a market with no trades) cannot be excluded from the old manifest. See the third-pass entry below and `D-022`. The recorder now implements only the documented v2 protocol with the existing `websockets` dependency (no new package, no SDK, no token).
+- Bounded public runtime attempt: `wallex-candle-recorder --symbol BTCTMN --interval-seconds 60 --max-runtime-seconds 8 --max-reconnect-attempts 1` against the documented v2 endpoint. TCP to `api.wallex.ir:443` succeeded, the TLS handshake was reset, both attempts ended in `ConnectionResetError` (`connection_count: 0`, `connection_errors: 2`, `subscription_status: "not_attempted"`), no trade and no candle were produced. This indicates environment egress filtering; it is **not** evidence that the Wallex endpoint is down. Live verification remains `pending`.
+- Code and tests: rewrote `src/wallex_agent/candle_recorder.py` for the v2 frames (message classification, heartbeat echo, bounded reconnects, documented fatal close codes, fail-closed subscription rejection, schema-2 manifest with separate transport/subscription state and per-class frame counters), and rewrote `tests/test_candle_recorder.py` with 41 deterministic offline tests. Manifest schema is now 2; the fields read by `wallex-data-audit` were preserved.
+- Validation performed: `PYTHONPATH=src python -m pytest` → **PASS**, 373 tests + 26 subtests (baseline before changes: 339 + 26); `python -m pytest tests/test_candle_recorder.py -q` → **PASS**, 41 tests; `python -m compileall -q src tests scripts` → **PASS**; `python scripts/validate_sources.py` → **PASS**, 138 records (blocked=8, in_progress=5, not_started=51, reviewed=74); `python scripts/validate_doc_links.py` → **PASS**, 205 relative links and 290 register citations; `git diff --check` → **PASS**. No network access was used by tests or validators. No commit, push, branch switch or pull request was made.
+
+## Senior review pass on the candle-recorder change — 2026-10-23
+
+Second-pass review of the v2 recorder implementation. Five defects were found in the first revision and fixed; each has
+a deterministic regression test.
+
+1. **Duplicate buckets on restart (data-integrity, trader-facing).** Appending to an existing recording re-finalized an
+   already-written bucket when a late trade for that bucket arrived after a restart. Reproduced: two runs produced
+   `2026-10-23T10:00:00Z` twice, `wallex-backtest.load_candles` raised `BacktestError: candles must have unique,
+   strictly increasing timestamps`, and `wallex-data-audit` returned `INVALID`/`DUPLICATE_TIMESTAMP`. Fixed by reading
+   the last finalized bucket from the output tail at startup and treating it as a floor; such trades now increment
+   `late_or_out_of_order_trades_ignored`. New manifest fields `resumed_from_existing_output` and
+   `previous_last_closed_candle_utc` document the boundary. A file whose tail cannot be parsed is refused
+   (fail closed) rather than appended to.
+2. **`subscription_acknowledged` could be true without a confirmed subscription.** An acknowledgement frame carrying a
+   wrong request `id` incremented the accepted-ack counter, so the manifest claimed `subscription_acknowledged: true`
+   while `subscription_status` was still `pending`. Now only acknowledgements matching our command ids are counted, and
+   the boolean is derived from `subscription_status`.
+3. **Ctrl+C was recorded as `status: "failed"`.** Cancellation is an intentional stop; the manifest now reports
+   `status: "stopped"` with `stop_reason: "cancelled"`, discards the partial candle and closes the socket.
+4. **Tests depended on wall-clock timing.** Typical runs sat inside recording code longer than the 0.2–0.5 s run limits,
+   so deadline tests were flaky. Eight of them now use an injected stepped clock; one test still exercises the real
+   `asyncio` deadline. Recorder test time dropped from ~4.5 s to ~0.8 s.
+5. **Numeric JSON payloads lost precision.** `json.loads` produced binary floats before `Decimal(str(...))`, so a
+   numeric (non-string) `price` would have been rounded. Parsing now uses `parse_float=Decimal`; the documented string
+   form was never affected. Manifest writes are also atomic (`os.replace`) so a concurrent reader cannot see a
+   half-written status.
+
+Review conclusions that required documentation rather than code changes: `volume` is one-sided (each trade added once,
+maker/taker not double counted, no buy/sell split, `isBuyOrder` not reinterpreted); `open`/`close` follow arrival order
+because the channel has no sequence number, with only a one-bucket exposure on those two fields; the 60-second silence
+timeout is an implementation choice (`inferred`), not a documented value; and a restart always costs the first
+post-restart bucket, which the audit reports as a potential gap.
+
+Validation after the review: `PYTHONPATH=src python -m pytest` → **PASS**, 385 tests + 26 subtests;
+`tests/test_candle_recorder.py` → **PASS**, 53 tests in ~0.8 s; `python -m compileall -q src tests scripts` → **PASS**;
+`python -m pyflakes src/wallex_agent/candle_recorder.py tests/test_candle_recorder.py` → **PASS**;
+`python scripts/validate_sources.py` → **PASS**, 138 records; `python scripts/validate_doc_links.py` → **PASS**, 205
+links and 290 citations; `git diff --check` → **PASS**. Live verification remains `pending` (no network path to the
+Wallex TLS endpoint from this environment). No commit, push, branch switch or pull request was made.
+
+## Third retrieval pass: resolving the v1/v2 documentation conflict — 2026-10-23T13:46:00Z
+
+- Trigger: an independent retrieval path reported `https://developers.wallex.ir/docs/socket-trade` as documenting only the legacy contract (`wss://api.wallex.ir/ws`, `["subscribe", {"channel": "MARKET@trade"}]`) and `docs/socket-intro` as describing legacy heartbeat behaviour, which appears to contradict this register's v2 summaries.
+- Method: all four pages were fetched again from the official host in one UTC session, and **both chunks** of `socket-trade` and `socket-raw-protocol` were read, including the final chunk of `socket-trade` that no earlier pass had examined.
+- Result: no documentation conflict. `socket-trade` documents three access methods on one page and lists **version 1 (deprecated) first**, then v2-with-SDK, then v2-without-SDK; `socket-intro` deliberately documents v2 rules followed by a "version 1 (deprecated) details" section. A truncated or top-only read of either page therefore shows exactly the legacy content the independent path reported. Recorded as `D-022`; each source keeps its earlier `retrieved_at_utc`, gains a third `retrieval_history` entry and a `reverification_note`.
+- Newline splitting is **documented**, not assumed: the raw-protocol page's Python sample contains the comment «یک فریم ممکن است چند پیام داشته باشد» followed by `for line in raw.split("\n")`, and the Go sample uses `strings.Split(string(raw), "\n")`. Both were re-read in this pass.
+- Because no live session was observed, the earlier root-cause sentence was downgraded from "established" to **strong hypothesis**, and the v2 runtime protocol remains `documented`, never `verified`. The bounded live attempt from this environment still fails at TLS (`ConnectionResetError`), so transport, application subscription, trade receipt and candle finalization all remain `pending`.

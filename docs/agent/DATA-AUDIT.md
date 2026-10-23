@@ -31,3 +31,16 @@ The tool automatically looks for the recorder's sibling manifest at `INPUT.manif
 **A timestamp gap is not automatically a data-loss event.** A public trade stream may have no trades during some intervals, so no candle is emitted for those intervals. The report labels gaps as `potential_gap_or_no_trades` rather than inserting synthetic candles or declaring the dataset corrupt. Confirm the capture window, recorder manifest and market activity before using the file for backtesting.
 
 The report includes first/last timestamps, elapsed seconds, valid and invalid rows, gap details, the relevant subset of manifest fields, and issue codes. It deliberately omits secrets and account data. The audit does not repair, sort, fill, deduplicate or modify the input dataset; use the report to decide whether to correct or exclude records before backtesting.
+
+## Recorder manifest schema 2 note
+
+The candle recorder now writes manifest `schema_version: 2`. The fields this audit reads (`symbol`, `interval_seconds`,
+`status`, `closed_candles_written_this_run`, `malformed_or_unmatched_messages`, `connection_count`,
+`reconnect_count`, `connection_errors`, `discarded_partial_candles`, `gaps_possible_on_disconnect`,
+`last_closed_candle_utc`) are unchanged in meaning. Two semantic clarifications matter when interpreting an old
+manifest: `malformed_or_unmatched_messages` now counts only structurally invalid payloads (not handshake, heartbeat,
+acknowledgement or unknown frames), and `subscription_status` reports the application-level subscription separately
+from the transport connection. A resumed recording (`resumed_from_existing_output: true`) may legitimately show a
+potential gap at the restart boundary, because the recorder discards the in-progress candle on every stop. The
+recorder now also refuses to append to a file whose tail is unreadable, so a duplicate or truncated tail should not
+appear from a normal restart. See [CANDLE-RECORDER](CANDLE-RECORDER.md).
