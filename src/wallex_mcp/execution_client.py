@@ -69,6 +69,7 @@ class OrderRiskEvidence:
     current_asset_exposure_tmn: Decimal
     total_deployed_tmn: Decimal
     available_quote_balance_tmn: Decimal
+    available_base_quantity: Decimal
 
 
 class MediatedExecutionClient:
@@ -120,6 +121,7 @@ class MediatedExecutionClient:
                 current_asset_exposure_tmn=risk_evidence.current_asset_exposure_tmn,
                 total_deployed_tmn=risk_evidence.total_deployed_tmn,
                 available_quote_balance_tmn=risk_evidence.available_quote_balance_tmn,
+                available_base_quantity=risk_evidence.available_base_quantity,
                 now=now,
             )
         except ExecutionPolicyError as exc:
