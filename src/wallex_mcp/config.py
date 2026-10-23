@@ -48,14 +48,6 @@ class EndpointAllowlist:
                 method="GET", host=WALLEX_OFFICIAL_HOST, path=MARKETS_PATH,
                 requires_key=False, description="Verified public Spot market metadata.",
             ),
-            EndpointAllowlistEntry(
-                method="GET", host=WALLEX_OFFICIAL_HOST, path=BALANCES_PATH,
-                requires_key=True, description="Authenticated read-only main-account balances.",
-            ),
-            EndpointAllowlistEntry(
-                method="GET", host=WALLEX_OFFICIAL_HOST, path=OPEN_ORDERS_PATH,
-                requires_key=True, description="Authenticated read-only open Spot orders.",
-            ),
         ))
 
     def is_allowed(self, method: str, host: str, path: str) -> bool:

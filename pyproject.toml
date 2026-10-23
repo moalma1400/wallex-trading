@@ -20,7 +20,12 @@ classifiers = [
 dependencies = [
     "mcp==2.3.0",
     "pydantic>=2.12,<3",
+    "httpx>=0.27,<1",
 ]
+
+[project.scripts]
+wallex-mcp = "wallex_mcp.server:main"
+coingecko-mcp = "coingecko_mcp.server:main"
 
 [project.optional-dependencies]
 test = ["pytest==9.1.1"]
@@ -30,7 +35,7 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["mcp_adapter*", "wallex_research*", "wallex_mcp*"]
+include = ["mcp_adapter*", "wallex_research*", "wallex_mcp*", "coingecko_mcp*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -237,3 +237,24 @@ def test_stdio_protocol_initializes_and_lists_tools_without_network():
 
     names = asyncio.run(smoke())
     assert names == {"wallex_get_markets"}
+
+
+def test_default_allowlist_excludes_unverified_private_endpoints():
+    from wallex_mcp.config import (
+        BALANCES_PATH,
+        DEFAULT_ALLOWLIST,
+        MARKETS_PATH,
+        OPEN_ORDERS_PATH,
+        WALLEX_OFFICIAL_HOST,
+    )
+
+    assert DEFAULT_ALLOWLIST.is_allowed(
+        "GET", WALLEX_OFFICIAL_HOST, MARKETS_PATH
+    )
+    assert not DEFAULT_ALLOWLIST.is_allowed(
+        "GET", WALLEX_OFFICIAL_HOST, BALANCES_PATH
+    )
+    assert not DEFAULT_ALLOWLIST.is_allowed(
+        "GET", WALLEX_OFFICIAL_HOST, OPEN_ORDERS_PATH
+    )
+    assert len(DEFAULT_ALLOWLIST.entries) == 1
