@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+from decimal import Decimal, InvalidOperation
 from typing import Any, Optional
 
 from .config import WALLEX_OFFICIAL_HOST
@@ -37,12 +38,16 @@ class WallexExecutionClient:
         policy: LiveActivationPolicy,
         *,
         timeout_seconds: float = 10.0,
+        max_response_bytes: int = 1024 * 1024,
         transport: Optional[Any] = None,
     ) -> None:
         if not api_key or not api_key.strip():
             raise ExecutionClientError("API key is required")
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
+        if max_response_bytes <= 0:
+            raise ValueError("max_response_bytes must be positive")
+        self._max_response_bytes = max_response_bytes
         self._api_key = api_key
         self._policy = policy
         self._timeout_seconds = timeout_seconds
@@ -71,34 +76,50 @@ class WallexExecutionClient:
             raise ExecutionClientError("side must be BUY or SELL")
         if order_type not in self._policy.allowed_order_types:
             raise ExecutionClientError("order type is not allowlisted by the reviewed policy")
+        price_value = self._positive_decimal(price, "price")
+        quantity_value = self._positive_decimal(quantity, "quantity")
         payload = {
             "client_id": client_id,
-            "price": str(price),
-            "quantity": str(quantity),
+            "price": format(price_value, "f"),
+            "quantity": format(quantity_value, "f"),
             "side": side,
             "symbol": symbol,
             "type": order_type,
         }
         try:
             response = self._request("POST", CREATE_ORDER_PATH, payload=payload)
-        except Exception as exc:
-            if isinstance(exc, ExecutionClientError):
-                raise
+        except Exception:
+            # Even an HTTP error or malformed response can follow an accepted
+            # order; reconcile rather than issuing a second POST.
             raise OrderOutcomeUnknown(
                 f"Order outcome unknown for client_id={client_id}; reconcile via order detail"
             ) from None
         if response.get("success") is not True or not isinstance(response.get("result"), dict):
-            raise ExecutionClientError("Wallex create-order response envelope is invalid; reconcile before retry")
+            raise OrderOutcomeUnknown(
+                f"Order outcome unknown for client_id={client_id}; reconcile via order detail"
+            )
         return response
 
     def get_order(self, client_id: str) -> dict[str, Any]:
         """Read order details using the documented client-ID path."""
-        self._policy.assert_live_window()
+        # Reconciliation must remain available after the challenge cutoff.
         self._validate_identifier(client_id, _CLIENT_ID_PATTERN, "client_id")
         response = self._request("GET", ORDER_DETAIL_PATH_PREFIX + client_id)
         if response.get("success") is not True or not isinstance(response.get("result"), dict):
             raise ExecutionClientError("Wallex order-detail response envelope is invalid")
         return response
+
+    @staticmethod
+    def _positive_decimal(value: str, field: str) -> Decimal:
+        if isinstance(value, bool) or value is None:
+            raise ExecutionClientError(f"{field} must be a positive decimal")
+        try:
+            parsed = Decimal(str(value))
+        except (InvalidOperation, ValueError, TypeError) as exc:
+            raise ExecutionClientError(f"{field} must be a positive decimal") from exc
+        if not parsed.is_finite() or parsed <= 0:
+            raise ExecutionClientError(f"{field} must be a positive finite decimal")
+        return parsed
 
     @staticmethod
     def _validate_identifier(value: str, pattern: re.Pattern[str], field: str) -> None:
@@ -121,8 +142,11 @@ class WallexExecutionClient:
             response = client.request(method, url, headers=headers, json=payload)
         if response.status_code >= 400:
             raise ExecutionClientError(f"Wallex returned HTTP {response.status_code} for {method} {path}")
+        content = response.content
+        if len(content) > self._max_response_bytes:
+            raise ExecutionClientError("Wallex response exceeds configured size limit")
         try:
-            decoded = json.loads(response.content.decode("utf-8"))
+            decoded = json.loads(content.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise ExecutionClientError("Wallex response is not valid UTF-8 JSON") from exc
         if not isinstance(decoded, dict):
