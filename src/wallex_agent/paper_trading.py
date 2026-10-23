@@ -120,10 +120,17 @@ class PaperBroker:
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             try:
-                existing = db.execute("SELECT result_json FROM fills WHERE event_id=?", (event_id,)).fetchone()
+                existing = db.execute(
+                    "SELECT timestamp,symbol,side,quantity,reference_price,result_json FROM fills WHERE event_id=?",
+                    (event_id,),
+                ).fetchone()
                 if existing:
+                    identity = (existing[0], existing[1], existing[2], existing[3], existing[4])
+                    requested = (timestamp, symbol, side, str(qty), str(reference))
+                    if identity != requested:
+                        raise PaperTradingError("event_id already exists with different order details")
                     db.execute("COMMIT")
-                    return json.loads(existing[0])
+                    return json.loads(existing[5])
 
                 db.execute("INSERT OR IGNORE INTO positions(symbol,units,avg_cost,last_price) VALUES(?,?,?,?)",
                            (symbol, "0", "0", str(reference)))
