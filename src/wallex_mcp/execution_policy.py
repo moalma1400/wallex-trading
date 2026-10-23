@@ -225,6 +225,9 @@ def validate_order_intent(
     daily_loss_tmn: Decimal,
     spread_basis_points: Decimal,
     total_cost_basis_points: Decimal,
+    current_asset_exposure_tmn: Decimal,
+    total_deployed_tmn: Decimal,
+    available_quote_balance_tmn: Decimal,
     now: datetime | None = None,
 ) -> Decimal:
     """Return notional in TMN if allowed; otherwise raise a specific veto.
@@ -308,4 +311,16 @@ def validate_order_intent(
         raise ExecutionPolicyError("order notional is below verified minimum notional")
     if notional > policy.risk_limits.maximum_order_notional_tmn:
         raise ExecutionPolicyError("order notional exceeds configured maximum")
+    current_asset = _decimal(current_asset_exposure_tmn, "current_asset_exposure_tmn")
+    deployed = _decimal(total_deployed_tmn, "total_deployed_tmn")
+    available = _decimal(available_quote_balance_tmn, "available_quote_balance_tmn")
+    if current_asset < 0 or deployed < 0 or available < 0:
+        raise ExecutionPolicyError("exposure and available balance evidence must be nonnegative")
+    if current_asset + notional > policy.risk_limits.maximum_asset_exposure_tmn:
+        raise ExecutionPolicyError("order would exceed maximum asset exposure")
+    if deployed + notional > policy.risk_limits.maximum_total_deployed_tmn:
+        raise ExecutionPolicyError("order would exceed maximum total deployed capital")
+    estimated_cost = notional * total_cost_basis_points / Decimal("10000")
+    if available < notional + estimated_cost:
+        raise ExecutionPolicyError("verified available quote balance is insufficient for order and estimated cost")
     return notional
