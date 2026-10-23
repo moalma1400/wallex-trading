@@ -171,7 +171,7 @@ def test_order_intent_delegates_only_to_verified_mediation_tool():
         return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"), True))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"), True)
     result = client.create_order(
         client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
     )
@@ -192,7 +192,7 @@ def test_mediated_order_timeout_is_ambiguous_and_never_retried():
         raise TimeoutError("synthetic timeout")
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"), True))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"), True)
     with pytest.raises(OrderOutcomeUnknown, match="reconcile"):
         client.create_order(
             client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
@@ -228,7 +228,7 @@ def test_blocked_risk_never_calls_execution_tool():
         return {"success": True, "result": {}}
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs={"ABC/TMN"})
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"), True))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"), True)
     with pytest.raises(ExecutionClientError, match="blocked by deterministic policy"):
         client.create_order(
             client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
