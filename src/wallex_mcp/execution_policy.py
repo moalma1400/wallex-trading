@@ -198,6 +198,13 @@ class OrderIntent:
     quantity: Decimal
     market_observed_at: datetime
     market_is_spot: bool
+    market_constraints_verified: bool
+    price_precision: int
+    amount_precision: int
+    price_step: Decimal
+    quantity_step: Decimal
+    minimum_quantity: Decimal
+    minimum_notional_tmn: Decimal
 
 
 def validate_order_intent(
@@ -222,8 +229,13 @@ def validate_order_intent(
         raise ExecutionPolicyError("side must be BUY or SELL")
     if intent.order_type not in policy.allowed_order_types:
         raise ExecutionPolicyError("order type is not in the verified policy allowlist")
-    if not intent.market_is_spot:
+    if intent.market_is_spot is not True:
         raise ExecutionPolicyError("only verified Spot markets are allowed")
+    if intent.market_constraints_verified is not True:
+        raise ExecutionPolicyError("verified price/quantity constraints are required")
+    for field, value in (("price_precision", intent.price_precision), ("amount_precision", intent.amount_precision)):
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ExecutionPolicyError(f"{field} must be a verified nonnegative integer")
     pair = f"{intent.base_asset}/{intent.quote_asset}"
     if pair not in policy.allowed_pairs:
         raise ExecutionPolicyError("market is not in the explicit verified allowlist")
@@ -239,6 +251,20 @@ def validate_order_intent(
     quantity = _decimal(intent.quantity, "quantity")
     if price <= 0 or quantity <= 0:
         raise ExecutionPolicyError("price and quantity must be positive")
+    price_step = _decimal(intent.price_step, "price_step")
+    quantity_step = _decimal(intent.quantity_step, "quantity_step")
+    minimum_quantity = _decimal(intent.minimum_quantity, "minimum_quantity")
+    minimum_notional = _decimal(intent.minimum_notional_tmn, "minimum_notional_tmn")
+    if price_step <= 0 or quantity_step <= 0 or minimum_quantity < 0 or minimum_notional < 0:
+        raise ExecutionPolicyError("verified steps must be positive and minimums nonnegative")
+    if price.normalize().as_tuple().exponent < -intent.price_precision:
+        raise ExecutionPolicyError("price exceeds verified price precision")
+    if quantity.normalize().as_tuple().exponent < -intent.amount_precision:
+        raise ExecutionPolicyError("quantity exceeds verified amount precision")
+    if price % price_step != 0 or quantity % quantity_step != 0:
+        raise ExecutionPolicyError("price or quantity violates verified step size")
+    if quantity < minimum_quantity:
+        raise ExecutionPolicyError("quantity is below verified minimum quantity")
     observed = intent.market_observed_at
     if observed.tzinfo is None or observed.utcoffset() is None:
         raise ExecutionPolicyError("market observation timestamp must include timezone")
@@ -270,6 +296,8 @@ def validate_order_intent(
     notional = price * quantity
     if intent.quote_asset != "TMN":
         raise ExecutionPolicyError("TMN notional conversion is not verified for this quote asset")
+    if notional < minimum_notional:
+        raise ExecutionPolicyError("order notional is below verified minimum notional")
     if notional > policy.risk_limits.maximum_order_notional_tmn:
         raise ExecutionPolicyError("order notional exceeds configured maximum")
     return notional
