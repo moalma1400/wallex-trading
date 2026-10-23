@@ -104,3 +104,13 @@ def test_paper_cli_processes_jsonl_and_persists_ledger(tmp_path, capsys):
     assert report["events_processed"] == 1
     assert report["live_trading_enabled"] is False
     assert report["account"]["positions"]["BTC_USDT"]["units"] == "1"
+
+
+def test_first_price_mark_of_new_day_cannot_hide_loss(tmp_path):
+    account = broker(tmp_path)
+    account.execute_market_order(event_id="day-one-buy", timestamp="2026-10-23T10:00:00Z",
+        symbol="BTC_USDT", side="buy", quantity="1", reference_price="100")
+    with pytest.raises(PaperTradingError, match="max daily loss"):
+        account.execute_market_order(event_id="day-two", timestamp="2026-10-24T10:00:00Z",
+            symbol="BTC_USDT", side="buy", quantity="0.1", reference_price="40")
+    assert account.snapshot()["positions"]["BTC_USDT"]["last_price"] == "40"
