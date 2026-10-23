@@ -1,10 +1,9 @@
 """Validated, Decimal-safe models for the standalone Wallex MCP server.
 
-These models describe the officially documented response shape of
-``GET https://api.wallex.ir/hector/web/v1/markets`` (source: MARKETS,
-https://developers.wallex.ir/docs/basic-services-markets). Field names,
-types and optionality follow the official documentation exactly; nothing
-here is inferred or relaxed.
+The public markets endpoint currently wraps the market list in result.markets.
+The client normalizes that transport envelope before these models are applied.
+Known fields remain type-checked; additional documented market metadata is
+ignored so additive API fields do not break read-only market discovery.
 """
 
 from __future__ import annotations
@@ -17,50 +16,47 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class FairPriceModel(BaseModel):
-    """Fair-price quote object as documented for market metadata."""
+    """Fair-price quote object when supplied by the API."""
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    ask: str = Field(..., description="Best ask price as a decimal string.")
-    bid: str = Field(..., description="Best bid price as a decimal string.")
+    ask: str
+    bid: str
 
     @field_validator("ask", "bid")
     @classmethod
     def _validate_decimal_string(cls, value: str) -> str:
         if not isinstance(value, str) or not value.strip():
             raise ValueError("fair_price fields must be non-empty decimal strings")
-        try:
-            decimal_value = Decimal(value)
-        except Exception as exc:  # InvalidOperation, ValueError
-            raise ValueError(f"fair_price value is not a valid decimal: {value!r}") from exc
+        decimal_value = Decimal(value)
         if not decimal_value.is_finite() or decimal_value < 0:
-            raise ValueError(f"fair_price value must be finite and non-negative: {value!r}")
+            raise ValueError("fair_price value must be finite and non-negative")
         return value
 
 
 class MarketMetadataModel(BaseModel):
-    """One market entry from the official markets endpoint."""
+    """Validated subset of one market entry from Wallex's public markets API."""
 
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    # Wallex adds localized labels and market flags over time. Validate the
+    # fields consumed by this project, while tolerating additive metadata.
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
-    symbol: str = Field(..., description="Market symbol, e.g. USDTTMN.")
-    base_asset: str = Field(..., description="Trading asset, e.g. USDT.")
-    quote_asset: str = Field(..., description="Quote asset, e.g. TMN.")
-    price: str = Field(..., description="Last price as a decimal string.")
-    is_spot: bool = Field(..., description="Whether the market is active in Spot.")
-    is_otc: bool = Field(..., description="Whether the market is active in OTC.")
-    is_margin: bool = Field(..., description="Whether the market is active in Margin.")
-    is_tmn_based: bool = Field(..., description="Whether the market is Toman-based.")
-    is_usdt_based: bool = Field(..., description="Whether the market is USDT-based.")
-    amount_precision: int = Field(..., ge=0, description="Amount decimal places.")
-    price_precision: int = Field(..., ge=0, description="Price decimal places.")
-    flags: list[str] = Field(default_factory=list, description="Market flags, e.g. isRisky.")
-    volume_24h: str = Field(..., description="24h volume as a decimal string.")
-    change_24h: str = Field(..., description="24h change as a decimal string.")
-    created_at: str = Field(..., description="ISO-8601 UTC creation timestamp.")
-    fair_price: Optional[FairPriceModel] = Field(
-        default=None, description="Optional fair-price bid/ask quote."
-    )
+    symbol: str
+    base_asset: str
+    quote_asset: str
+    price: str
+    is_spot: bool
+    is_otc: bool
+    is_margin: bool
+    is_tmn_based: bool
+    is_usdt_based: bool
+    amount_precision: int = Field(..., ge=0)
+    price_precision: int = Field(..., ge=0)
+    flags: list[str] = Field(default_factory=list)
+    volume_24h: str
+    change_24h: str
+    created_at: str
+    fair_price: Optional[FairPriceModel] = None
 
     @field_validator("symbol", "base_asset", "quote_asset")
     @classmethod
@@ -76,7 +72,7 @@ class MarketMetadataModel(BaseModel):
             raise ValueError("decimal field must be a non-empty string")
         decimal_value = Decimal(value)
         if not decimal_value.is_finite():
-            raise ValueError(f"decimal value must be finite: {value!r}")
+            raise ValueError("decimal value must be finite")
         return value
 
     @field_validator("created_at")
@@ -88,22 +84,20 @@ class MarketMetadataModel(BaseModel):
         try:
             parsed = datetime.fromisoformat(normalized)
         except ValueError as exc:
-            raise ValueError(f"created_at is not valid ISO-8601: {value!r}") from exc
+            raise ValueError("created_at is not valid ISO-8601") from exc
         if parsed.tzinfo is None or parsed.utcoffset() is None:
             raise ValueError("created_at must include an explicit timezone")
         return value
 
 
 class MarketsResponseModel(BaseModel):
-    """Top-level response envelope for the markets endpoint."""
+    """Normalized market response envelope consumed by the MCP tools."""
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    markets: list[MarketMetadataModel] = Field(
-        ..., min_length=1, description="Non-empty array of market metadata."
-    )
-    message: str = Field(..., description="Human-readable status message.")
-    success: bool = Field(..., description="Boolean success marker.")
+    markets: list[MarketMetadataModel] = Field(..., min_length=1)
+    message: str
+    success: bool
 
 
 def decimal_value(value: str) -> Decimal:
