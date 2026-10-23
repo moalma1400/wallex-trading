@@ -74,3 +74,18 @@ wallex-paper-candles --input candles.jsonl --symbol BTC_USDT \
 ```
 
 The input should contain at least `lookback-bars + 2` valid, strictly chronological candles with `timestamp`, `open`, `high`, `low`, `close`, and `volume`. If rows include `symbol`, it must match `--symbol`. Use a fresh database for an independent run; a persistent ledger rejects changes to its original cash/cost/risk settings. The strategy is a small baseline for testing the paper pipeline, not a recommendation or evidence of profitability.
+
+### Optional mandatory data-quality gate
+
+For a safer run, add `--audit-input-data --expected-interval-seconds 60` (replace 60 with the dataset's actual interval). The simulator blocks `INVALID` data. A `REVIEW` report (for example, possible timestamp gaps or missing metadata) blocks by default; only after inspecting the audit report may an operator explicitly pass `--allow-review-data`. The output report records the audit summary and whether the review override was used.
+
+```sh
+wallex-paper-candles --input candles.jsonl --symbol BTC_USDT \
+  --db var/paper/btc-paper.sqlite3 --initial-cash 1000000 \
+  --max-order-notional 100000 --fee-bps 10 --slippage-bps 20 \
+  --lookback-bars 5 --entry-return-bps 20 --exit-return-bps 0 \
+  --max-daily-loss-percent 3 --audit-input-data \
+  --expected-interval-seconds 60 --output var/paper/report.json
+```
+
+The audit is local-only and does not prove that the public feed is complete or that a strategy is profitable.
