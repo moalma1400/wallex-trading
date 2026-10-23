@@ -136,7 +136,10 @@ class PaperBroker:
                 else:
                     start_equity = Decimal(baseline[0])
                 loss_limit = start_equity * self.max_daily_loss_percent / Decimal("100")
-                if start_equity - equity >= loss_limit and loss_limit > 0:
+                if start_equity - equity >= loss_limit:
+                    # A rejected order is still a valid market-price observation: keep
+                    # the mark so retries cannot evade the daily-loss guard by rollback.
+                    db.execute("COMMIT")
                     raise PaperTradingError("max daily loss limit reached")
 
                 cash = Decimal(db.execute("SELECT cash FROM account WHERE id=1").fetchone()[0])
@@ -177,5 +180,6 @@ class PaperBroker:
                 db.execute("COMMIT")
                 return result
             except Exception:
-                db.execute("ROLLBACK")
+                if db.in_transaction:
+                    db.execute("ROLLBACK")
                 raise
