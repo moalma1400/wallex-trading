@@ -1,7 +1,7 @@
 # Feature 008 Specification: Autonomous Contest Agent Execution
 
-**Status:** Approved for implementation preparation; live execution remains disabled until activation evidence is complete  
-**Date:** 2026-10-23  
+**Status:** Approved for implementation preparation; live execution remains disabled until activation evidence is complete
+**Date:** 2026-10-23
 **Parent context:** Features 004, 005, and 007; Wallex Trading Constitution v1.3.0
 
 ## Goal
