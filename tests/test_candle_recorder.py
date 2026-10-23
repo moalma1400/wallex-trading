@@ -69,7 +69,20 @@ def test_recorder_replies_to_ping_and_marks_gap_after_disconnect(tmp_path):
             return item
 
     first = FakeWebSocket([
+        json.dumps({
+            "id": 1,
+            "connect": {
+                "client": "fake-client",
+                "version": "fake",
+                "ping": 25,
+                "pong": True,
+            },
+        }),
         "PING",
+        json.dumps({
+            "id": 2,
+            "subscribe": {},
+        }),
         message("BTCUSDT", "100", "2", "2026-10-23T10:00:01Z"),
         message("BTCUSDT", "101", "1", "2026-10-23T10:01:01Z"),
         OSError("synthetic disconnect"),
@@ -123,3 +136,140 @@ def test_reconnect_limit_counts_repeated_short_lived_connect_failures(tmp_path):
     assert manifest["connection_errors"] == 3
     assert manifest["connection_count"] == 0
     assert manifest["gaps_possible_on_disconnect"] is True
+
+
+def test_subscription_error_fails_closed(tmp_path):
+    import asyncio
+    from wallex_agent.candle_recorder import record_trades
+
+    class FakeWebSocket:
+        def __init__(self):
+            self.messages = [
+                json.dumps({
+                    "id": 1,
+                    "connect": {
+                        "client": "fake-client",
+                        "version": "fake",
+                        "ping": 25,
+                        "pong": True,
+                    },
+                }),
+                json.dumps({
+                    "id": 2,
+                    "error": {
+                        "code": 103,
+                        "message": "synthetic subscription failure",
+                    },
+                }),
+            ]
+            self.sent = []
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def send(self, value):
+            self.sent.append(value)
+
+        async def recv(self):
+            if not self.messages:
+                raise OSError("unexpected receive after subscription error")
+            return self.messages.pop(0)
+
+    websocket = FakeWebSocket()
+
+    def connector(*args, **kwargs):
+        return websocket
+
+    output = tmp_path / "subscription-error.jsonl"
+
+    try:
+        asyncio.run(record_trades(
+            "BTCUSDT",
+            60,
+            output,
+            connector=connector,
+            reconnect_backoff_seconds=0,
+            max_reconnect_attempts=0,
+        ))
+        assert False, "subscription failure must not be treated as success"
+    except RuntimeError as exc:
+        assert "reconnect limit exceeded" in str(exc)
+
+    commands = [
+        json.loads(value)
+        for value in websocket.sent
+        if isinstance(value, str) and value.startswith("{")
+    ]
+    assert any(
+        command.get("subscribe", {}).get("channel") == "public:BTCUSDT@trade"
+        for command in commands
+    )
+    manifest = json.loads(
+        (tmp_path / "subscription-error.jsonl.manifest.json").read_text()
+    )
+    assert manifest["connection_errors"] == 1
+    assert manifest["status"] == "stopped"
+
+
+def test_subscription_ack_timeout_fails_closed(tmp_path):
+    import asyncio
+    from wallex_agent.candle_recorder import record_trades
+
+    class FakeWebSocket:
+        def __init__(self):
+            self.messages = [
+                json.dumps({
+                    "id": 1,
+                    "connect": {
+                        "client": "fake-client",
+                        "version": "fake",
+                        "ping": 25,
+                        "pong": True,
+                    },
+                }),
+            ]
+            self.sent = []
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def send(self, value):
+            self.sent.append(value)
+
+        async def recv(self):
+            if self.messages:
+                return self.messages.pop(0)
+            raise asyncio.TimeoutError()
+
+    websocket = FakeWebSocket()
+
+    def connector(*args, **kwargs):
+        return websocket
+
+    output = tmp_path / "subscription-timeout.jsonl"
+
+    try:
+        asyncio.run(record_trades(
+            "BTCUSDT",
+            60,
+            output,
+            connector=connector,
+            reconnect_backoff_seconds=0,
+            max_reconnect_attempts=0,
+        ))
+        assert False, "missing subscription acknowledgement must fail closed"
+    except RuntimeError as exc:
+        assert "reconnect limit exceeded" in str(exc)
+
+    manifest = json.loads(
+        (tmp_path / "subscription-timeout.jsonl.manifest.json").read_text()
+    )
+    assert manifest["connection_errors"] == 1
+    assert manifest["status"] == "stopped"
+    assert manifest["last_connection_error_type"] == "TimeoutError"
