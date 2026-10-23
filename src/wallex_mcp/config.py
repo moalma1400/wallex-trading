@@ -1,7 +1,7 @@
 """Safe configuration for the standalone Wallex MCP server.
 
-Only explicitly allowlisted GET endpoints can be called. Account endpoints
-require WALLEX_API_KEY; no account-changing route is included.
+Only explicitly allowlisted GET endpoints can be called. Authenticated
+account endpoints are available only through the opt-in read-only allowlist.
 """
 from __future__ import annotations
 
@@ -43,6 +43,7 @@ class EndpointAllowlist:
 
     @classmethod
     def default(cls) -> "EndpointAllowlist":
+        """Public-only allowlist; safe for default startup and offline CI."""
         return cls(entries=(
             EndpointAllowlistEntry(
                 method="GET", host=WALLEX_OFFICIAL_HOST, path=MARKETS_PATH,
@@ -50,10 +51,27 @@ class EndpointAllowlist:
             ),
         ))
 
+    @classmethod
+    def authenticated_readonly(cls) -> "EndpointAllowlist":
+        """Explicit opt-in allowlist for documented, key-authenticated GETs."""
+        return cls(entries=(
+            EndpointAllowlistEntry(
+                method="GET", host=WALLEX_OFFICIAL_HOST, path=MARKETS_PATH,
+                requires_key=False, description="Public Spot market metadata.",
+            ),
+            EndpointAllowlistEntry(
+                method="GET", host=WALLEX_OFFICIAL_HOST, path=BALANCES_PATH,
+                requires_key=True, description="Main-account balances; read-only.",
+            ),
+            EndpointAllowlistEntry(
+                method="GET", host=WALLEX_OFFICIAL_HOST, path=OPEN_ORDERS_PATH,
+                requires_key=True, description="Active orders; read-only.",
+            ),
+        ))
+
     def is_allowed(self, method: str, host: str, path: str) -> bool:
         normalized_method = method.upper()
         normalized_host = host.lower()
-        # Query parameters are not included in the path passed to this method.
         normalized_path = path if path.startswith("/") else "/" + path
         return any(
             entry.method.upper() == normalized_method

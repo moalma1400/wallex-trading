@@ -17,6 +17,7 @@ error, or unverified capability.
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from typing import Any, Optional
 
@@ -29,6 +30,9 @@ from .config import (
     DEFAULT_MAX_RETRIES,
     DEFAULT_MAX_RESPONSE_BYTES,
     DEFAULT_TIMEOUT_SECONDS,
+    BALANCES_PATH,
+    OPEN_ORDERS_PATH,
+    WALLEX_OFFICIAL_HOST,
     EndpointAllowlist,
 )
 from .redaction import redact_for_log
@@ -104,13 +108,52 @@ def create_server(
         )
         return response.model_dump(mode="json")
 
+    account_reads_enabled = bool(
+        api_key
+        and (allowlist or DEFAULT_ALLOWLIST).is_allowed("GET", WALLEX_OFFICIAL_HOST, BALANCES_PATH)
+        and (allowlist or DEFAULT_ALLOWLIST).is_allowed("GET", WALLEX_OFFICIAL_HOST, OPEN_ORDERS_PATH)
+    )
+    if account_reads_enabled:
+        @server.tool()
+        def wallex_get_balances() -> dict[str, Any]:
+            """Read main-account balances; explicit read-only mode only."""
+            logger.info("wallex_get_balances invoked")
+            try:
+                result = client.get_balances()
+            except WallexClientError as exc:
+                logger.error("wallex_get_balances failed: %s", redact_for_log(str(exc)))
+                raise
+            logger.info("wallex_get_balances completed")
+            return result
+
+        @server.tool()
+        def wallex_get_open_orders() -> dict[str, Any]:
+            """Read active orders; explicit read-only mode only."""
+            logger.info("wallex_get_open_orders invoked")
+            try:
+                result = client.get_open_orders()
+            except WallexClientError as exc:
+                logger.error("wallex_get_open_orders failed: %s", redact_for_log(str(exc)))
+                raise
+            logger.info("wallex_get_open_orders completed")
+            return result
+    else:
+        logger.info("Authenticated account tools disabled; public-only mode")
+
     return server
 
 
 def main(argv: Optional[list[str]] = None) -> int:
-    """Entry point for ``python -m wallex_mcp.server``."""
+    """Entry point for the module command."""
     _configure_logging()
-    server = create_server()
+    api_key = os.environ.get("WALLEX_API_KEY")
+    enabled = os.environ.get("WALLEX_ENABLE_ACCOUNT_READONLY", "").strip() == "1"
+    if enabled and api_key:
+        server = create_server(api_key=api_key, allowlist=EndpointAllowlist.authenticated_readonly())
+    else:
+        if enabled and not api_key:
+            logger.warning("Account read-only mode requested without WALLEX_API_KEY; public-only mode")
+        server = create_server()
     try:
         server.run(transport="stdio")
     except Exception as exc:  # pragma: no cover - defensive
