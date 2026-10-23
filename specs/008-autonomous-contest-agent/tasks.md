@@ -7,7 +7,7 @@
 - [x] T005 Implement deterministic pre-trade eligibility and risk checks using Decimal arithmetic.
 - [x] T006 Define order delegation without automatic retries; timeout/invalid acknowledgement is an unknown outcome requiring reconciliation.
 - [ ] T007 Connect execution tools only after the actual Smart98/MCP contract and permission model are verified.
-- [x] T008 Add offline fake-invoker tests for activation gates, disabled pairs, caps, mode-independent policy checks and uncertain order outcomes.
+- [x] T008 Add offline fake-invoker tests for activation switches, disabled pairs, caps, verified market/account evidence and uncertain order outcomes.
 - [x] T009 Add execution-boundary documentation.
 - [ ] T010 Run source and link validators, full offline test suite, compileall, and git diff check.
 - [x] T011 Open draft PR #9 against the authenticated-readonly feature branch; do not merge or enable live mode.
