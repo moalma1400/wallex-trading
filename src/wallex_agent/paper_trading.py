@@ -137,14 +137,17 @@ class PaperBroker:
 
                 db.execute("INSERT OR IGNORE INTO positions(symbol,units,avg_cost,last_price) VALUES(?,?,?,?)",
                            (symbol, "0", "0", str(reference)))
-                db.execute("UPDATE positions SET last_price=? WHERE symbol=?", (str(reference), symbol))
-                equity = self._equity(db)
+                # On a new day, capture equity using the prior persisted marks before
+                # applying today's price observation; otherwise the first mark could
+                # hide an overnight/daily loss.
                 baseline = db.execute("SELECT start_equity FROM daily_baselines WHERE day=?", (day,)).fetchone()
                 if baseline is None:
-                    db.execute("INSERT INTO daily_baselines(day,start_equity) VALUES(?,?)", (day, str(equity)))
-                    start_equity = equity
+                    start_equity = self._equity(db)
+                    db.execute("INSERT INTO daily_baselines(day,start_equity) VALUES(?,?)", (day, str(start_equity)))
                 else:
                     start_equity = Decimal(baseline[0])
+                db.execute("UPDATE positions SET last_price=? WHERE symbol=?", (str(reference), symbol))
+                equity = self._equity(db)
                 loss_limit = start_equity * self.max_daily_loss_percent / Decimal("100")
                 if start_equity - equity >= loss_limit:
                     # A rejected order is still a valid market-price observation: keep
