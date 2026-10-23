@@ -34,6 +34,7 @@ def valid_policy_mapping():
         "account_permissions_verified": True,
         "allowed_markets_verified": True,
         "risk_limits_verified": True,
+        "fees_verified": True,
         "compliance_review_status": "APPROVED",
         "challenge_start_utc": "2026-10-23T00:00:00Z",
         "challenge_cutoff_utc": "2026-10-24T00:00:00Z",
@@ -112,6 +113,7 @@ def test_valid_order_intent_passes_offline_policy():
         current_asset_exposure_tmn=Decimal("0"),
         total_deployed_tmn=Decimal("0"),
         available_quote_balance_tmn=Decimal("5000"),
+        available_base_quantity=Decimal("500"),
         now=NOW,
     )
     assert notional == Decimal("1000")
@@ -141,6 +143,7 @@ def test_order_intent_fails_closed(intent_changes, disabled, match):
             current_asset_exposure_tmn=Decimal("0"),
             total_deployed_tmn=Decimal("0"),
             available_quote_balance_tmn=Decimal("5000"),
+            available_base_quantity=Decimal("500"),
             now=NOW,
         )
 
@@ -165,7 +168,7 @@ def test_order_intent_delegates_only_to_verified_mediation_tool():
         return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"))
     result = client.create_order(
         client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
     )
@@ -186,7 +189,7 @@ def test_mediated_order_timeout_is_ambiguous_and_never_retried():
         raise TimeoutError("synthetic timeout")
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"))
     with pytest.raises(OrderOutcomeUnknown, match="reconcile"):
         client.create_order(
             client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
@@ -222,7 +225,7 @@ def test_blocked_risk_never_calls_execution_tool():
         return {"success": True, "result": {}}
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs={"ABC/TMN"})
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"), Decimal("500"))
     with pytest.raises(ExecutionClientError, match="blocked by deterministic policy"):
         client.create_order(
             client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
