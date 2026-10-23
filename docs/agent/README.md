@@ -34,6 +34,10 @@ The model compares the previous persisted market price to the current public mar
 
 Options: `--minimum-change-24h-raw`, `--maximum-spread-bps`, `--symbols`, `--interval-seconds`, `--maximum-observation-gap-seconds`, `--output`, and `--state-db`. Fee and slippage can also be supplied through `WALLEX_AGENT_FEE_BPS_PER_SIDE` and `WALLEX_AGENT_SLIPPAGE_BPS_PER_SIDE`.
 
+## Ranked shadow opportunities
+
+When the explicit fee and slippage assumptions are supplied, each cycle also includes `ranked_opportunities`: eligible assessments with a `WATCH_EDGE` result, ordered by highest estimated net edge, then lowest spread, then symbol. The label is `SHADOW_CANDIDATE`, not a BUY instruction. Without cost assumptions the list remains empty. See [cost-aware opportunity ranking](OPPORTUNITY-RANKING.md).
+
 ## Safety and limitations
 
 - Smart98 is not a runtime dependency.
