@@ -22,7 +22,7 @@ def test_backtest_uses_next_bar_open_and_records_costs_and_equity():
     assert report["bars"]==6
     assert report["order_submission_attempted"] is False
     assert Decimal(report["cost_model_per_side_bps"])==Decimal("8.00")
-    assert report["trades"][0]["entry_timestamp"]==rows[3]["timestamp"]
+    assert report["trades"][0]["entry_timestamp"]==rows[3]["timestamp"].replace("Z", "+00:00")
     assert report["trades"][0]["entry_price"]=="105"
     assert len(report["equity_curve"])==6
 
