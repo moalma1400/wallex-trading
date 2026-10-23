@@ -258,3 +258,33 @@ def test_default_allowlist_excludes_unverified_private_endpoints():
         "GET", WALLEX_OFFICIAL_HOST, OPEN_ORDERS_PATH
     )
     assert len(DEFAULT_ALLOWLIST.entries) == 1
+
+
+
+def test_live_tools_are_absent_by_default_and_explicitly_opt_in():
+    from decimal import Decimal
+    from wallex_mcp.config import EndpointAllowlist
+    from wallex_mcp.live_spot import LiveSpotConfig
+
+    default_names = {tool.name for tool in asyncio.run(create_server().list_tools())}
+    assert default_names == {"wallex_get_markets"}
+
+    live_config = LiveSpotConfig(
+        api_key="synthetic-not-a-real-key",
+        allowed_symbols=frozenset({"BTCUSDT"}),
+        quote_asset="USDT",
+        max_order_notional=Decimal("100"),
+    )
+    enabled = create_server(
+        api_key="synthetic-not-a-real-key",
+        allowlist=EndpointAllowlist.authenticated_readonly(),
+        live_config=live_config,
+    )
+    enabled_names = {tool.name for tool in asyncio.run(enabled.list_tools())}
+    assert {
+        "wallex_get_markets",
+        "wallex_get_balances",
+        "wallex_get_open_orders",
+        "wallex_live_place_limit_order",
+        "wallex_live_get_order",
+    } == enabled_names

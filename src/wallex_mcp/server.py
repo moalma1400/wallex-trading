@@ -38,6 +38,12 @@ from .config import (
 from .redaction import redact_for_log
 from .schemas import MarketsResponseModel
 from .wallex_client import WallexClient, WallexClientError
+from .live_spot import (
+    LiveSpotClient,
+    LiveSpotConfig,
+    LiveSpotError,
+    OrderOutcomeUnknown,
+)
 
 logger = logging.getLogger("wallex_mcp.server")
 
@@ -72,6 +78,7 @@ def _build_client(
 def create_server(
     api_key: Optional[str] = None,
     allowlist: Optional[EndpointAllowlist] = None,
+    live_config: Optional[LiveSpotConfig] = None,
 ) -> MCPServer:
     """Construct the MCP server with its registered tools.
 
@@ -140,6 +147,62 @@ def create_server(
     else:
         logger.info("Authenticated account tools disabled; public-only mode")
 
+    if live_config is not None:
+        if not api_key or api_key != live_config.api_key:
+            raise ValueError("Live Spot tools require the same explicitly configured API key")
+        live_client = LiveSpotClient(live_config)
+
+        @server.tool()
+        def wallex_live_place_limit_order(
+            symbol: str, side: str, quantity: str, price: str, client_id: str = ""
+        ) -> dict[str, Any]:
+            """Place one real Spot LIMIT order after live market/balance preflight.
+
+            Only available when WALLEX_ENABLE_LIVE_TRADING=1 and the explicit
+            operator acknowledgment and hard limits are configured. The call
+            submits at most once. If outcome is ambiguous, reconcile by client_id;
+            never retry the POST.
+            """
+            try:
+                raw_markets = client._request("GET", WALLEX_OFFICIAL_HOST, "/hector/web/v1/markets")
+                if raw_markets.get("success") is not True:
+                    raise LiveSpotError("Public markets response did not report success=true")
+                markets = raw_markets.get("markets")
+                if not isinstance(markets, list):
+                    result = raw_markets.get("result")
+                    markets = result.get("markets") if isinstance(result, dict) else None
+                if not isinstance(markets, list):
+                    raise LiveSpotError("Public markets response has no markets array")
+                market = next(
+                    (item for item in markets if isinstance(item, dict) and item.get("symbol") == symbol.strip().upper()),
+                    None,
+                )
+                if market is None:
+                    raise LiveSpotError("Requested symbol was not found in current public market metadata")
+                balances = client.get_balances()
+                result = live_client.place_limit_order(
+                    symbol=symbol, side=side, quantity=quantity, price=price,
+                    market=market, balances_response=balances,
+                    client_id=client_id or None,
+                )
+                logger.info("Live Spot order submitted; client_id=%s", result.get("result", {}).get("clientOrderId", client_id or "generated"))
+                return result
+            except OrderOutcomeUnknown:
+                logger.error("Live Spot order outcome is unknown; do not resubmit without reconciliation")
+                raise
+            except (LiveSpotError, WallexClientError) as exc:
+                logger.warning("Live Spot order blocked/failed: %s", redact_for_log(str(exc)))
+                raise
+
+        @server.tool()
+        def wallex_live_get_order(client_id: str) -> dict[str, Any]:
+            """Read one Spot order by client ID; use to reconcile ambiguous submissions."""
+            try:
+                return live_client.get_order(client_id)
+            except LiveSpotError as exc:
+                logger.warning("Live Spot order lookup failed: %s", redact_for_log(str(exc)))
+                raise
+
     return server
 
 
@@ -147,11 +210,16 @@ def main(argv: Optional[list[str]] = None) -> int:
     """Entry point for the module command."""
     _configure_logging()
     api_key = os.environ.get("WALLEX_API_KEY")
-    enabled = os.environ.get("WALLEX_ENABLE_ACCOUNT_READONLY", "").strip() == "1"
-    if enabled and api_key:
-        server = create_server(api_key=api_key, allowlist=EndpointAllowlist.authenticated_readonly())
+    readonly_enabled = os.environ.get("WALLEX_ENABLE_ACCOUNT_READONLY", "").strip() == "1"
+    live_config = LiveSpotConfig.from_env()
+    if (readonly_enabled or live_config is not None) and api_key:
+        server = create_server(
+            api_key=api_key,
+            allowlist=EndpointAllowlist.authenticated_readonly(),
+            live_config=live_config,
+        )
     else:
-        if enabled and not api_key:
+        if readonly_enabled and not api_key:
             logger.warning("Account read-only mode requested without WALLEX_API_KEY; public-only mode")
         server = create_server()
     try:
