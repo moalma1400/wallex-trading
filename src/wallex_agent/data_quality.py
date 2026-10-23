@@ -92,6 +92,9 @@ def audit_candles(
                         "interval_seconds": interval, "candle": candle})
         valid.append(candle)
 
+    if not records:
+        issues.append({"code": "NO_VALID_CANDLES", "severity": "error"})
+
     effective_intervals = {r["interval_seconds"] for r in records if r["interval_seconds"] is not None}
     effective_symbols = {r["symbol"] for r in records if r["symbol"] is not None}
     interval_seconds = expected_interval_seconds
@@ -206,17 +209,28 @@ def audit_file(
 ) -> dict[str, Any]:
     path = Path(input_path)
     manifest = None
+    manifest_invalid = False
     manifest_candidate = Path(manifest_path) if manifest_path else Path(str(path) + ".manifest.json")
+    if manifest_path and not manifest_candidate.exists():
+        raise FileNotFoundError(f"manifest file does not exist: {manifest_candidate}")
     if manifest_candidate.exists():
         try:
             parsed = json.loads(manifest_candidate.read_text(encoding="utf-8"))
             if isinstance(parsed, dict):
                 manifest = parsed
+            else:
+                manifest_invalid = True
         except (OSError, json.JSONDecodeError):
-            manifest = None
-    return audit_candles(
+            manifest_invalid = True
+    report = audit_candles(
         path.read_text(encoding="utf-8").splitlines(),
         expected_symbol=expected_symbol,
         expected_interval_seconds=expected_interval_seconds,
         manifest=manifest,
     )
+    if manifest_invalid:
+        report["issues"].append({"code": "INVALID_RECORDER_MANIFEST", "severity": "warning"})
+        report["warning_count"] += 1
+        if report["status"] == "OK":
+            report["status"] = "REVIEW"
+    return report
