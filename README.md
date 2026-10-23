@@ -25,6 +25,7 @@ The project uses the official [GitHub Spec Kit](https://github.com/github/spec-k
 - [Feature 005: Smart98-mediated public market data](specs/005-smart98-mediated-public-market-data/spec.md) — approved; Smart98-mediated adapter
 - [Feature 007: standalone Wallex MCP server](specs/007-standalone-wallex-mcp/spec.md) — public read-only MCP server, GitHub Actions stdio
 - [Standalone live Spot MCP guide](docs/mcp/README.md) — proposed opt-in live LIMIT-order tools, independent of Smart98
+- [Independent shadow agent guide](docs/agent/README.md) — standalone continuous public-market screening; no order submission
 - [Feature 008: autonomous contest agent](specs/008-autonomous-contest-agent/spec.md) — fail-closed activation policy, deterministic risk checks and mediated execution interface; runtime connection and live execution remain disabled
 - [Wallex/Starcoach challenge knowledge base](docs/knowledge-base/README.md) — rules, restrictions, judge reproduction and demo checklist
 - [Standalone MCP operator guide](docs/mcp/README.md) — server, client, stdio, offline tests, integration triggers
