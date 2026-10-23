@@ -44,7 +44,7 @@ Use `wallex-walk-forward` to select the baseline parameters on chronological tra
 
 ## Offline paper broker
 
-The independent `wallex-paper` CLI replays explicit JSONL order events into a persistent virtual ledger. It is not wired to the shadow runner and does not create signals from market data. See [Paper Trading](PAPER-TRADING.md).
+The independent `wallex-paper` CLI replays explicit JSONL order events, while `wallex-paper-candles` applies a simple long-only momentum baseline to local candles; both write to a persistent virtual ledger. Neither is wired to the shadow runner or provides exchange fill reconciliation or live risk-gate integration. See [Paper Trading](PAPER-TRADING.md).
 
 ## Safety and limitations
 
