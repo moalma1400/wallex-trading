@@ -208,6 +208,7 @@ class OrderIntent:
     quantity: Decimal
     market_observed_at: datetime
     market_is_spot: bool
+    market_data_verified: bool
     market_constraints_verified: bool
     price_precision: int
     amount_precision: int
@@ -231,6 +232,7 @@ def validate_order_intent(
     total_deployed_tmn: Decimal,
     available_quote_balance_tmn: Decimal,
     available_base_quantity: Decimal,
+    account_state_reconciled: bool,
     now: datetime | None = None,
 ) -> Decimal:
     """Return notional in TMN if allowed; otherwise raise a specific veto.
@@ -245,6 +247,10 @@ def validate_order_intent(
         raise ExecutionPolicyError("order type is not in the verified policy allowlist")
     if intent.market_is_spot is not True:
         raise ExecutionPolicyError("only verified Spot markets are allowed")
+    if intent.market_data_verified is not True:
+        raise ExecutionPolicyError("verified market data is required")
+    if account_state_reconciled is not True:
+        raise ExecutionPolicyError("account and order state must be reconciled before execution")
     if intent.market_constraints_verified is not True:
         raise ExecutionPolicyError("verified price/quantity constraints are required")
     for field, value in (("price_precision", intent.price_precision), ("amount_precision", intent.amount_precision)):
