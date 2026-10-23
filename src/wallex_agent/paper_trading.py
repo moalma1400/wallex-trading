@@ -66,6 +66,21 @@ class PaperBroker:
                 event_id TEXT PRIMARY KEY, timestamp TEXT NOT NULL, symbol TEXT NOT NULL, side TEXT NOT NULL,
                 quantity TEXT NOT NULL, reference_price TEXT NOT NULL, fill_price TEXT NOT NULL,
                 fee TEXT NOT NULL, cash_after TEXT NOT NULL, result_json TEXT NOT NULL)""")
+            db.execute("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+            configured = {
+                "initial_cash": str(self.initial_cash),
+                "fee_bps": str(self.fee_bps),
+                "slippage_bps": str(self.slippage_bps),
+                "max_order_notional": str(self.max_order_notional),
+                "max_daily_loss_percent": str(self.max_daily_loss_percent),
+            }
+            for key, value in configured.items():
+                saved = db.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
+                if saved is not None and saved[0] != value:
+                    raise PaperTradingError(
+                        f"paper ledger configuration mismatch for {key}; use the original settings or a fresh database"
+                    )
+                db.execute("INSERT OR IGNORE INTO settings(key,value) VALUES(?,?)", (key, value))
             db.execute("INSERT OR IGNORE INTO account(id,cash) VALUES(1,?)", (str(self.initial_cash),))
 
     def _connect(self) -> sqlite3.Connection:
