@@ -11,7 +11,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
-WALLEX_WS_URL = "wss://api.wallex.ir/ws"
+WALLEX_WS_URL = "wss://api.wallex.ir/connection/websocket"
 TRADE_DOC_URL = "https://developers.wallex.ir/socket/trade"
 SOCKET_DOC_URL = "https://developers.wallex.ir/socket"
 MAX_APPLICATION_PONGS_PER_CONNECTION = 100
@@ -28,33 +28,50 @@ def _decimal(value: Any, field: str) -> Decimal:
     return result
 
 def is_application_ping(message: str | bytes) -> bool:
-    """Recognize plain-text and JSON-encoded app-level PING control frames."""
+    """Recognize legacy PING and the observed empty-object v2 heartbeat."""
     try:
         text = message.decode("utf-8") if isinstance(message, bytes) else message
-    except UnicodeDecodeError:
-        return False
-    if not isinstance(text, str):
-        return False
-    if text.strip().upper() == "PING":
-        return True
-    try:
+        if not isinstance(text, str):
+            return False
+        if text.strip().upper() == "PING":
+            return True
         payload = json.loads(text)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, UnicodeDecodeError, TypeError):
         return False
-    return payload == "PING" or payload == ["PING"]
+    return payload == "PING" or payload == ["PING"] or payload == {}
 
-def parse_trade_message(message: str | bytes, symbol: str) -> tuple[datetime, Decimal, Decimal] | None:
-    """Parse only the documented [SYMBOL@trade, {price, quantity, timestamp}] envelope."""
+
+def parse_trade_message(
+    message: str | bytes, symbol: str
+) -> tuple[datetime, Decimal, Decimal] | None:
+    """Parse a legacy trade envelope or a Centrifugo v2 public trade push."""
     try:
         text = message.decode("utf-8") if isinstance(message, bytes) else message
         payload = json.loads(text)
     except (json.JSONDecodeError, UnicodeDecodeError, TypeError):
         return None
-    if payload == "PING" or payload == ["PING"] or payload == "PONG" or payload == ["PONG"]:
+
+    trade = None
+    if isinstance(payload, dict):
+        push = payload.get("push")
+        if isinstance(push, dict) and push.get("channel") == f"public:{symbol}@trade":
+            pub = push.get("pub")
+            if isinstance(pub, dict) and isinstance(pub.get("data"), dict):
+                trade = pub["data"]
+
+    # Retain legacy parsing for compatibility with the existing tests.
+    if (
+        trade is None
+        and isinstance(payload, list)
+        and len(payload) == 2
+        and payload[0] == f"{symbol}@trade"
+        and isinstance(payload[1], dict)
+    ):
+        trade = payload[1]
+
+    if trade is None:
         return None
-    if not isinstance(payload, list) or len(payload) != 2 or payload[0] != f"{symbol}@trade" or not isinstance(payload[1], dict):
-        return None
-    trade = payload[1]
+
     try:
         price = _decimal(trade.get("price"), "price")
         quantity = _decimal(trade.get("quantity"), "quantity")
@@ -190,29 +207,121 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                     if writer.connection_count > 1:
                         writer.reconnect_count += 1
                     writer._write_manifest("recording", last_error_type)
-                    await websocket.send(json.dumps(["subscribe", {"channel": f"{symbol}@trade"}]))
-                    pongs_this_connection = 0
+                    await websocket.send(json.dumps({"id": 1, "connect": {}}))
+
+                    # Wait for the matching connect acknowledgement. Bound the
+                    # wait even when the recorder is configured to run forever.
+                    connect_deadline = now() + 15
                     while True:
+                        remaining = connect_deadline - now()
+                        if deadline is not None:
+                            remaining = min(remaining, deadline - now())
+                        if remaining <= 0:
+                            raise TimeoutError("Centrifugo connect acknowledgement timed out")
+                        reply = await asyncio.wait_for(websocket.recv(), timeout=remaining)
+                        try:
+                            control = json.loads(
+                                reply.decode("utf-8") if isinstance(reply, bytes) else reply
+                            )
+                        except (json.JSONDecodeError, UnicodeDecodeError, TypeError):
+                            writer.malformed += 1
+                            continue
+
+                        if isinstance(control, dict) and control.get("id") == 1:
+                            if "error" in control:
+                                raise ConnectionError("Centrifugo connect command failed")
+                            if "connect" in control:
+                                break
+
+                        if is_application_ping(reply):
+                            await websocket.send("{}" if control == {} else "PONG")
+                            writer.application_pongs += 1
+
+                    await websocket.send(json.dumps({
+                        "id": 2,
+                        "subscribe": {"channel": f"public:{symbol}@trade"}
+                    }))
+                    pongs_this_connection = 0
+                    subscription_confirmed = False
+                    subscription_deadline = now() + 15
+                    while True:
+                        remaining = None
                         if deadline is not None:
                             remaining = deadline - now()
                             if remaining <= 0:
                                 break
+
+                        # Do not silently record an unconfirmed subscription.
+                        # Continue processing early trade pushes if any arrive.
+                        if not subscription_confirmed:
+                            ack_remaining = subscription_deadline - now()
+                            if ack_remaining <= 0:
+                                raise TimeoutError(
+                                    "Centrifugo subscription acknowledgement timed out"
+                                )
+                            timeout = ack_remaining if remaining is None else min(
+                                remaining, ack_remaining
+                            )
                             try:
-                                message = await asyncio.wait_for(websocket.recv(), timeout=remaining)
+                                message = await asyncio.wait_for(
+                                    websocket.recv(), timeout=timeout
+                                )
+                            except asyncio.TimeoutError:
+                                if deadline is not None and now() >= deadline:
+                                    break
+                                raise TimeoutError(
+                                    "Centrifugo subscription acknowledgement timed out"
+                                ) from None
+                        elif remaining is not None:
+                            try:
+                                message = await asyncio.wait_for(
+                                    websocket.recv(), timeout=remaining
+                                )
                             except asyncio.TimeoutError:
                                 break
                         else:
                             message = await websocket.recv()
+
                         if is_application_ping(message):
                             if pongs_this_connection >= MAX_APPLICATION_PONGS_PER_CONNECTION:
                                 raise ConnectionError("application ping limit reached")
-                            await websocket.send("PONG")
+                            try:
+                                heartbeat = json.loads(
+                                    message.decode("utf-8") if isinstance(message, bytes) else message
+                                )
+                            except (json.JSONDecodeError, UnicodeDecodeError, TypeError):
+                                heartbeat = "PING"
+                            await websocket.send("{}" if heartbeat == {} else "PONG")
                             pongs_this_connection += 1
                             writer.application_pongs += 1
                             writer._write_manifest("recording", last_error_type)
                             continue
                         trade = parse_trade_message(message, symbol)
                         if trade is None:
+                            try:
+                                event = json.loads(
+                                    message.decode("utf-8") if isinstance(message, bytes) else message
+                                )
+                            except (json.JSONDecodeError, UnicodeDecodeError, TypeError):
+                                event = None
+
+                            if isinstance(event, dict):
+                                if event.get("id") == 2:
+                                    if "error" in event:
+                                        raise ConnectionError(
+                                            "Centrifugo subscription command failed"
+                                        )
+                                    if "subscribe" in event:
+                                        subscription_confirmed = True
+                                        continue
+                                    raise ConnectionError(
+                                        "Unexpected Centrifugo subscription acknowledgement"
+                                    )
+                                # Other command acknowledgements, pushes for unrelated
+                                # channels and protocol control objects aren't trades.
+                                if "id" in event or "push" in event or event == {}:
+                                    continue
+
                             writer.malformed += 1
                             continue
                         timestamp, price, quantity = trade
