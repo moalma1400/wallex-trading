@@ -154,6 +154,13 @@ class TestSchemasAndClient:
             client_for(transport, retries=2).get_markets()
         assert len(transport.calls) == 1
 
+    def test_unsuccessful_response_envelope_is_rejected(self):
+        payload = json.loads(json.dumps(MARKETS_FIXTURE))
+        payload["success"] = False
+        transport = FakeTransport([encoded(payload)])
+        with pytest.raises(WallexAPIError, match="success=false"):
+            client_for(transport).get_markets()
+
     def test_transient_transport_error_retries_then_succeeds(self):
         transport = FakeTransport([TimeoutError("synthetic timeout"), encoded(MARKETS_FIXTURE)])
         result = client_for(transport, retries=1).get_markets()
