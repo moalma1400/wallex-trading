@@ -200,7 +200,7 @@ class PaperBroker:
                 db.execute("UPDATE positions SET last_price=? WHERE symbol=?", (str(reference), symbol))
                 equity = self._equity(db)
                 loss_limit = start_equity * self.max_daily_loss_percent / Decimal("100")
-                if start_equity - equity >= loss_limit:
+                if side == "buy" and start_equity - equity >= loss_limit:
                     # A rejected order is still a valid market-price observation: keep
                     # the mark so retries cannot evade the daily-loss guard by rollback.
                     db.execute("COMMIT")
