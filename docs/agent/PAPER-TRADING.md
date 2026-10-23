@@ -75,7 +75,7 @@ wallex-paper-candles --input candles.jsonl --symbol BTC_USDT \
 
 The input should contain at least `lookback-bars + 2` valid, strictly chronological candles with `timestamp`, `open`, `high`, `low`, `close`, and `volume`. If rows include `symbol`, it must match `--symbol`. Use a fresh database for an independent run; a persistent ledger rejects changes to its original cash/cost/risk settings. The strategy is a small baseline for testing the paper pipeline, not a recommendation or evidence of profitability.
 
-### Optional mandatory data-quality gate
+### Recommended data-quality gate
 
 For a safer run, add `--audit-input-data --expected-interval-seconds 60` (replace 60 with the dataset's actual interval). The simulator blocks `INVALID` data. A `REVIEW` report (for example, possible timestamp gaps or missing metadata) blocks by default; only after inspecting the audit report may an operator explicitly pass `--allow-review-data`. The output report records the audit summary and whether the review override was used.
 
