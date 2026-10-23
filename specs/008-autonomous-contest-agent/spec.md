@@ -12,8 +12,8 @@ This feature is separate from Feature 007's public/read-only MCP scope. It must 
 
 ## Evidence and known constraints
 
-- Official Wallex documentation describes Spot order creation as `POST /v1/account/orders`, authenticated with `x-api-key`, with JSON fields `client_id`, `price`, `quantity`, `side`, `stop_Price`, `symbol`, and `type`. Source: [official create-order documentation](https://developers.wallex.ir/spot/createorder), source ID to be reconciled in the source register before live activation.
-- Official documentation describes order lookup as `GET /v1/account/orders/{client_id}` with `x-api-key`. Source: [official order details](https://developers.wallex.ir/spot/singleorderdetail).
+- Official Wallex documentation describes Spot order creation as `POST /v1/account/orders`, authenticated with `x-api-key`, with JSON fields `client_id`, `price`, `quantity`, `side`, `stop_Price`, `symbol`, and `type`. Source ID: SPOT-CREATE — [official create-order documentation](https://developers.wallex.ir/docs/spot-create-order).
+- Official documentation describes order lookup as `GET /v1/account/orders/{client_id}` with `x-api-key`. Source ID: SPOT-DETAIL — [official order details](https://developers.wallex.ir/docs/spot-single-order-detail).
 - The official API docs use the `api.wallex.ir` host in the introduction and these endpoint pages. Documentation conflicts remain for some generated market-data routes and are tracked in `docs/research/discrepancies.md`.
 - The exact order-cancellation contract, account-level API permissions, challenge-account access, current challenge window, allowed markets, fee schedule, precision/minimums, and settlement rules are not yet independently verified. Do not invent these.
 - The owner has requested autonomous algorithmic execution for the competition. That is product intent, not proof that an account or tool is currently authorized.
@@ -22,8 +22,8 @@ This feature is separate from Feature 007's public/read-only MCP scope. It must 
 
 1. A separate execution package that exposes only fixed, documented Spot-order operations; no arbitrary HTTP, URL, header, method, or path inputs.
 2. Order submission and order-detail lookup through the repository-owned MCP mediation layer, not from the strategy/model directly to Wallex.
-3. A policy loader that fails closed unless live mode, owner activation, verified challenge rules/account, explicit allowed Spot symbols, and numeric risk limits are present.
-4. Deterministic pre-trade checks for symbol eligibility, disabled-pair registry, Spot-only scope, explicit quote allowlist, price/quantity validity, maximum order notional, open-order cap, and stale/missing inputs.
+3. A policy loader that fails closed unless live mode, owner activation, verified challenge rules/account, explicit allowed Spot pairs, fee evidence, verified price/quantity steps and minimums, and numeric risk limits are present.
+4. Deterministic pre-trade checks for symbol eligibility, disabled-pair registry, Spot-only scope, explicit quote allowlist, verified precision/step/minimum constraints, quote/base balances by side, maximum order and asset notional, total deployed exposure, open-order cap, order-rate cap, fee/spread limits, daily loss, and stale/missing inputs.
 5. Decimal-safe values, unique client order IDs, no automatic retry of state-changing POST requests, and explicit “outcome uncertain; reconcile by client ID” behavior on timeouts.
 6. Offline fake-transport tests; no live requests or secrets in CI.
 7. Decision, risk-verdict, order-intent, acknowledgement, and reconciliation audit events with redaction.
