@@ -111,6 +111,42 @@ class PaperBroker:
         return {"mode": "paper", "cash": str(cash), "equity_marked": str(equity),
                 "positions": positions, "live_trading_enabled": False, "order_submission_attempted": False}
 
+    def mark_price(self, *, timestamp: str, symbol: str, price: Any) -> dict[str, Any]:
+        """Persist a supplied mark and initialize the day's baseline before repricing."""
+        symbol = symbol.strip().upper()
+        if not symbol:
+            raise PaperTradingError("symbol must be non-empty")
+        mark = _decimal(price, "price")
+        if mark <= 0:
+            raise PaperTradingError("price must be positive")
+        try:
+            parsed_timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            if parsed_timestamp.tzinfo is None or parsed_timestamp.utcoffset() is None:
+                raise ValueError("timezone is required")
+            day = parsed_timestamp.date().isoformat()
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise PaperTradingError("timestamp must be timezone-aware ISO-8601") from exc
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                db.execute("INSERT OR IGNORE INTO positions(symbol,units,avg_cost,last_price) VALUES(?,?,?,?)",
+                           (symbol, "0", "0", str(mark)))
+                baseline = db.execute("SELECT start_equity FROM daily_baselines WHERE day=?", (day,)).fetchone()
+                if baseline is None:
+                    start_equity = self._equity(db)
+                    db.execute("INSERT INTO daily_baselines(day,start_equity) VALUES(?,?)",
+                               (day, str(start_equity)))
+                db.execute("UPDATE positions SET last_price=? WHERE symbol=?", (str(mark), symbol))
+                result = {"mode": "paper", "timestamp": timestamp, "symbol": symbol,
+                          "mark_price": str(mark), "equity_marked": str(self._equity(db)),
+                          "order_submission_attempted": False}
+                db.execute("COMMIT")
+                return result
+            except Exception:
+                if db.in_transaction:
+                    db.execute("ROLLBACK")
+                raise
+
     def execute_market_order(
         self, *, event_id: str, timestamp: str, symbol: str, side: str,
         quantity: Any, reference_price: Any,
