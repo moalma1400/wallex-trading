@@ -1,29 +1,20 @@
 """Safe configuration for the standalone Wallex MCP server.
 
-The endpoint allowlist is the single source of truth for which upstream
-Wallex hosts and paths this server may contact. Nothing outside the
-allowlist is reachable, and no caller-supplied URL, header, or method can
-expand it.
+Only explicitly allowlisted GET endpoints can be called. Account endpoints
+require WALLEX_API_KEY; no account-changing route is included.
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Final
 
-
 WALLEX_OFFICIAL_HOST: Final[str] = "api.wallex.ir"
-
-# Verified public, read-only Spot market-data endpoint.
-# Source: MARKETS (https://developers.wallex.ir/docs/basic-services-markets),
-# cross-checked against MOD-GENERATED-GET-MARKETS.
 MARKETS_PATH: Final[str] = "/hector/web/v1/markets"
+BALANCES_PATH: Final[str] = "/v1/account/balances"
+OPEN_ORDERS_PATH: Final[str] = "/v1/account/openOrders"
 
-# Conservative operational bounds. These are safety defaults, not
-# documented Wallex limits; the official rate limit is not published
-# numerically, so we stay well under any plausible ceiling.
 DEFAULT_TIMEOUT_SECONDS: Final[float] = 10.0
-DEFAULT_MAX_RESPONSE_BYTES: Final[int] = 5 * 1024 * 1024  # 5 MiB
+DEFAULT_MAX_RESPONSE_BYTES: Final[int] = 5 * 1024 * 1024
 DEFAULT_MAX_RETRIES: Final[int] = 2
 DEFAULT_BACKOFF_SECONDS: Final[float] = 0.5
 
@@ -39,33 +30,38 @@ class EndpointAllowlistEntry:
 
 @dataclass(frozen=True)
 class EndpointAllowlist:
-    """Immutable allowlist of permitted upstream endpoints."""
+    """Immutable allowlist of permitted read-only endpoints."""
 
     entries: tuple[EndpointAllowlistEntry, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "entries", tuple(self.entries))
-        methods = {entry.method for entry in self.entries}
-        if any(method.upper() != "GET" for method in methods):
+        if any(entry.method.upper() != "GET" for entry in self.entries):
             raise ValueError("EndpointAllowlist may only contain safe GET endpoints")
+        if any(not entry.host or not entry.path.startswith("/") for entry in self.entries):
+            raise ValueError("Allowlist entries require an exact host and absolute path")
 
     @classmethod
     def default(cls) -> "EndpointAllowlist":
-        return cls(
-            entries=(
-                EndpointAllowlistEntry(
-                    method="GET",
-                    host=WALLEX_OFFICIAL_HOST,
-                    path=MARKETS_PATH,
-                    requires_key=False,
-                    description="Verified public Spot market metadata list.",
-                ),
-            )
-        )
+        return cls(entries=(
+            EndpointAllowlistEntry(
+                method="GET", host=WALLEX_OFFICIAL_HOST, path=MARKETS_PATH,
+                requires_key=False, description="Verified public Spot market metadata.",
+            ),
+            EndpointAllowlistEntry(
+                method="GET", host=WALLEX_OFFICIAL_HOST, path=BALANCES_PATH,
+                requires_key=True, description="Authenticated read-only main-account balances.",
+            ),
+            EndpointAllowlistEntry(
+                method="GET", host=WALLEX_OFFICIAL_HOST, path=OPEN_ORDERS_PATH,
+                requires_key=True, description="Authenticated read-only open Spot orders.",
+            ),
+        ))
 
     def is_allowed(self, method: str, host: str, path: str) -> bool:
         normalized_method = method.upper()
         normalized_host = host.lower()
+        # Query parameters are not included in the path passed to this method.
         normalized_path = path if path.startswith("/") else "/" + path
         return any(
             entry.method.upper() == normalized_method
