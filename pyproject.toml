@@ -27,6 +27,7 @@ dependencies = [
 wallex-mcp = "wallex_mcp.server:main"
 coingecko-mcp = "coingecko_mcp.server:main"
 wallex-agent = "wallex_agent.runner:main"
+wallex-backtest = "wallex_agent.backtest_cli:main"
 
 [project.optional-dependencies]
 test = ["pytest==9.1.1"]
