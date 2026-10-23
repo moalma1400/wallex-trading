@@ -161,10 +161,10 @@ def test_preflight_rejects_invalid_order_without_network(kwargs, message):
         symbol="BTCUSDT", side="BUY", quantity="0.1", price="100",
         market=market(), balances_response=balances(), client_id="contest-001",
     )
-    if "market" in kwargs:
-        market_changes = dict(kwargs.pop("market"))
+    market_changes = kwargs.get("market")
+    if isinstance(market_changes, dict):
         args["market"] = market(**market_changes)
-    args.update(kwargs)
+    args.update({key: value for key, value in kwargs.items() if key != "market"})
     with pytest.raises(LiveSpotError, match=message):
         client.place_limit_order(**args)
     assert transport.calls == []
