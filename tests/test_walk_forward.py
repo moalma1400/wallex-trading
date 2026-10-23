@@ -54,3 +54,10 @@ def test_cli_writes_json_report(tmp_path):
     assert code == 0
     report=json.loads(output.read_text())
     assert report["aggregate"]["fold_count"] == 2
+
+
+def test_walk_forward_rejects_invalid_initial_cash_as_domain_error():
+    with pytest.raises(ValueError, match="initial_cash"):
+        run_walk_forward(rows(), **{**kwargs(), "initial_cash": "not-a-number"})
+    with pytest.raises(ValueError, match="initial_cash"):
+        run_walk_forward(rows(), **{**kwargs(), "initial_cash": "NaN"})
