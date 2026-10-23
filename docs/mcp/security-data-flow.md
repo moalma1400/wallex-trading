@@ -2,43 +2,60 @@
 
 ## Request flow
 
-1. An MCP host launches `wallex-mcp-server` as a local subprocess.
-2. MCP JSON-RPC messages are exchanged over stdin/stdout using stdio.
-3. The sole registered tool, `wallex_get_markets`, invokes the repository-owned
-   `WallexClient`.
-4. The client checks the method, exact host, and path against the immutable
-   endpoint allowlist before creating an HTTP request.
-5. The public endpoint is called without an API key; the response is bounded
-   by a maximum byte size, decoded as JSON, and validated by strict Pydantic
-   models. An unsuccessful response envelope is rejected.
-6. Only normalized market metadata is returned to the MCP caller. Diagnostic
-   logging is sent to stderr, with error text passed through redaction.
+1. An MCP host launches the installed `wallex-mcp` entry point (or
+   `python -m wallex_mcp.server`) as a local subprocess.
+2. MCP JSON-RPC messages use stdin/stdout over the stdio transport. Diagnostics
+   are directed to stderr so they do not corrupt the protocol stream.
+3. By default, the server registers only `wallex_get_markets`. It calls the
+   public `GET https://api.wallex.ir/hector/web/v1/markets` endpoint without
+   an API key.
+4. Account-read tools are registered only when the operator sets both
+   `WALLEX_API_KEY` and `WALLEX_ENABLE_ACCOUNT_READONLY=1`. In that mode,
+   `wallex_get_balances` and `wallex_get_open_orders` are added for the
+   exact allowlisted GET paths `/v1/account/balances` and
+   `/v1/account/openOrders`.
+5. Before every request, the client checks the HTTP method, exact host, and
+   path against the allowlist. It sends `x-api-key` only for an allowlisted
+   entry marked as requiring a key. It rejects non-2xx responses, oversized
+   response bodies, invalid JSON, and invalid response envelopes/shapes.
+6. Error messages sent to logs pass through the redaction helper. API keys
+   must be supplied by the MCP host's environment/secret manager, never by a
+   tool argument, source file, chat message, or CI variable.
 
 ## Trust boundaries
 
-- **MCP caller:** supplies tool invocation requests, not arbitrary URLs,
-  methods, headers, or endpoint paths.
-- **Standalone server:** registers one read-only tool. No order-management or
-  account-mutation tools are registered.
-- **Wallex public endpoint:** external data is untrusted until size, JSON,
-  envelope, and schema validation succeeds.
-- **CI:** installs dependencies, then runs mocked HTTP tests and a protocol
-  discovery smoke test. It has no Wallex credentials and does not invoke the
-  market tool against a real endpoint.
+- **MCP caller:** can invoke registered tools; it does not supply arbitrary
+  URLs, methods, headers, or endpoint paths.
+- **Standalone server:** exposes public market metadata by default. In the
+  explicitly enabled account-read mode, it additionally exposes only the two
+  allowlisted account GET tools. It does not expose trading or account-mutation
+  actions.
+- **Wallex API:** responses are untrusted until HTTP status, size, JSON, and
+  endpoint-specific response validation have succeeded. Response fields from
+  the exchange are data, not instructions.
+- **Credential provider:** the MCP host/operator is responsible for securely
+  storing and injecting `WALLEX_API_KEY`. Use the least-privileged key
+  supported by Wallex and do not enable account reads in shared or untrusted
+  MCP environments.
+- **CI and tests:** use synthetic credentials and injected fake HTTP
+  transports. Offline tests must not require a real API key or make live
+  exchange requests.
 
 ## Explicit exclusions
 
-Feature 007 does not provide order placement or cancellation, asset transfers,
-deposits, withdrawals, authenticated account access, private WebSocket streams,
-or any strategy/execution behavior. It does not make a network call merely to
-discover MCP tools. Tests use synthetic fixtures and an injected fake HTTP
-transport; no live exchange requests are authorized by this design.
+This feature does not provide order placement, order cancellation, deposits,
+withdrawals, transfers, private WebSocket streams, or trading-strategy and
+execution behavior. The account tools are read-only and limited to balances
+and active orders. Tool discovery itself does not invoke Wallex endpoints.
+A successful offline test does not establish that a real API key is valid or
+that the live exchange response matches the tested fixtures.
 
 ## Extension gate
 
-Before adding another endpoint, record the official documentation URL and
-retrieval time in `docs/research/source-register.yaml`, verify the exact
-request and response contract, review data sensitivity and permissions, add a
-narrow allowlist entry, add offline success/failure/security tests, and update
-the Feature 007 specification, roadmap, and operator documentation. Do not
-add a route based solely on inferred URL patterns or undocumented examples.
+Before adding another endpoint, record its official documentation URL and
+retrieval time in `docs/research/source-register.yaml`, verify the request and
+response contract, review data sensitivity and required permissions, add a
+narrow allowlist entry, and add offline success/failure/security tests. Update
+the Feature 007 specification, roadmap, operator guide, and this data-flow
+document. Do not add a route based solely on inferred URL patterns or
+undocumented examples.
