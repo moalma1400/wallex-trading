@@ -49,3 +49,8 @@ def test_mixed_symbols_and_intervals_are_flagged():
     assert report["status"]=="INVALID"
     assert any(x["code"]=="MIXED_SYMBOLS" for x in report["issues"])
     assert any(x["code"]=="MIXED_INTERVALS" for x in report["issues"])
+
+def test_empty_dataset_is_invalid_not_ok():
+    report=audit_candles([])
+    assert report["status"]=="INVALID"
+    assert any(issue["code"]=="NO_VALID_CANDLES" for issue in report["issues"])
