@@ -34,11 +34,12 @@ def run_paper_candle_strategy(
         raise PaperTradingError("entry/exit thresholds must be finite decimals") from exc
     if not entry.is_finite() or not exit_value.is_finite():
         raise PaperTradingError("entry/exit thresholds must be finite decimals")
-    candles = load_candles(rows)
+    raw_rows = list(rows)
+    candles = load_candles(raw_rows)
     if len(candles) < lookback_bars + 2:
         raise BacktestError("need at least lookback_bars + 2 candles")
     if any(isinstance(row, Mapping) and row.get("symbol") and str(row["symbol"]).strip().upper() != symbol
-           for row in rows):
+           for row in raw_rows):
         raise PaperTradingError("input candles contain a symbol that differs from --symbol")
 
     fills: list[dict[str, Any]] = []
