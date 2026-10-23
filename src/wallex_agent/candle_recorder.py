@@ -142,9 +142,17 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
     try:
         async with connector(WALLEX_WS_URL, open_timeout=15, close_timeout=5, ping_interval=20, ping_timeout=20, max_size=1_000_000) as websocket:
             await websocket.send(json.dumps(["subscribe", {"channel": f"{symbol}@trade"}]))
-            async for message in websocket:
-                if deadline is not None and now() >= deadline:
-                    break
+            while True:
+                if deadline is not None:
+                    remaining = deadline - now()
+                    if remaining <= 0:
+                        break
+                    try:
+                        message = await asyncio.wait_for(websocket.recv(), timeout=remaining)
+                    except asyncio.TimeoutError:
+                        break
+                else:
+                    message = await websocket.recv()
                 trade = parse_trade_message(message, symbol)
                 if trade is None:
                     writer.malformed += 1
