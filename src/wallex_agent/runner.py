@@ -110,7 +110,9 @@ def run_shadow(client: MarketReader, config: ScreenConfig, output_path: str | Pa
                 "markets_seen": len(rows),
                 "watch_candidates": sum(x.eligible for x in assessed),
                 "cost_edge_candidates": sum(x.get("cost_adjusted_momentum", {}).get("status") == "WATCH_EDGE" for x in output_assessments),
-                "assessments": output_assessments,\n                "ranked_opportunities": rank_cost_adjusted_opportunities(output_assessments),\n                "live_trading_enabled": False, "order_submission_attempted": False}
+                "assessments": output_assessments,
+                "ranked_opportunities": rank_cost_adjusted_opportunities(output_assessments),
+                "live_trading_enabled": False, "order_submission_attempted": False}
         except Exception as exc:
             payload = {"timestamp_utc": timestamp, "mode": "shadow", "cycle_status": "error",
                        "error_type": type(exc).__name__, "order_submission_attempted": False}
