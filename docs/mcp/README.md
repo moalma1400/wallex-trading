@@ -28,7 +28,7 @@ python -m pip install -e ".[test]"
 ## Run the server
 
 ```sh
-wallex-mcp-server
+wallex-mcp
 # or
 python -m wallex_mcp.server
 ```
@@ -37,6 +37,29 @@ The server speaks MCP over stdio. Configure the MCP host to launch the
 `wallex-mcp-server` executable (or `python -m wallex_mcp.server`) with the
 repository's virtual environment. Do not pipe unrelated output to stdout;
 protocol messages use stdout and diagnostics use stderr.
+
+## Opt-in authenticated read-only account tools
+
+The default server remains public-only. Two additional tools can be registered
+only when both of the following are true: an API key is available in the process
+environment and the operator explicitly sets the read-only opt-in flag.
+
+- `WALLEX_API_KEY`: API key stored in the MCP host's secret/environment manager.
+- `WALLEX_ENABLE_ACCOUNT_READONLY=1`: explicit opt-in to the two documented
+  account-read endpoints.
+
+When enabled, the MCP server registers `wallex_get_balances` and
+`wallex_get_open_orders`, using `GET /v1/account/balances` and
+`GET /v1/account/openOrders` on `api.wallex.ir`. These tools only read data;
+the implementation does not register any order placement, cancellation,
+transfer, deposit, or withdrawal action. If the key is missing, startup remains
+public-only. Use an API key with the minimum read-only permissions supported by
+Wallex. Do not put the key in source code, command history, chat, or CI logs.
+
+The official endpoint references are [main account balances](https://developers.wallex.ir/basicservices/mainaccountwallet)
+and [active orders](https://developers.wallex.ir/spot/activeorders). The open-orders
+response is validated for its documented success/result envelope and symbol-keyed
+arrays; fields inside each order are preserved rather than assumed.
 
 ## Offline validation
 
