@@ -29,7 +29,7 @@ def test_runner_warms_up_then_calculates_net_edge_and_persists_state(tmp_path:Pa
     assert rows[1]["cost_edge_candidates"]==1
     assert len(rows[1]["ranked_opportunities"]) == 1
     assert rows[1]["ranked_opportunities"][0]["symbol"] == "BTCUSDT"
-    assert rows[1]["ranked_opportunities"][0]["classification"] == "SHADOW_CANDIDATE"
+    assert rows[1]["ranked_opportunities"][0]["status"] == "SHADOW_CANDIDATE"
     assert rows[1]["live_trading_enabled"] is False
     assert rows[1]["order_submission_attempted"] is False
     # Restart safety: the persisted previous observation is available to a new store instance.
