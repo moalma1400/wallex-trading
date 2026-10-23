@@ -11,6 +11,7 @@ from wallex_mcp.execution_client import (
     ExecutionClientError,
     OrderOutcomeUnknown,
     MediatedExecutionClient,
+    OrderRiskEvidence,
     VerifiedExecutionToolContract,
 )
 from wallex_mcp.execution_policy import (
@@ -148,10 +149,10 @@ def test_order_intent_delegates_only_to_verified_mediation_tool():
         calls.append((name, arguments))
         return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
 
-    client = MediatedExecutionClient(policy, contract(), fake_invoke)
+    client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"))
     result = client.create_order(
-        client_id="cid-1", symbol="ABCTMN", side="BUY",
-        order_type="TEST-LIMIT", price="10.00", quantity="1.00", now=NOW,
+        client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
     )
     assert result["success"] is True
     assert len(calls) == 1
@@ -169,11 +170,11 @@ def test_mediated_order_timeout_is_ambiguous_and_never_retried():
         calls.append((name, arguments))
         raise TimeoutError("synthetic timeout")
 
-    client = MediatedExecutionClient(policy, contract(), fake_invoke)
+    client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"))
     with pytest.raises(OrderOutcomeUnknown, match="reconcile"):
         client.create_order(
-            client_id="cid-1", symbol="ABCTMN", side="BUY",
-            order_type="TEST-LIMIT", price="10", quantity="1", now=NOW,
+            client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
         )
     assert len(calls) == 1
 
@@ -186,7 +187,7 @@ def test_order_reconciliation_is_available_after_cutoff():
         calls.append((name, arguments))
         return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
 
-    client = MediatedExecutionClient(policy, contract(), fake_invoke)
+    client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
     result = client.get_order("cid-1")
     assert result["success"] is True
     assert calls[0][0] == "wallex.get_order"
@@ -195,3 +196,20 @@ def test_order_reconciliation_is_available_after_cutoff():
 def test_tool_name_is_validated():
     with pytest.raises(ExecutionClientError, match="place_order_tool"):
         contract(place_order_tool="https://untrusted.example")
+
+
+def test_blocked_risk_never_calls_execution_tool():
+    policy = LiveActivationPolicy.from_mapping(valid_policy_mapping())
+    calls = []
+
+    def fake_invoke(name, arguments):
+        calls.append((name, arguments))
+        return {"success": True, "result": {}}
+
+    client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs={"ABC/TMN"})
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"))
+    with pytest.raises(ExecutionClientError, match="blocked by deterministic policy"):
+        client.create_order(
+            client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
+        )
+    assert calls == []
