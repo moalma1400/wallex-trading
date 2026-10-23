@@ -29,6 +29,9 @@ def valid_policy_mapping():
     return {
         "challenge_id": "wallex-starcoach-agentic-ai-hackathon",
         "activation_record_id": "TEST-ONLY-NOT-A-LIVE-AUTHORIZATION",
+        "live_execution_enabled": True,
+        "owner_activation_confirmed": True,
+        "emergency_stop_active": False,
         "official_rules_url": "https://example.invalid/contest-rules",
         "rules_verified": True,
         "account_permissions_verified": True,
@@ -265,3 +268,18 @@ def test_unreconciled_account_state_blocks_before_tool_call():
     with pytest.raises(ExecutionClientError, match="account and order state must be reconciled"):
         client.create_order(client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW)
     assert calls == []
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("live_execution_enabled", False, "live_execution_enabled"),
+        ("owner_activation_confirmed", False, "owner_activation_confirmed"),
+        ("emergency_stop_active", True, "emergency_stop_active"),
+    ],
+)
+def test_activation_switches_fail_closed(field, value, message):
+    raw = valid_policy_mapping()
+    raw[field] = value
+    with pytest.raises(ExecutionPolicyError, match=message):
+        LiveActivationPolicy.from_mapping(raw)
