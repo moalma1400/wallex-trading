@@ -49,5 +49,5 @@ Use `wallex-walk-forward` to select the baseline parameters on chronological tra
 - No API key, balance, order, cancellation, or transfer endpoint is used.
 - Errors are logged by exception type only; API secrets/headers are not copied to the audit file.
 - The spread estimate uses the market metadata's fair bid/ask; this is not guaranteed to be an executable quote.
-- No backtest, walk-forward validation, websocket depth/trade feed, actual fee lookup, paper portfolio, fill reconciliation, or live risk-gate integration is complete yet.
+- Historical backtest and walk-forward research are offline tools. The separate SQLite paper broker is a local simulation only; it is not connected to the shadow runner and does not provide exchange fill reconciliation or live risk-gate integration.
 - This is not a proven profitable strategy. Live execution remains a separate future feature and must not be enabled by this runner.
