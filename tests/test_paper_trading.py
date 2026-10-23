@@ -53,3 +53,28 @@ def test_rejects_orders_that_break_guards(tmp_path, kwargs):
 def test_rejects_invalid_configuration(tmp_path):
     with pytest.raises(PaperTradingError):
         broker(tmp_path, max_daily_loss_percent="100")
+
+
+
+def test_rejects_reuse_of_event_id_for_different_order(tmp_path):
+    account = broker(tmp_path)
+    account.execute_market_order(event_id="stable-id", timestamp="2026-10-23T10:00:00Z",
+        symbol="BTC_USDT", side="buy", quantity="1", reference_price="100")
+    with pytest.raises(PaperTradingError, match="event_id already exists"):
+        account.execute_market_order(event_id="stable-id", timestamp="2026-10-23T10:00:00Z",
+            symbol="BTC_USDT", side="buy", quantity="2", reference_price="100")
+
+
+def test_daily_loss_guard_keeps_new_mark_and_blocks_retries(tmp_path):
+    account = broker(tmp_path)
+    account.execute_market_order(event_id="buy", timestamp="2026-10-23T10:00:00Z",
+        symbol="BTC_USDT", side="buy", quantity="1", reference_price="100")
+    with pytest.raises(PaperTradingError, match="max daily loss"):
+        account.execute_market_order(event_id="blocked", timestamp="2026-10-23T10:05:00Z",
+            symbol="BTC_USDT", side="buy", quantity="0.1", reference_price="40")
+    # The market mark from the rejected order is committed, so retrying at the
+    # same price cannot evade the risk check by rolling the price back.
+    assert account.snapshot()["positions"]["BTC_USDT"]["last_price"] == "40"
+    with pytest.raises(PaperTradingError, match="max daily loss"):
+        account.execute_market_order(event_id="blocked-retry", timestamp="2026-10-23T10:06:00Z",
+            symbol="BTC_USDT", side="buy", quantity="0.1", reference_price="40")
