@@ -56,7 +56,12 @@ def run_walk_forward(
     partitions = partition_walk_forward(len(candles), folds, train_size, test_size)
     if min(train_size, test_size) < max(lookback_grid) + 2:
         raise BacktestError("train_size and test_size must each be at least max(lookbacks) + 2")
-    initial = Decimal(str(initial_cash))
+    try:
+        initial = Decimal(str(initial_cash))
+    except Exception as exc:
+        raise BacktestError("initial_cash must be a finite positive decimal") from exc
+    if not initial.is_finite() or initial <= 0:
+        raise BacktestError("initial_cash must be a finite positive decimal")
     # Validate fixed costs once using the same configuration contract as backtest.
     base = dict(initial_cash=initial, fee_bps_per_side=fee_bps_per_side,
                 slippage_bps_per_side=slippage_bps_per_side, spread_bps_per_side=spread_bps_per_side)
