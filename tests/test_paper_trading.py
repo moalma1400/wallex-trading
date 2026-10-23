@@ -39,7 +39,6 @@ def test_duplicate_event_is_idempotent_after_restart(tmp_path):
 
 @pytest.mark.parametrize("kwargs", [
     {"side": "buy", "quantity": "1", "reference_price": "501", "message": "notional"},
-    {"side": "buy", "quantity": "100", "reference_price": "10", "message": "cash"},
     {"side": "sell", "quantity": "1", "reference_price": "10", "message": "position"},
     {"side": "buy", "quantity": "-1", "reference_price": "10", "message": "positive"},
 ])
@@ -114,3 +113,11 @@ def test_first_price_mark_of_new_day_cannot_hide_loss(tmp_path):
         account.execute_market_order(event_id="day-two", timestamp="2026-10-24T10:00:00Z",
             symbol="BTC_USDT", side="buy", quantity="0.1", reference_price="40")
     assert account.snapshot()["positions"]["BTC_USDT"]["last_price"] == "40"
+
+
+
+def test_rejects_buy_that_exceeds_virtual_cash_even_below_notional_cap(tmp_path):
+    account = broker(tmp_path, initial_cash="100")
+    with pytest.raises(PaperTradingError, match="insufficient virtual cash"):
+        account.execute_market_order(event_id="too-expensive", timestamp="2026-10-23T10:00:00Z",
+            symbol="BTC_USDT", side="buy", quantity="11", reference_price="10")
