@@ -40,3 +40,23 @@ Use a deterministic, unique `event_id` for each intended simulated order. Retryi
 ## Important limitations
 
 This is a deterministic research simulator, not a market-data service or complete trading system. The caller must provide timestamps, symbols, quantities and reference prices. It does not implement candle-based signal generation, automatic mark-to-market for all symbols, partial fills, order-book depth, queue priority, taxes, exchange-specific fee tiers, portfolio allocation, or reconciliation with Wallex. Daily loss checks use the stored position marks and the order's supplied reference price. Do not treat illustrative fee/slippage settings as official Wallex rates. No profitability is implied.
+
+## JSONL command-line mode
+
+The optional `wallex-paper` command accepts explicit simulated orders in a local JSONL file. Every non-empty line must be a JSON object with `event_id`, timezone-aware ISO-8601 `timestamp`, `symbol`, `side` (`buy` or `sell`), `quantity`, and `reference_price`.
+
+Example input:
+
+```json
+{"event_id":"demo-1","timestamp":"2026-10-23T10:00:00Z","symbol":"BTC_USDT","side":"buy","quantity":"0.001","reference_price":"100000"}
+```
+
+Run:
+
+```sh
+wallex-paper --input events.jsonl --db var/paper/paper.sqlite3 \
+  --initial-cash 1000000 --max-order-notional 100000 \
+  --fee-bps 10 --slippage-bps 20 --max-daily-loss-percent 3
+```
+
+All amounts and fee assumptions above are examples only. The ledger persists across runs; use a fresh database path for an independent experiment. This CLI replays only explicit order events: it does not derive strategy signals from candles or subscribe to market data.
