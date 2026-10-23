@@ -1,33 +1,11 @@
-"""Test suite for the standalone Wallex MCP server.
-
-All tests are fully offline: no real Wallex network traffic is performed.
-HTTP is mocked through an injectable transport hook on WallexClient, and
-the protocol-level tests run the actual MCP SDK server and client over
-in-memory stdio pipes.
-"""
+"""Test suite for the standalone Wallex MCP server."""
 
 from __future__ import annotations
 
-import asyncio
-import io
 import json
-import logging
-import os
-import re
-import sys
-from contextlib import asynccontextmanager
-from decimal import Decimal
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock
 
 import pytest
-
-from mcp.client.session import ClientSession
-from mcp.client.stdio import StdioServerParameters, stdio_client
-from mcp.server import MCPServer
-from mcp.server.stdio import stdio_server
-from mcp import types
 
 from wallex_mcp import (
     DEFAULT_ALLOWLIST,
@@ -61,17 +39,8 @@ STANDALONE_MARKETS = json.loads(
 )
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
 class FakeTransport:
-    """Minimal stand-in for an httpx.Client that returns canned responses.
-
-    The real Wallex client injects this via the ``transport=`` constructor
-    argument, so no real socket is ever opened during tests.
-    """
+    """Minimal stand-in for an httpx.Client that returns canned responses."""
 
     def __init__(self, responses, status_codes=None):
         self._responses = list(responses)
