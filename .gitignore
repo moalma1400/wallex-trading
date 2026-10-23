@@ -25,3 +25,8 @@ secrets/
 
 # Feature 003 local-only market data store/reports
 .local-market-data/
+# Generated Python package metadata
+*.egg-info/
+
+/dist/
+/build/
