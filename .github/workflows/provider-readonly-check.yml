@@ -1,0 +1,47 @@
+name: Provider read-only check
+
+# Manual only. Never runs on push or pull_request, so repository secrets are
+# never exposed to untrusted code or routine CI. Offline CI (ci.yml) remains
+# secret-free and network-free by design.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-readonly-check-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  readonly-check:
+    name: Read-only Wallex + CoinGecko check (Python 3.12)
+    # Same trusted-branch guard as the standalone Wallex MCP workflow.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src:.
+      # Used only by scripts/check_provider_connectivity.py:
+      # - COINGECKO_DEMO_API_KEY is sent solely as the x-cg-demo-api-key
+      #   header to documented read-only Demo endpoints.
+      # - WALLEX_API_KEY presence is reported as a boolean only; it is not
+      #   sent to the public markets endpoint and no account endpoint is
+      #   called. Values are never printed.
+      COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
+      WALLEX_API_KEY: ${{ secrets.WALLEX_API_KEY }}
+    steps:
+      - name: Check out default branch
+        uses: actions/checkout@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install project and test dependencies
+        run: python -m pip install -e ".[test]"
+      - name: Run offline test suite (mocked transports, no network)
+        run: python -m pytest -q
+      - name: Report secret configuration (booleans only, no network)
+        run: python scripts/check_provider_connectivity.py --config-only
+      - name: Read-only provider connectivity check
+        run: python scripts/check_provider_connectivity.py

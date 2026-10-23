@@ -1,0 +1,5 @@
+{"coin_id":"bitcoin","base":"BTC","quote":"USDT","price":"100.1000","timestamp":"2026-01-01T00:01:00Z","source":"synthetic_fixture_not_market_data"}
+{"coin_id":"bitcoin","base":"BTC","quote":"USDT","price":"103.1393","timestamp":"2026-01-01T00:06:00Z","source":"synthetic_fixture_not_market_data"}
+{"coin_id":"bitcoin","base":"BTC","quote":"USDT","price":"105.0031","timestamp":"2026-01-01T00:11:00Z","source":"synthetic_fixture_not_market_data"}
+{"coin_id":"bitcoin","base":"BTC","quote":"USDT","price":"101.8906","timestamp":"2026-01-01T00:16:00Z","source":"synthetic_fixture_not_market_data"}
+{"coin_id":"bitcoin","base":"BTC","quote":"USDT","price":"99.4672","timestamp":"2026-01-01T00:20:00Z","source":"synthetic_fixture_not_market_data"}

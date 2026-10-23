@@ -32,8 +32,21 @@ class CoinGeckoResponseError(CoinGeckoError):
     """Raised when an upstream response is invalid or too large."""
 
 
+# Secret environment-variable names per plan. Values are never logged,
+# included in error messages, or exposed via repr.
+DEMO_API_KEY_ENV = "COINGECKO_DEMO_API_KEY"
+PRO_API_KEY_ENV = "COINGECKO_PRO_API_KEY"
+LEGACY_API_KEY_ENV = "COINGECKO_API_KEY"
+
+
 class CoinGeckoClient:
-    """Client restricted to three documented, read-only endpoints."""
+    """Client restricted to documented, read-only endpoints.
+
+    The Demo plan uses base URL ``https://api.coingecko.com/api/v3`` and the
+    ``x-cg-demo-api-key`` header (header auth is recommended over query-string
+    keys). The key is read from ``COINGECKO_DEMO_API_KEY`` unless explicitly
+    passed; the legacy ``COINGECKO_API_KEY`` name remains a fallback.
+    """
 
     def __init__(
         self,
@@ -59,12 +72,32 @@ class CoinGeckoClient:
             raise ValueError("max_response_bytes must be positive")
 
         self.base_url = configured_url
-        self.api_key = api_key if api_key is not None else os.getenv(
-            "COINGECKO_API_KEY"
-        )
+        if api_key is not None:
+            resolved_key = api_key
+        elif configured_url == PRO_BASE_URL:
+            resolved_key = os.getenv(PRO_API_KEY_ENV) or os.getenv(
+                LEGACY_API_KEY_ENV
+            )
+        else:
+            resolved_key = os.getenv(DEMO_API_KEY_ENV) or os.getenv(
+                LEGACY_API_KEY_ENV
+            )
+        self.api_key = (resolved_key or "").strip() or None
         self.timeout_seconds = timeout_seconds
         self.max_response_bytes = max_response_bytes
         self.transport = transport
+
+    @property
+    def api_key_configured(self) -> bool:
+        """Whether a key is set; never reveals the key itself."""
+        return self.api_key is not None
+
+    def __repr__(self) -> str:
+        return (
+            f"CoinGeckoClient(base_url={self.base_url!r}, "
+            f"api_key_configured={self.api_key_configured}, "
+            f"timeout_seconds={self.timeout_seconds!r})"
+        )
 
     @staticmethod
     def _validate_ids(ids: str) -> list[str]:
@@ -88,7 +121,7 @@ class CoinGeckoClient:
 
     def _get(self, path: str, params: dict[str, Any]) -> Any:
         # Paths are internal constants, never user-supplied URLs.
-        if path not in {"/search", "/simple/price", "/coins/markets"}:
+        if path not in {"/ping", "/search", "/simple/price", "/coins/markets"}:
             raise CoinGeckoError("Endpoint is not allowlisted")
 
         headers = {"Accept": "application/json"}
@@ -112,8 +145,12 @@ class CoinGeckoClient:
                     params=params,
                     headers=headers,
                 ) as response:
-                    if response.status_code >= 400:
+                    if response.status_code == 429:
                         # Do not expose upstream bodies, headers, or credentials.
+                        raise CoinGeckoError(
+                            "CoinGecko returned HTTP 429 (rate limited)"
+                        )
+                    if response.status_code >= 400:
                         raise CoinGeckoError(
                             f"CoinGecko returned HTTP {response.status_code}"
                         )
@@ -128,6 +165,8 @@ class CoinGeckoClient:
                     content = bytes(body)
         except (CoinGeckoError, CoinGeckoResponseError):
             raise
+        except httpx.TimeoutException as exc:
+            raise CoinGeckoError("CoinGecko request timed out") from exc
         except httpx.HTTPError as exc:
             raise CoinGeckoError("CoinGecko request failed") from exc
 
@@ -141,6 +180,20 @@ class CoinGeckoClient:
         if not isinstance(payload, (dict, list)):
             raise CoinGeckoResponseError("Unexpected CoinGecko response type")
         return payload
+
+    def ping(self) -> dict[str, Any]:
+        """Check API server status via the documented GET /ping endpoint."""
+        payload = self._get("/ping", {})
+        if not isinstance(payload, dict) or not isinstance(
+            payload.get("gecko_says"), str
+        ):
+            raise CoinGeckoResponseError("Ping response has no status message")
+        return {
+            "provider": "coingecko",
+            "base_url": self.base_url,
+            "api_key_configured": self.api_key_configured,
+            "status_message_present": True,
+        }
 
     def search_coins(self, query: str) -> dict[str, Any]:
         query = query.strip()

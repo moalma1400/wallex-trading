@@ -25,6 +25,9 @@ secrets/
 
 # Feature 003 local-only market data store/reports
 .local-market-data/
+# Local paper-trading ledgers, recorded candles, and run reports
+var/
+*.sqlite3
 # Generated Python package metadata
 *.egg-info/
 

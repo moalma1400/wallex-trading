@@ -28,6 +28,7 @@ The project uses the official [GitHub Spec Kit](https://github.com/github/spec-k
 - [Independent shadow agent guide](docs/agent/README.md) — standalone continuous public-market screening; no order submission
 - [Historical backtest guide](docs/agent/BACKTEST.md) — offline next-bar baseline, explicit costs, equity/drawdown metrics and walk-forward partitions
 - [Public trade candle recorder](docs/agent/CANDLE-RECORDER.md) — forward-only public WebSocket capture into backtest-compatible OHLCV JSONL
+- [Candle dataset audit](docs/agent/DATA-AUDIT.md) — local checks for invalid OHLCV, duplicate/out-of-order timestamps, symbol/interval consistency and potential gaps
 - [Feature 008: autonomous contest agent](specs/008-autonomous-contest-agent/spec.md) — fail-closed activation policy, deterministic risk checks and mediated execution interface; runtime connection and live execution remain disabled
 - [Wallex/Starcoach challenge knowledge base](docs/knowledge-base/README.md) — rules, restrictions, judge reproduction and demo checklist
 - [Standalone MCP operator guide](docs/mcp/README.md) — server, client, stdio, offline tests, integration triggers

@@ -30,6 +30,11 @@ coingecko-mcp = "coingecko_mcp.server:main"
 wallex-agent = "wallex_agent.runner:main"
 wallex-backtest = "wallex_agent.backtest_cli:main"
 wallex-candle-recorder = "wallex_agent.candle_recorder:main"
+wallex-data-audit = "wallex_agent.data_quality_cli:main"
+wallex-walk-forward = "wallex_agent.walk_forward_cli:main"
+wallex-paper = "wallex_agent.paper_trading_cli:main"
+wallex-paper-candles = "wallex_agent.paper_candle_cli:main"
+wallex-reconcile = "wallex_agent.reconciliation_cli:main"
 
 [project.optional-dependencies]
 test = ["pytest==9.1.1"]

@@ -2832,6 +2832,79 @@
         "precise warning/liquidation values and units are not confidently readable",
         "screen does not resolve fees after displayed three-day-free wording, deficit liability, or settlement"
       ]
+    },
+    {
+      "official_domain": "docs.coingecko.com",
+      "retrieved_at_utc": "2026-10-23T15:57:51Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "research_status": "reviewed",
+      "source_id": "CG-DEMO-AUTH",
+      "title": "Authentication (Demo API) - CoinGecko API",
+      "url": "https://docs.coingecko.com/demo/reference/authentication",
+      "documentation_type": "API authentication reference",
+      "discovery_path": "https://docs.coingecko.com/llms.txt",
+      "topics": [
+        "CoinGecko Demo API",
+        "authentication",
+        "x-cg-demo-api-key header",
+        "Demo root URL",
+        "API key handling"
+      ],
+      "claims_summary": "Demo plan root URL is https://api.coingecko.com/api/v3/. The API key may be supplied via the recommended x-cg-demo-api-key header or the x_cg_demo_api_key query parameter; the page advises avoiding query-string keys in production and keeping the key in a backend. The example request is GET /ping. Each successful HTTP 200 request deducts one usage credit; quotas depend on plan.",
+      "confidence_and_evidence_notes": "Official CoinGecko API documentation page content was returned and inspected during the 2026-10-23 UTC session. No publisher date was exposed by the retrieved page. High for the documented contract statements summarized; not evidence of runtime availability, quota, or that any repository secret is valid. retrieved_at_utc records the UTC snapshot compilation time.",
+      "related_source_ids": [
+        "CG-PING",
+        "CG-SIMPLE-PRICE"
+      ]
+    },
+    {
+      "official_domain": "docs.coingecko.com",
+      "retrieved_at_utc": "2026-10-23T15:57:51Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "research_status": "reviewed",
+      "source_id": "CG-PING",
+      "title": "API Server Status - CoinGecko API",
+      "url": "https://docs.coingecko.com/demo/reference/ping-server",
+      "documentation_type": "API endpoint reference",
+      "discovery_path": "https://docs.coingecko.com/llms.txt",
+      "topics": [
+        "CoinGecko Demo API",
+        "GET /ping",
+        "server status"
+      ],
+      "claims_summary": "GET https://api.coingecko.com/api/v3/ping with the x-cg-demo-api-key header (documented as required on the page) returns a JSON object with a required string field gecko_says as the API server status message.",
+      "confidence_and_evidence_notes": "Official CoinGecko API documentation page content was returned and inspected during the 2026-10-23 UTC session. No publisher date was exposed by the retrieved page. High for the documented contract statements summarized; not evidence of runtime availability, quota, or that any repository secret is valid. retrieved_at_utc records the UTC snapshot compilation time.",
+      "related_source_ids": [
+        "CG-DEMO-AUTH",
+        "CG-SIMPLE-PRICE"
+      ]
+    },
+    {
+      "official_domain": "docs.coingecko.com",
+      "retrieved_at_utc": "2026-10-23T15:57:51Z",
+      "published_or_updated_at": null,
+      "currentness_classification": "unclear",
+      "research_status": "reviewed",
+      "source_id": "CG-SIMPLE-PRICE",
+      "title": "Coin Price by IDs, Symbols, or Names - CoinGecko API",
+      "url": "https://docs.coingecko.com/demo/reference/simple-price",
+      "documentation_type": "API endpoint reference",
+      "discovery_path": "https://docs.coingecko.com/llms.txt",
+      "topics": [
+        "CoinGecko Demo API",
+        "GET /simple/price",
+        "vs_currencies",
+        "last_updated_at",
+        "price freshness"
+      ],
+      "claims_summary": "GET /simple/price returns prices keyed by coin ID and target currency; vs_currencies is required. Optional include_last_updated_at adds a UNIX-seconds last_updated_at field for freshness checks, and the page states Demo/Keyless cache/update frequency is every 60 seconds. Lookup priority is ids over names over symbols.",
+      "confidence_and_evidence_notes": "Official CoinGecko API documentation page content was returned and inspected during the 2026-10-23 UTC session. No publisher date was exposed by the retrieved page. High for the documented contract statements summarized; not evidence of runtime availability, quota, or that any repository secret is valid. retrieved_at_utc records the UTC snapshot compilation time.",
+      "related_source_ids": [
+        "CG-DEMO-AUTH",
+        "CG-PING"
+      ]
     }
   ],
   "retrieval_time_note": "The page reader did not expose per-request timestamps. retrieved_at_utc is the exact UTC time at which this session compiled the retrieved-source snapshot; source content was fetched during this same UTC session. It is not represented as a per-request timestamp."

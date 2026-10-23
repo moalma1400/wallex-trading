@@ -73,11 +73,24 @@ class WallexClient:
         self._transport = transport
 
     def get_markets(self) -> MarketsResponseModel:
-        """Fetch and validate the public Spot markets list."""
+        """Fetch public markets and normalize Wallex's result.markets envelope."""
         response = self._request("GET", WALLEX_OFFICIAL_HOST, MARKETS_PATH)
-        model = MarketsResponseModel.model_validate(response)
-        if not model.success:
+        if response.get("success") is not True:
             raise WallexAPIError("Upstream markets response reported success=false")
+
+        # Current official docs return {success, message, result: {markets: []}}.
+        # Accept the earlier flat envelope as a backwards-compatible shape.
+        result = response.get("result")
+        if isinstance(result, dict) and isinstance(result.get("markets"), list):
+            normalized = {
+                "success": response.get("success"),
+                "message": response.get("message", ""),
+                "markets": result["markets"],
+            }
+        else:
+            normalized = response
+
+        model = MarketsResponseModel.model_validate(normalized)
         return model
 
     def get_balances(self) -> dict[str, Any]:
@@ -96,8 +109,6 @@ class WallexClient:
         result = response.get("result")
         if response.get("success") is not True or not isinstance(result, dict):
             raise WallexAPIError("Upstream open-orders response has an invalid success/result envelope")
-        # The documented API uses a symbol-keyed object of order arrays. Validate
-        # that broad shape without assuming undocumented fields within each order.
         if any(not isinstance(orders, list) for orders in result.values()):
             raise WallexAPIError("Upstream open-orders result must contain arrays of orders")
         return response
@@ -125,8 +136,7 @@ class WallexClient:
                 last_error = exc
                 if attempt >= self._max_retries:
                     raise WallexClientError(
-                        f"Request to {method} {host}{path} failed after "
-                        f"{self._max_retries + 1} attempts"
+                        f"Request to {method} {host}{path} failed after {self._max_retries + 1} attempts"
                     ) from exc
                 logger.debug(
                     "Retrying %s %s after %s",
@@ -161,8 +171,7 @@ class WallexClient:
         content = response.content
         if len(content) > self._max_response_bytes:
             raise ResponseTooLargeError(
-                f"Upstream response of {len(content)} bytes exceeds the limit of "
-                f"{self._max_response_bytes} bytes"
+                f"Upstream response of {len(content)} bytes exceeds the limit of {self._max_response_bytes} bytes"
             )
         return content
 
