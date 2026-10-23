@@ -121,3 +121,9 @@ def test_rejects_buy_that_exceeds_virtual_cash_even_below_notional_cap(tmp_path)
     with pytest.raises(PaperTradingError, match="insufficient virtual cash"):
         account.execute_market_order(event_id="too-expensive", timestamp="2026-10-23T10:00:00Z",
             symbol="BTC_USDT", side="buy", quantity="11", reference_price="10")
+
+
+def test_existing_ledger_rejects_changed_simulation_settings(tmp_path):
+    broker(tmp_path)
+    with pytest.raises(PaperTradingError, match="configuration mismatch"):
+        broker(tmp_path, fee_bps="11")
