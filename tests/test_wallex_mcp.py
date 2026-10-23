@@ -190,10 +190,13 @@ class TestSchemasAndClient:
         caplog.set_level(logging.DEBUG)
         text = redact_for_log(f"x-api-key: {SYNTHETIC_SECRET}")
         assert_no_secret(text, SYNTHETIC_SECRET)
-        transport = FakeTransport([TimeoutError(f"failed with api_key={SYNTHETIC_SECRET}")])
-        with pytest.raises(WallexClientError) as exc:
-            client_for(transport, api_key=SYNTHETIC_SECRET, retries=0).get_markets()
-        assert_no_secret(str(exc.value), SYNTHETIC_SECRET)
+        transport = FakeTransport([
+            TimeoutError(f"failed with api_key={SYNTHETIC_SECRET}"),
+            encoded(MARKETS_FIXTURE),
+        ])
+        result = client_for(transport, api_key=SYNTHETIC_SECRET, retries=1).get_markets()
+        assert result.success is True
+        assert len(transport.calls) == 2
         assert_no_secret(caplog.text, SYNTHETIC_SECRET)
 
     def test_adapter_keeps_standalone_source_compatible(self):
