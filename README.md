@@ -23,9 +23,11 @@ The project uses the official [GitHub Spec Kit](https://github.com/github/spec-k
 - [Feature 003: historical market data and quality](specs/003-historical-market-data/spec.md) — local-only import/audit/export; no network provider
 - [Feature 004: hackathon knowledge base and offline policy](specs/004-wallex-hackathon-policy/spec.md) — user-brief provenance, fail-closed controls; no live adapter
 - [Feature 005: Smart98-mediated public market data](specs/005-smart98-mediated-public-market-data/spec.md) — approved; Smart98-mediated adapter
-- [Feature 007: standalone Wallex MCP server](specs/007-standalone-wallex-mcp/spec.md) — approved; repo-owned MCP server, GitHub Actions stdio
+- [Feature 007: standalone Wallex MCP server](specs/007-standalone-wallex-mcp/spec.md) — public read-only MCP server, GitHub Actions stdio
+- [Feature 008: autonomous contest agent](specs/008-autonomous-contest-agent/spec.md) — fail-closed activation policy, deterministic risk checks and mediated execution interface; runtime connection and live execution remain disabled
 - [Wallex/Starcoach challenge knowledge base](docs/knowledge-base/README.md) — rules, restrictions, judge reproduction and demo checklist
 - [Standalone MCP operator guide](docs/mcp/README.md) — server, client, stdio, offline tests, integration triggers
+- [Execution boundary](docs/mcp/execution-boundary.md) — separate execution foundation, mediation requirements and live activation blockers
 - [Repository roadmap](specs/ROADMAP.md)
 - [Feature 003 quickstart](specs/003-historical-market-data/quickstart.md)
 - [Feature 002 quickstart](specs/002-offline-research-kernel/quickstart.md)
