@@ -1,116 +1,79 @@
-"""Fixed-contract order client for Feature 008.
+"""Mediated execution adapter for Feature 008.
 
-This module is not registered as an MCP tool by Feature 007. It is intended
-for a separately reviewed execution service. POST is never retried; a timeout
-means the order outcome is unknown and must be reconciled by client_id.
+This module never connects to Wallex or handles API keys. It invokes only
+explicitly verified tools through an injected MCP/Smart98 tool caller. Because
+the real Smart98/Wallex order-tool contract is not yet verified, no live
+tool names or invocation client are configured in this repository.
 """
 from __future__ import annotations
 
-import json
 import re
+from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Any, Optional
+from typing import Any, Callable, Mapping
 
-from .config import WALLEX_OFFICIAL_HOST
 from .execution_policy import ExecutionPolicyError, LiveActivationPolicy
 
 
-CREATE_ORDER_PATH = "/v1/account/orders"
-ORDER_DETAIL_PATH_PREFIX = "/v1/account/orders/"
-_CLIENT_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
-_SYMBOL_PATTERN = re.compile(r"^[A-Za-z0-9]{2,40}$")
+_TOOL_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,127}$")
+_CLIENT_ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+_SYMBOL = re.compile(r"^[A-Za-z0-9]{2,40}$")
 
 
 class ExecutionClientError(RuntimeError):
-    """Base error for fixed-contract order operations."""
+    """Base error for mediated execution operations."""
 
 
 class OrderOutcomeUnknown(ExecutionClientError):
-    """POST may have reached Wallex; reconcile by client ID before any retry."""
+    """The mediated order call may have succeeded; reconcile before resubmitting."""
 
 
-class WallexExecutionClient:
-    """Only documented create-order and order-detail routes; no arbitrary HTTP."""
+@dataclass(frozen=True)
+class VerifiedExecutionToolContract:
+    """Contract record required before the adapter can call any tool."""
+
+    place_order_tool: str
+    get_order_tool: str
+    source_url: str
+    version: str
+    verified: bool
+
+    def __post_init__(self) -> None:
+        if self.verified is not True:
+            raise ExecutionClientError("execution tool contract must be explicitly verified")
+        if not isinstance(self.source_url, str) or not self.source_url.startswith("https://"):
+            raise ExecutionClientError("execution tool contract requires an HTTPS source URL")
+        if not isinstance(self.version, str) or not self.version.strip():
+            raise ExecutionClientError("execution tool contract version is required")
+        for field, name in (
+            ("place_order_tool", self.place_order_tool),
+            ("get_order_tool", self.get_order_tool),
+        ):
+            if not isinstance(name, str) or not _TOOL_NAME.fullmatch(name):
+                raise ExecutionClientError(f"{field} is missing or invalid")
+
+
+class MediatedExecutionClient:
+    """Policy-check intents and delegate through a verified MCP tool contract.
+
+    The injected callable belongs to the verified Smart98/MCP integration.
+    No HTTP, URL, headers, API key, or direct Wallex fallback exists here.
+    """
 
     def __init__(
         self,
-        api_key: str,
         policy: LiveActivationPolicy,
-        *,
-        timeout_seconds: float = 10.0,
-        max_response_bytes: int = 1024 * 1024,
-        transport: Optional[Any] = None,
+        contract: VerifiedExecutionToolContract,
+        invoke_tool: Callable[[str, Mapping[str, Any]], Any],
     ) -> None:
-        if not api_key or not api_key.strip():
-            raise ExecutionClientError("API key is required")
-        if timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be positive")
-        if max_response_bytes <= 0:
-            raise ValueError("max_response_bytes must be positive")
-        self._max_response_bytes = max_response_bytes
-        self._api_key = api_key
+        if not callable(invoke_tool):
+            raise ExecutionClientError("a verified MCP tool invoker is required")
         self._policy = policy
-        self._timeout_seconds = timeout_seconds
-        self._transport = transport
-
-    def create_order(
-        self,
-        *,
-        client_id: str,
-        symbol: str,
-        side: str,
-        order_type: str,
-        price: str,
-        quantity: str,
-        now=None,
-    ) -> dict[str, Any]:
-        """Submit one order only after the policy's live window is active.
-
-        Risk validation must be completed by the caller before this method.
-        No automatic retry is performed. A transport exception is ambiguous.
-        """
-        self._policy.assert_live_window(now)
-        self._validate_identifier(client_id, _CLIENT_ID_PATTERN, "client_id")
-        self._validate_identifier(symbol, _SYMBOL_PATTERN, "symbol")
-        if side not in {"BUY", "SELL"}:
-            raise ExecutionClientError("side must be BUY or SELL")
-        if order_type not in self._policy.allowed_order_types:
-            raise ExecutionClientError("order type is not allowlisted by the reviewed policy")
-        price_value = self._positive_decimal(price, "price")
-        quantity_value = self._positive_decimal(quantity, "quantity")
-        payload = {
-            "client_id": client_id,
-            "price": format(price_value, "f"),
-            "quantity": format(quantity_value, "f"),
-            "side": side,
-            "symbol": symbol,
-            "type": order_type,
-        }
-        try:
-            response = self._request("POST", CREATE_ORDER_PATH, payload=payload)
-        except Exception:
-            # Even an HTTP error or malformed response can follow an accepted
-            # order; reconcile rather than issuing a second POST.
-            raise OrderOutcomeUnknown(
-                f"Order outcome unknown for client_id={client_id}; reconcile via order detail"
-            ) from None
-        if response.get("success") is not True or not isinstance(response.get("result"), dict):
-            raise OrderOutcomeUnknown(
-                f"Order outcome unknown for client_id={client_id}; reconcile via order detail"
-            )
-        return response
-
-    def get_order(self, client_id: str) -> dict[str, Any]:
-        """Read order details using the documented client-ID path."""
-        # Reconciliation must remain available after the challenge cutoff.
-        self._validate_identifier(client_id, _CLIENT_ID_PATTERN, "client_id")
-        response = self._request("GET", ORDER_DETAIL_PATH_PREFIX + client_id)
-        if response.get("success") is not True or not isinstance(response.get("result"), dict):
-            raise ExecutionClientError("Wallex order-detail response envelope is invalid")
-        return response
+        self._contract = contract
+        self._invoke_tool = invoke_tool
 
     @staticmethod
-    def _positive_decimal(value: str, field: str) -> Decimal:
+    def _positive_decimal(value: Any, field: str) -> Decimal:
         if isinstance(value, bool) or value is None:
             raise ExecutionClientError(f"{field} must be a positive decimal")
         try:
@@ -121,34 +84,57 @@ class WallexExecutionClient:
             raise ExecutionClientError(f"{field} must be a positive finite decimal")
         return parsed
 
-    @staticmethod
-    def _validate_identifier(value: str, pattern: re.Pattern[str], field: str) -> None:
-        if not isinstance(value, str) or not pattern.fullmatch(value):
-            raise ExecutionClientError(f"{field} has an invalid format")
-
-    def _request(self, method: str, path: str, *, payload: dict[str, Any] | None = None) -> dict[str, Any]:
-        transport = self._transport
-        if transport is None:
-            try:
-                import httpx
-            except ImportError as exc:  # pragma: no cover
-                raise ExecutionClientError("httpx is not installed") from exc
-            transport = httpx
-        headers = {"Accept": "application/json", "x-api-key": self._api_key}
-        if payload is not None:
-            headers["Content-Type"] = "application/json"
-        url = f"https://{WALLEX_OFFICIAL_HOST}{path}"
-        with transport.Client(timeout=self._timeout_seconds) as client:
-            response = client.request(method, url, headers=headers, json=payload)
-        if response.status_code >= 400:
-            raise ExecutionClientError(f"Wallex returned HTTP {response.status_code} for {method} {path}")
-        content = response.content
-        if len(content) > self._max_response_bytes:
-            raise ExecutionClientError("Wallex response exceeds configured size limit")
+    def create_order(
+        self,
+        *,
+        client_id: str,
+        symbol: str,
+        side: str,
+        order_type: str,
+        price: Any,
+        quantity: Any,
+        now=None,
+    ) -> dict[str, Any]:
+        """Delegate one validated order intent; never automatically retry."""
+        self._policy.assert_live_window(now)
+        if not isinstance(client_id, str) or not _CLIENT_ID.fullmatch(client_id):
+            raise ExecutionClientError("client_id has an invalid format")
+        if not isinstance(symbol, str) or not _SYMBOL.fullmatch(symbol):
+            raise ExecutionClientError("symbol has an invalid format")
+        if side not in {"BUY", "SELL"}:
+            raise ExecutionClientError("side must be BUY or SELL")
+        if order_type not in self._policy.allowed_order_types:
+            raise ExecutionClientError("order type is not allowlisted by the reviewed policy")
+        price_value = self._positive_decimal(price, "price")
+        quantity_value = self._positive_decimal(quantity, "quantity")
+        payload = {
+            "client_id": client_id,
+            "symbol": symbol,
+            "side": side,
+            "type": order_type,
+            "price": format(price_value, "f"),
+            "quantity": format(quantity_value, "f"),
+        }
         try:
-            decoded = json.loads(content.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise ExecutionClientError("Wallex response is not valid UTF-8 JSON") from exc
-        if not isinstance(decoded, dict):
-            raise ExecutionClientError("Wallex response must be a JSON object")
-        return decoded
+            result = self._invoke_tool(self._contract.place_order_tool, payload)
+        except Exception:
+            raise OrderOutcomeUnknown(
+                f"Order outcome unknown for client_id={client_id}; reconcile via the verified order-detail tool"
+            ) from None
+        if not isinstance(result, dict) or result.get("success") is not True or not isinstance(result.get("result"), dict):
+            raise OrderOutcomeUnknown(
+                f"Order outcome unknown for client_id={client_id}; reconcile via the verified order-detail tool"
+            )
+        return result
+
+    def get_order(self, client_id: str) -> dict[str, Any]:
+        """Reconcile an order by client ID; allowed after cutoff for recovery."""
+        if not isinstance(client_id, str) or not _CLIENT_ID.fullmatch(client_id):
+            raise ExecutionClientError("client_id has an invalid format")
+        try:
+            result = self._invoke_tool(self._contract.get_order_tool, {"client_id": client_id})
+        except Exception:
+            raise ExecutionClientError("Order reconciliation failed; do not submit a replacement order") from None
+        if not isinstance(result, dict) or result.get("success") is not True or not isinstance(result.get("result"), dict):
+            raise ExecutionClientError("Order reconciliation response is invalid; do not submit a replacement order")
+        return result
