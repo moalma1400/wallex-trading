@@ -320,7 +320,7 @@ def validate_order_intent(
         raise ExecutionPolicyError("order would exceed maximum asset exposure")
     if deployed + notional > policy.risk_limits.maximum_total_deployed_tmn:
         raise ExecutionPolicyError("order would exceed maximum total deployed capital")
-    estimated_cost = notional * total_cost_basis_points / Decimal("10000")
+    estimated_cost = notional * cost / Decimal("10000")
     if available < notional + estimated_cost:
         raise ExecutionPolicyError("verified available quote balance is insufficient for order and estimated cost")
     return notional
