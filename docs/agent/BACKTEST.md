@@ -2,6 +2,21 @@
 
 `wallex-backtest` evaluates a simple long-only threshold-momentum baseline on a user-supplied historical candle JSONL file. It is independent of Smart98 and never calls Wallex, accesses account data, or submits orders.
 
+## Gate on data quality before backtesting
+
+For recorder datasets, opt into the audit gate:
+
+```sh
+wallex-backtest --input data/BTCUSDT-60s.jsonl \
+  --audit-input-data --expected-symbol BTCUSDT --expected-interval-seconds 60 \
+  --initial-cash 1000 --lookback-bars 3 \
+  --fee-bps-per-side 5 --slippage-bps-per-side 2 \
+  --spread-bps-per-side 1 --audit-output reports/data-audit.json \
+  --output reports/backtest.json
+```
+
+The audit automatically reads the recorder's `INPUT.manifest.json` sidecar if one exists. An `INVALID` dataset is always blocked. A `REVIEW` dataset (for example, because of timestamp gaps or reconnect warnings) is blocked by default; inspect the report and pass `--allow-review-data` only after you understand the gaps. The backtest result records an audit summary. This gate does not prove feed completeness or make a questionable dataset reliable.
+
 ## Candle input
 
 One JSON object per line with UTC/offset-aware ISO-8601 `timestamp` and positive `open`, `high`, `low`, `close`, non-negative `volume`. Candles must be strictly chronological with unique timestamps. Naive timestamps, invalid OHLC relationships, and malformed data are rejected.
