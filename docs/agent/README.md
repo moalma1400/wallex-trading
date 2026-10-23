@@ -1,32 +1,45 @@
-# Independent Wallex Agent — Phase 1 Shadow Runner
+# Independent Wallex Agent — Shadow Runner
 
-The repository now has an independent, standalone market-screening loop. It runs without Smart98 and only reads public market metadata. It never places, changes, or cancels orders.
+The standalone `wallex-agent` command runs independently of Smart98. It reads only public market metadata, screens Spot markets, and appends auditable JSONL output. It **never places, changes, or cancels orders**.
 
 ## Install and run
 
-    python -m venv .venv
-    . .venv/bin/activate
-    python -m pip install -e ".[test]"
-    wallex-agent --quote-asset USDT --once
+```sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -e ".[test]"
+wallex-agent --quote-asset USDT --once
+```
 
-Replace USDT only with a verified quote asset relevant to the contest. It is an illustrative example, not a recommendation. Omit --once for continuous polling. Default interval is 60 seconds, bounded to 1–3600 seconds. No API key is needed because this phase reads public market metadata only.
+Replace USDT with a quote asset verified for the contest. Omit `--once` for continuous polling. Default interval is 60 seconds, bounded to 1–3600 seconds. No API key is needed for public market metadata.
 
-Set WALLEX_AGENT_QUOTE_ASSET to supply the quote asset via environment. Use --output PATH to choose the append-only JSONL audit path, --symbols BTCUSDT,ETHUSDT for an optional exact symbol filter, --maximum-spread-bps 80 for the spread threshold, and --minimum-change-24h-raw 0 for a raw change_24h threshold. No assumed unit conversion is applied to change_24h.
+Default output is `var/wallex-agent/shadow.jsonl`; SQLite price observations are persisted at `var/wallex-agent/observations.sqlite3`. Use `--output PATH` and `--state-db PATH` to change them. The state database contains public price observations only, not credentials or account information.
 
-## What the v1 screen does
+## Cost-adjusted momentum (optional)
 
-It screens active Spot markets by configured quote asset and optional exact symbol allowlist; requires valid positive bid/ask and current price; filters spreads above the configured cap; and lists candidates whose raw change_24h exceeds the threshold. Output statuses are WATCH or SKIP, not BUY or SELL recommendations. It cannot call the live order client.
+The base screen returns `WATCH` or `SKIP`, based on Spot status, quote asset, optional exact symbol allowlist, valid bid/ask and price, maximum spread, and the raw `change_24h` field. It does not infer the unit of `change_24h`.
 
-This is a deterministic screening baseline for instrumentation, not an established profitable strategy. It does not yet use depth snapshots, candles, WebSocket streams, actual account fees, slippage, order-book liquidity, contest rules, or portfolio state. Public market metadata alone is not an executable quote; do not use this watchlist alone to authorize a live order.
+To enable the additional *research-only* cost estimate, pass explicit per-side fee and slippage assumptions:
 
-## Runtime behavior
+```sh
+wallex-agent --quote-asset USDT \
+  --fee-bps-per-side 5 \
+  --slippage-bps-per-side 2 \
+  --minimum-net-edge-bps 1
+```
+
+Those numbers are examples only, **not verified Wallex fees or a recommended configuration**. Set values from the applicable official fee schedule and conservative evidence-based slippage estimates. Both fee and slippage must be supplied together; if omitted, output explicitly says `COST_MODEL_DISABLED`. No fee default is silently assumed.
+
+The model compares the previous persisted market price to the current public market price and subtracts the current quoted spread plus two-sided fee and slippage reserves. It reports `WATCH_EDGE`, `NET_EDGE_BELOW_COST`, `NON_POSITIVE_MOMENTUM`, `STALE_BASELINE`, or a data-quality status. The first observation is a warm-up only. The output is not a buy/sell recommendation and does not predict future returns. It does not model order-book depth, queue position, real fills, taxes, account-specific fee tiers, adverse selection, or contest rules.
+
+Options: `--minimum-change-24h-raw`, `--maximum-spread-bps`, `--symbols`, `--interval-seconds`, `--maximum-observation-gap-seconds`, `--output`, and `--state-db`. Fee and slippage can also be supplied through `WALLEX_AGENT_FEE_BPS_PER_SIDE` and `WALLEX_AGENT_SLIPPAGE_BPS_PER_SIDE`.
+
+## Safety and limitations
 
 - Smart98 is not a runtime dependency.
-- Only the public GET /hector/web/v1/markets path is used through the fixed-host Wallex read client.
-- Each cycle appends an audit record. Failures are recorded by exception type only.
-- Ctrl-C ends continuous shadow mode.
-- No API key, balances, order creation, cancellation, or transfer endpoints are used.
-
-## Next gates
-
-Before any live strategy, add verified time-series/depth/trade data, an evidence-backed fee model, historical replay and walk-forward tests, a paper portfolio and fill reconciliation, data-staleness/liquidity checks, drawdown and daily-loss limits connected to the runner, restart recovery, and separately reviewed integration tests. Existing live MCP tools are not wired into this runner.
+- Only the public `GET /hector/web/v1/markets` route is called through the repository-owned fixed-host read client.
+- No API key, balance, order, cancellation, or transfer endpoint is used.
+- Errors are logged by exception type only; API secrets/headers are not copied to the audit file.
+- The spread estimate uses the market metadata's fair bid/ask; this is not guaranteed to be an executable quote.
+- No backtest, walk-forward validation, websocket depth/trade feed, actual fee lookup, paper portfolio, fill reconciliation, or live risk-gate integration is complete yet.
+- This is not a proven profitable strategy. Live execution remains a separate future feature and must not be enabled by this runner.
