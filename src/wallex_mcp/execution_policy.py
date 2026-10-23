@@ -109,6 +109,7 @@ class LiveActivationPolicy:
     account_permissions_verified: bool
     allowed_markets_verified: bool
     risk_limits_verified: bool
+    fees_verified: bool
     compliance_review_status: str
     challenge_start_utc: datetime
     challenge_cutoff_utc: datetime
@@ -127,7 +128,7 @@ class LiveActivationPolicy:
         rules_url = raw.get("official_rules_url")
         if not isinstance(rules_url, str) or not rules_url.startswith("https://"):
             raise ExecutionPolicyError("official_rules_url must be an HTTPS URL")
-        for key in ("rules_verified", "account_permissions_verified", "allowed_markets_verified", "risk_limits_verified"):
+        for key in ("rules_verified", "account_permissions_verified", "allowed_markets_verified", "risk_limits_verified", "fees_verified"):
             if raw.get(key) is not True:
                 raise ExecutionPolicyError(f"{key} must be explicitly true")
         if raw.get("compliance_review_status") != "APPROVED":
@@ -166,6 +167,7 @@ class LiveActivationPolicy:
             account_permissions_verified=True,
             allowed_markets_verified=True,
             risk_limits_verified=True,
+            fees_verified=True,
             compliance_review_status="APPROVED",
             challenge_start_utc=start,
             challenge_cutoff_utc=cutoff,
@@ -228,6 +230,7 @@ def validate_order_intent(
     current_asset_exposure_tmn: Decimal,
     total_deployed_tmn: Decimal,
     available_quote_balance_tmn: Decimal,
+    available_base_quantity: Decimal,
     now: datetime | None = None,
 ) -> Decimal:
     """Return notional in TMN if allowed; otherwise raise a specific veto.
@@ -316,11 +319,17 @@ def validate_order_intent(
     available = _decimal(available_quote_balance_tmn, "available_quote_balance_tmn")
     if current_asset < 0 or deployed < 0 or available < 0:
         raise ExecutionPolicyError("exposure and available balance evidence must be nonnegative")
-    if current_asset + notional > policy.risk_limits.maximum_asset_exposure_tmn:
-        raise ExecutionPolicyError("order would exceed maximum asset exposure")
-    if deployed + notional > policy.risk_limits.maximum_total_deployed_tmn:
-        raise ExecutionPolicyError("order would exceed maximum total deployed capital")
+    base_available = _decimal(available_base_quantity, "available_base_quantity")
+    if base_available < 0:
+        raise ExecutionPolicyError("available base quantity must be nonnegative")
     estimated_cost = notional * cost / Decimal("10000")
-    if available < notional + estimated_cost:
-        raise ExecutionPolicyError("verified available quote balance is insufficient for order and estimated cost")
+    if intent.side == "BUY":
+        if current_asset + notional > policy.risk_limits.maximum_asset_exposure_tmn:
+            raise ExecutionPolicyError("order would exceed maximum asset exposure")
+        if deployed + notional > policy.risk_limits.maximum_total_deployed_tmn:
+            raise ExecutionPolicyError("order would exceed maximum total deployed capital")
+        if available < notional + estimated_cost:
+            raise ExecutionPolicyError("verified available quote balance is insufficient for order and estimated cost")
+    elif base_available < quantity:
+        raise ExecutionPolicyError("verified available base balance is insufficient for sell order")
     return notional
