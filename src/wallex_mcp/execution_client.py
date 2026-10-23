@@ -66,6 +66,9 @@ class OrderRiskEvidence:
     daily_loss_tmn: Decimal
     spread_basis_points: Decimal
     total_cost_basis_points: Decimal
+    current_asset_exposure_tmn: Decimal
+    total_deployed_tmn: Decimal
+    available_quote_balance_tmn: Decimal
 
 
 class MediatedExecutionClient:
@@ -114,6 +117,9 @@ class MediatedExecutionClient:
                 daily_loss_tmn=risk_evidence.daily_loss_tmn,
                 spread_basis_points=risk_evidence.spread_basis_points,
                 total_cost_basis_points=risk_evidence.total_cost_basis_points,
+                current_asset_exposure_tmn=risk_evidence.current_asset_exposure_tmn,
+                total_deployed_tmn=risk_evidence.total_deployed_tmn,
+                available_quote_balance_tmn=risk_evidence.available_quote_balance_tmn,
                 now=now,
             )
         except ExecutionPolicyError as exc:
