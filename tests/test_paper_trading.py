@@ -95,7 +95,7 @@ def test_paper_cli_processes_jsonl_and_persists_ledger(tmp_path, capsys):
     source.write_text(json.dumps({
         "event_id": "cli-1", "timestamp": "2026-10-23T10:00:00Z",
         "symbol": "BTC_USDT", "side": "buy", "quantity": "1", "reference_price": "100",
-    }) + "\\n", encoding="utf-8")
+    }) + "\n", encoding="utf-8")
     db = tmp_path / "cli.sqlite3"
     code = main(["--input", str(source), "--db", str(db), "--initial-cash", "1000",
                  "--max-order-notional", "500"])
