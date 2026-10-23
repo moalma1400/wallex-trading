@@ -42,6 +42,8 @@ def valid_policy_mapping():
         "allowed_order_types": ["TEST-LIMIT"],
         "risk_limits": {
             "maximum_order_notional_tmn": "100000",
+            "maximum_asset_exposure_tmn": "200000",
+            "maximum_total_deployed_tmn": "300000",
             "maximum_open_orders": 5,
             "maximum_orders_per_window": 10,
             "maximum_daily_loss_tmn": "20000",
@@ -107,6 +109,9 @@ def test_valid_order_intent_passes_offline_policy():
         daily_loss_tmn=Decimal("0"),
         spread_basis_points=Decimal("10"),
         total_cost_basis_points=Decimal("20"),
+        current_asset_exposure_tmn=Decimal("0"),
+        total_deployed_tmn=Decimal("0"),
+        available_quote_balance_tmn=Decimal("5000"),
         now=NOW,
     )
     assert notional == Decimal("1000")
@@ -133,6 +138,9 @@ def test_order_intent_fails_closed(intent_changes, disabled, match):
             daily_loss_tmn=Decimal("0"),
             spread_basis_points=Decimal("10"),
             total_cost_basis_points=Decimal("20"),
+            current_asset_exposure_tmn=Decimal("0"),
+            total_deployed_tmn=Decimal("0"),
+            available_quote_balance_tmn=Decimal("5000"),
             now=NOW,
         )
 
@@ -157,7 +165,7 @@ def test_order_intent_delegates_only_to_verified_mediation_tool():
         return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
 
     client = MediatedExecutionClient(policy, contract(), fake_invoke, disabled_pairs=set())
-    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"))
+    evidence = OrderRiskEvidence(0, 0, Decimal("0"), Decimal("10"), Decimal("20"), Decimal("0"), Decimal("0"), Decimal("5000"))
     result = client.create_order(
         client_id="cid-1", intent=valid_intent(), risk_evidence=evidence, now=NOW,
     )
