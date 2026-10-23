@@ -6,8 +6,7 @@ on:
       - main
   push:
     branches:
-      - main
-      - arena/post-merge-ci
+      - '**'
 
 permissions:
   contents: read
@@ -33,8 +32,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install test dependency
-        run: python -m pip install "pytest==9.1.1"
+      - name: Install project and test dependencies
+        run: python -m pip install -e ".[test]"
 
       - name: Validate source register
         run: python scripts/validate_sources.py
@@ -49,6 +48,19 @@ jobs:
         env:
           PYTHONPATH: src:.
         run: python -m pytest -v
+
+      - name: Build Python distributions
+        run: |
+          python -m pip install build
+          python -m build
+
+      - name: Upload Python distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: wallex-trading-python-distributions
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Check changed lines for whitespace errors
         env:

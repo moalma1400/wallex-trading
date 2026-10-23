@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wallex-trading"
+version = "0.7.0"
+description = "Official Wallex documentation, standalone MCP server, and independent shadow trading agent."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary — no license selected; all rights reserved." }
+authors = [{ name = "Wallex Trading Maintainers" }]
+keywords = ["wallex", "mcp", "model-context-protocol", "trading", "research"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Office/Business :: Financial",
+]
+dependencies = [
+    "mcp==2.3.0",
+    "pydantic>=2.12,<3",
+    "httpx>=0.27,<1",
+    "websockets>=13,<16",
+]
+
+[project.scripts]
+wallex-mcp = "wallex_mcp.server:main"
+coingecko-mcp = "coingecko_mcp.server:main"
+wallex-agent = "wallex_agent.runner:main"
+wallex-backtest = "wallex_agent.backtest_cli:main"
+wallex-candle-recorder = "wallex_agent.candle_recorder:main"
+wallex-data-audit = "wallex_agent.data_quality_cli:main"
+wallex-walk-forward = "wallex_agent.walk_forward_cli:main"
+wallex-paper = "wallex_agent.paper_trading_cli:main"
+wallex-paper-candles = "wallex_agent.paper_candle_cli:main"
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mcp_adapter*", "wallex_research*", "wallex_mcp*", "wallex_agent*", "coingecko_mcp*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]

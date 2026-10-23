@@ -31,3 +31,61 @@
 | D-016 | Spot order cancellation shows three distinct documented request forms: prose modern `DELETE /v1/account/orders/{client_id}`, generated `DELETE //api.wallex.com/v1/account/orders` with required JSON `clientOrderId` and documented `x-api-key` header, and legacy `DELETE /v1/account/orders?clientOrderId=...`. The generated host and body identifier differ from both other forms. | [SPOT-CANCEL](https://developers.wallex.ir/docs/spot-cancel-order) · [MOD-GENERATED-DELETE-ACCOUNT-ORDERS](https://developers.wallex.ir/docs/generated/delete-account-orders) · [LEGACY-API](https://api-docs.wallex.ir/) | Keep the prose, generated, and legacy contracts separate. The generated page is documentation evidence only; no route or authentication form is selected for use. | Which host, route, identifier, body/query form, and auth are canonical and currently supported? Are cancellation/fill race and partial-fill semantics documented elsewhere? |
 | D-017 | Depth numeric representation varies across the official materials reviewed: basic-service examples mix numeric `price`/`quantity` with string `sum`; generated pages show numbers; the Spot Swagger excerpts type depth fields as numbers. Canonicalizing to Decimal locally avoids binary floats but does not resolve source-wire representation or unit semantics. | [DEPTH](https://developers.wallex.ir/docs/basic-services-depth) · [MOD-GENERATED-GET-MARKET-DEPTH](https://developers.wallex.ir/docs/generated/get-market-depth) · [MOD-SPEC-SPOT](https://developers.wallex.ir/assets/files/spot-b9d06896d1009adc9ebc69b9a5495e7e.json) | Preserve each source/example separately; local import accepts exact decimal-compatible values but is not an exchange adapter or selected wire contract. | Are numeric values decimal strings or JSON numbers on each currently supported route, what are their units, and is `sum` required or derived? |
 | D-018 | Security annotations are inconsistent between generated market-data pages and the Basic Services/Spot Swagger excerpts. Generated pages for markets/trades/depth show `x-api-key`; the available specification excerpts have differing security declarations. The page reader is transformed, so no exhaustive path-level security comparison is claimed. | [MOD-GENERATED-GET-MARKETS](https://developers.wallex.ir/docs/generated/get-markets) · [MOD-GENERATED-GET-LATEST-TRADES](https://developers.wallex.ir/docs/generated/get-latest-trades) · [MOD-GENERATED-GET-MARKET-DEPTH](https://developers.wallex.ir/docs/generated/get-market-depth) · [MOD-SPEC-BASIC-SERVICES](https://developers.wallex.ir/assets/files/basic-services-89626420b5f06e4d7a2dc9206cdeb192.json) · [MOD-SPEC-SPOT](https://developers.wallex.ir/assets/files/spot-b9d06896d1009adc9ebc69b9a5495e7e.json) | Keep annotations attributed to their source and route. Do not assume public access, key requirement, entitlement, or authorization from examples or schema fragments. | What is the current per-route authentication/permission contract and is any public market-data read actually unauthenticated? |
+
+
+## Feature 008 order lifecycle caveat (2026-10-23)
+
+- The registered modern Spot documentation records order creation at [SPOT-CREATE](https://developers.wallex.ir/docs/spot-create-order) and order detail at [SPOT-DETAIL](https://developers.wallex.ir/docs/spot-single-order-detail); [SPOT-CANCEL](https://developers.wallex.ir/docs/spot-cancel-order) documents a DELETE route, but cancellation remains out of scope until its complete contract is reviewed.
+- The pages establish that documented routes exist in the documentation, not that this challenge account has permission to call them or that a Smart98/MCP tool with equivalent schema exists.
+- Exact order-type enum, full response envelope, client-ID uniqueness/idempotency guarantees, POST timeout semantics, fee asset, complete fee schedule, precision/step/minimum order constraints, rate limits, and reconciliation guarantees remain unresolved unless the exact source record states them explicitly.
+- The execution foundation therefore delegates only through a future verified MCP tool contract, does not directly call Wallex, does not retry an order-creation call, and requires reconciliation after an ambiguous result. No runtime tool contract is currently configured and no live order is enabled.
+
+## اختلاف‌های WebSocket عمومی و ضبط‌کننده کندل — 2026-10-23
+
+زمان تدوین این بخش: 2026-10-23 UTC. صفحات `SOCKET-INTRO`، `MOD-SOCKET-RAW-PROTOCOL`، `MOD-SOCKET-TRADE` و
+`SOCKET-MIGRATION` دوباره خوانده شدند و جزئیات در `source-register.yaml` با تاریخ‌های بازیابی قبلی حفظ شده است.
+برچسب‌ها: `documented` برای متن رسمی، `observed_2026-10-23` برای شواهد اجرا/بازیابی این pass، `unresolved` برای
+پرسش باز.
+
+| ID | موضوع و اختلاف | منابع رسمی | بهترین تفسیر مبتنی بر شواهد | آنچه نامعلوم است |
+|---|---|---|---|---|
+| D-019 | فریم v1 در مستندات «منطقی» است، اما انتقال آن Socket.IO/Engine.IO به‌نظر می‌رسد. صفحه رسمی `[\"subscribe\", { \"channel\": \"MARKET@trade\" }]` و پاسخ آرایه‌ای دو عضوی را برای `wss://api.wallex.ir/ws` نشان می‌دهد؛ همان مستندات می‌گویند اولین پیام پس از اتصال شیء `{sid, upgrades, pingInterval: 20000, pingTimeout: 30000, maxPayload}` است. | [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade) · [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration) | `documented`: فریم اشتراک و پوشش پیام v1 همان است که نوشته شده. `observed_2026-10-23`: فریم نخست این endpoint دقیقاً شکل handshake نسخه Engine.IO را دارد، پس ارسال آرایه خالی به‌عنوان text frame لزوماً یک پکت اشتراک Socket.IO نیست. نسخه ۲ (Centrifugo) با JSON ساده در `wss://api.wallex.ir/connection/websocket` این ابهام را ندارد و مستندات آن را برای پیاده‌سازی جدید توصیه می‌کند؛ بنابراین پروژه فقط v2 را پیاده کرده و v1 را منسوخ/بدون‌پشتیبانی محلی نگه می‌دارد. | `unresolved`: framing دقیق پکت‌های Socket.IO روی v1، اینکه آیا فریم خام بدون prefix پذیرفته می‌شود، تاریخ پایان پشتیبانی v1، و اینکه آیا صفحه رسمی «پروتکل خام v1» وجود دارد. نتیجه‌گیری «v1 کار نمی‌کند» مجاز نیست؛ فقط یک تلاش کلاینت خام مشاهده شده است. |
+| D-020 | ارجاع‌های مستندات ضبط‌کننده به مسیرهای قدیمی: کد قبلی `documentation_url` را `https://developers.wallex.ir/socket/trade` و `socket_documentation_url` را `https://developers.wallex.ir/socket` می‌نوشت، اما ثبت منابع از ابتدا صفحات `/docs/socket-trade` و `/docs/socket-intro` را نگه می‌داشت. | [LEGACY-SOCKET-TRADE-PATH](https://developers.wallex.ir/socket/trade) · [LEGACY-SOCKET-PATH](https://developers.wallex.ir/socket) · [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade) · [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) | `observed_2026-10-23`: هر دو مسیر قدیمی بدنه محلی «صفحه یافت نشد» برگرداندند؛ پس ارجاع کد کهنه بود. `documented`: مستند جاری همان صفحات `/docs/...` است. کد و مستندات ضبط‌کننده به مسیرهای جاری اصلاح شدند و مسیرهای قدیمی به‌عنوان منبع `inaccessible` ثبت شدند. | `unresolved`: وضعیت HTTP، مقصد redirect، تاریخ حذف/جابه‌جایی و اینکه آیا این مسیرها هرگز مستند خام v1 بوده‌اند. از یک مشاهده، ادعای deprecation استنتاج نمی‌شود. |
+| D-021 | تپش قلب v1 در مستندات «فریم استاندارد ping/pong وب‌سوکت» توصیف شده، اما handshake مشاهده‌شده `pingInterval: 20000` و `pingTimeout: 30000` (میلی‌ثانیه) را اعلام می‌کند و صفحه v2 تپش را شیء خالی `{}` هر ۲۵ ثانیه با پنجره ۸ ثانیه و کد قطع `3012` می‌داند. | [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration) · [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol) | `documented`: v1 از ping/pong استاندارد و v2 از شیء خالی استفاده می‌کند؛ عددهای ۲۰/۳۰ ثانیه در v1 با فیلدهای handshake هم‌خوان است. `observed_2026-10-23`: در v1 زمان‌بندی تپش در سطح Engine.IO اعلام می‌شود، نه در متن صفحه. ضبط‌کننده برای v2 شیء `{}` را echo می‌کند و ping سطح پروتکل وب‌سوکت نمی‌فرستد، چون هیچ صفحه رسمی پاسخ‌دادن سرور v2 به ping وب‌سوکت را تضمین نمی‌کند. | `unresolved`: اینکه سرور v2 به ping سطح وب‌سوکت هم پاسخ می‌دهد یا نه، و اینکه فاصله واقعی `{}` در اجرا ۲۵ ثانیه است یا نه. تا مشاهده زنده، ۶۰ ثانیه سکوت در ضبط‌کننده یک انتخاب پیاده‌سازی (`inferred`) است. |
+
+## D-022 — تعارض ظاهری «v1 در برابر v2» بین مسیرهای بازیابی — 2026-10-23 (پاس سوم)
+
+زمان بازیابی این پاس: `2026-10-23T13:46:00Z` (همان میزبان رسمی، همان روش خواننده صفحه، جلسه‌ی UTC جداگانه).
+
+**آنچه گزارش شد:** یک مسیر بازیابی مستقل از `https://developers.wallex.ir/docs/socket-trade` فقط محتوای نسخه ۱ را
+دید (`wss://api.wallex.ir/ws` و `["subscribe", {"channel": "MARKET@trade"}]`) و `docs/socket-intro` را هم «رفتار
+تپش نسخه ۱» خواند؛ در حالی که ثبت منابع این مخزن همان صفحه‌ها را مستند v2 می‌دانست. مسیر مستقل نتوانسته بود
+`/docs/socket-raw-protocol` و `/docs/socket-migration` را بازیابی کند.
+
+**آنچه در این پاس مشاهده شد:** هر چهار صفحه دوباره بازیابی شدند و این بار **هر دو بخش** `socket-trade` (chunk 0 و
+chunk 1، شامل chunk پایانی که پاس‌های قبلی نخوانده بودند) خوانده شد. ترتیب واقعی صفحه چنین است:
+
+1. `ورژن ۱ (منسوخ شده)` — `wss://api.wallex.ir/ws`، فریم `["subscribe", { "channel": "MARKET@trade" }]` و پاسخ آرایه‌ای
+   دو عضوی؛
+2. `ورژن ۲ (سنتریفیگو) با SDK` — `wss://api.wallex.ir/connection/websocket`، کانال `public:<SYMBOL>@trade`؛
+3. `ورژن ۲ (سنتریفیگو) بدون SDK` — `{ "id": 2, "subscribe": { "channel": "public:BTCTMN@trade" } }` و پاسخ خالی
+   `{ "id": 2, "subscribe": {} }`، سپس پوشش `push.pub.data`.
+
+`socket-intro` هم عمداً هر دو نسل را دارد: بدنه‌ی اصلی v2 (Centrifugo، آدرس، جدول کانال‌ها، تپش `{}` ۲۵ ثانیه/۸
+ثانیه) و سپس بخش `جزئیات ورژن ۱ (منسوخ شده)` با تپش ۲۰ ثانیه/۳۰ ثانیه، عمر ۳۰ دقیقه و سقف ۵۰ subscribe.
+
+| ID | موضوع | منابع | بهترین تفسیر | آنچه نامعلوم می‌ماند |
+|---|---|---|---|---|
+| D-022 | تعارض ظاهری محتوا بین مسیرهای بازیابی: یک مسیر فقط v1 دید، ثبت منابع v2 | [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade) · [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol) · [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration) | `documented` + `observed_2026-10-23T13:46Z`: هر صفحه هر دو نسل را مستند می‌کند و در `socket-trade` نسخه ۱ **اول** می‌آید؛ خواندن کوتاه/بریده‌شده صفحه فقط v1 را نشان می‌دهد. پس تعارض «محتوا» نیست، تعارض «دامنه‌ی خواندن» است. | `unresolved`: کدام نسل در runtime واقعاً سرو می‌شود؛ آیا صفحه بین دو بازیابی تغییر کرده است؛ چرا مسیر مستقل دو صفحه‌ی v2 را نگرفت (شبکه، robots، یا تفاوت ابزار). این‌ها با مشاهده‌ی زنده حل می‌شوند، نه با استدلال. |
+
+## D-023 — Handshake order inside one page: numbered steps versus the published sample — 2026-10-23
+
+`/docs/socket-raw-protocol` describes the v2 handshake as numbered steps: **step 1** is the `connect` command
+(«اولین دستور بعد از باز شدن سوکت باید `connect` باشد» — the first command after the socket opens must be `connect`),
+and **step 2** is `subscribe`, with its own acknowledgement. The page's complete Python and Go samples, however, send
+`{"id": 1, "connect": {}}` and then `{"id": 2, "subscribe": {...}}` back-to-back and never wait for, or even inspect,
+the connect reply.
+
+| ID | Subject | Sources | Best evidence-backed reading | What stays unknown |
+|---|---|---|---|---|
+| D-023 | The same page numbers connect → subscribe sequentially but its own sample sends both without waiting for the connect acknowledgement | [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol) | `documented`: the ordering (connect first, subscribe second) is explicit; the *wait* is not stated. Both behaviours are defensible, so the earlier implementation that batched the two frames was not a documented violation — it matched the sample. The recorder now implements the stricter reading (validate the connect reply, then subscribe) because it makes error attribution exact and prevents an unvalidated connection from reaching a "subscribed" state. | `unresolved`: whether the server rejects or silently accepts an early `subscribe`, and whether a connect reply is guaranteed before one arrives. Only a live session can decide this. |

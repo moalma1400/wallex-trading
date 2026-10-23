@@ -25,3 +25,14 @@ secrets/
 
 # Feature 003 local-only market data store/reports
 .local-market-data/
+# Generated Python package metadata
+*.egg-info/
+
+/dist/
+/build/
+
+# Forward-collected public market-data recordings (local diagnostic data; never commit).
+# Scoped to recorder outputs so other data/ artifacts (fixtures, reports) stay trackable.
+data/recordings/
+data/*.jsonl
+data/*.jsonl.manifest.json

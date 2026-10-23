@@ -6,7 +6,9 @@
 
 This private repository maintains a Persian-first, source-backed knowledge base about official Wallex trading/API documentation and an offline, strategy-neutral research kernel. Feature 001 remains an incomplete documentation research effort; Feature 002 adds only local data validation, deterministic replay/backtest calculations, explicit risk gates, and simulated paper-ledger mechanics over synthetic or user-supplied files. Neither feature implements a strategy, fetches data from Wallex/Smart98, connects to an account or live feed, calls production APIs, places/cancels orders, transfers assets, or provides individualized buy/sell recommendations. Feature 004 captures a user-provided Wallex/Starcoach hackathon brief as provenance-tagged knowledge and adds offline fail-closed eligibility/risk/settlement controls; it does not independently verify challenge policy or implement live execution.
 
-**Mandatory future integration boundary:** Any Wallex API or MCP access intended for the trading agent must be mediated through Smart98; the trading application must not connect directly to Wallex. The Smart98 role is supplied by project context, but its interface, MCP compatibility, authentication, tool catalog, and permissions remain unverified; no adapter or live access exists. See the [integration architecture and evidence checklist](docs/api/challenge-architecture.md#smart98-mediated-integration-research-documentation-only).
+Feature 005 adds a narrowly scoped Smart98-mediated adapter for public, read-only Spot market data. Feature 007 adds the repository-owned standalone MCP server, which runs independently of Smart98. The separate live-Spot feature branch adds opt-in, direct official-Wallex API-backed MCP tools for a bounded LIMIT-order workflow; live tools are absent by default and require explicit environment gates, an exact symbol allowlist, a quote asset, and a maximum notional. See the [standalone MCP operator guide](docs/mcp/README.md).
+
+**Integration boundary:** the trading strategy/application calls the repository-owned MCP tools; the MCP server is the only component in this integration that talks directly to the official Wallex API. Smart98 is optional and is not the execution runtime for this path. The legacy Feature 004 research/settlement module remains offline-only and is not silently switched to live execution. The standalone live-Spot changes are a proposed, unmerged feature branch until reviewed and validated.
 
 Documented capabilities do not prove that a feature is currently available at runtime, suitable or profitable, or permitted for every account or use. Fees, symbols, limits, access, and platform behavior can change; check the dated official sources before relying on any value. Official U.S. Treasury/OFAC materials in the research record also describe sanctions designation and potential non-U.S.-person exposure; this repository is not legal advice, and no use or transaction should proceed without independent, current legal/compliance review.
 
@@ -20,7 +22,17 @@ The project uses the official [GitHub Spec Kit](https://github.com/github/spec-k
 - [Feature 002: offline research kernel](specs/002-offline-research-kernel/spec.md) — initial offline slice delivered
 - [Feature 003: historical market data and quality](specs/003-historical-market-data/spec.md) — local-only import/audit/export; no network provider
 - [Feature 004: hackathon knowledge base and offline policy](specs/004-wallex-hackathon-policy/spec.md) — user-brief provenance, fail-closed controls; no live adapter
+- [Feature 005: Smart98-mediated public market data](specs/005-smart98-mediated-public-market-data/spec.md) — approved; Smart98-mediated adapter
+- [Feature 007: standalone Wallex MCP server](specs/007-standalone-wallex-mcp/spec.md) — public read-only MCP server, GitHub Actions stdio
+- [Standalone live Spot MCP guide](docs/mcp/README.md) — proposed opt-in live LIMIT-order tools, independent of Smart98
+- [Independent shadow agent guide](docs/agent/README.md) — standalone continuous public-market screening; no order submission
+- [Historical backtest guide](docs/agent/BACKTEST.md) — offline next-bar baseline, explicit costs, equity/drawdown metrics and walk-forward partitions
+- [Public trade candle recorder](docs/agent/CANDLE-RECORDER.md) — forward-only public WebSocket capture into backtest-compatible OHLCV JSONL
+- [Candle dataset audit](docs/agent/DATA-AUDIT.md) — local checks for invalid OHLCV, duplicate/out-of-order timestamps, symbol/interval consistency and potential gaps
+- [Feature 008: autonomous contest agent](specs/008-autonomous-contest-agent/spec.md) — fail-closed activation policy, deterministic risk checks and mediated execution interface; runtime connection and live execution remain disabled
 - [Wallex/Starcoach challenge knowledge base](docs/knowledge-base/README.md) — rules, restrictions, judge reproduction and demo checklist
+- [Standalone MCP operator guide](docs/mcp/README.md) — server, client, stdio, offline tests, integration triggers
+- [Execution boundary](docs/mcp/execution-boundary.md) — separate execution foundation, mediation requirements and live activation blockers
 - [Repository roadmap](specs/ROADMAP.md)
 - [Feature 003 quickstart](specs/003-historical-market-data/quickstart.md)
 - [Feature 002 quickstart](specs/002-offline-research-kernel/quickstart.md)
