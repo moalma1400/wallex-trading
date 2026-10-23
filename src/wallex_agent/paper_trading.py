@@ -1,7 +1,7 @@
 """Offline-only paper broker with SQLite persistence; never connects to an exchange."""
 from __future__ import annotations
 
-from datetime import date
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 import json
 from pathlib import Path
@@ -106,9 +106,12 @@ class PaperBroker:
         if not event_id or not symbol or side not in {"buy", "sell"}:
             raise PaperTradingError("event_id, symbol, and side=buy|sell are required")
         try:
-            day = date.fromisoformat(timestamp[:10]).isoformat()
-        except (ValueError, TypeError) as exc:
-            raise PaperTradingError("timestamp must start with an ISO date (YYYY-MM-DD)") from exc
+            parsed_timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            if parsed_timestamp.tzinfo is None or parsed_timestamp.utcoffset() is None:
+                raise ValueError("timezone is required")
+            day = parsed_timestamp.date().isoformat()
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise PaperTradingError("timestamp must be timezone-aware ISO-8601") from exc
         qty = _decimal(quantity, "quantity")
         reference = _decimal(reference_price, "reference_price")
         if qty <= 0 or reference <= 0:
