@@ -1,9 +1,9 @@
 # Standalone Wallex MCP operator guide
 
-Feature 007 exposes one repository-owned MCP tool, `wallex_get_markets`, over
-the Model Context Protocol stdio transport. It is independent of Smart98 at
-runtime. It currently supports only the verified public Spot market metadata
-endpoint:
+Feature 007 exposes a repository-owned MCP server over the Model Context Protocol
+stdio transport. It is independent of Smart98 at runtime. The default mode
+exposes `wallex_get_markets` for public Spot market metadata. Optional account
+read tools can be enabled explicitly as described below. The public endpoint is:
 
 - Method: `GET`
 - Host: `api.wallex.ir`
@@ -34,7 +34,7 @@ python -m wallex_mcp.server
 ```
 
 The server speaks MCP over stdio. Configure the MCP host to launch the
-`wallex-mcp-server` executable (or `python -m wallex_mcp.server`) with the
+`wallex-mcp` executable (or `python -m wallex_mcp.server`) with the
 repository's virtual environment. Do not pipe unrelated output to stdout;
 protocol messages use stdout and diagnostics use stderr.
 
