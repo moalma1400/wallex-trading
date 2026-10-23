@@ -50,7 +50,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         report = {"mode": "paper", "events_processed": len(results), "fills": results,
                   "account": broker.snapshot(), "live_trading_enabled": False,
                   "order_submission_attempted": False}
-        encoded = json.dumps(report, indent=2, ensure_ascii=False) + "\\n"
+        encoded = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
         if args.output:
             target = Path(args.output)
             target.parent.mkdir(parents=True, exist_ok=True)
