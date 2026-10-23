@@ -191,7 +191,6 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                         writer.reconnect_count += 1
                     writer._write_manifest("recording", last_error_type)
                     await websocket.send(json.dumps(["subscribe", {"channel": f"{symbol}@trade"}]))
-                    consecutive_failures = 0
                     pongs_this_connection = 0
                     while True:
                         if deadline is not None:
@@ -217,6 +216,7 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                             writer.malformed += 1
                             continue
                         timestamp, price, quantity = trade
+                        consecutive_failures = 0
                         next_candle = CandleAccumulator.from_trade(timestamp, price, quantity, interval_seconds)
                         if active is None:
                             active = next_candle
