@@ -40,19 +40,24 @@ class LiveSpotAPIError(LiveSpotError):
     """Wallex definitively returned a non-success HTTP response."""
 
 
-def _positive_decimal(value: Any, field_name: str) -> Decimal:
+def _decimal_value(value: Any, field_name: str, *, allow_zero: bool = False) -> Decimal:
     if not isinstance(value, (str, int, Decimal)) or isinstance(value, bool):
         raise LiveSpotError(f"{field_name} must be supplied as a decimal string")
     text = str(value)
     if not _DECIMAL.fullmatch(text):
-        raise LiveSpotError(f"{field_name} must be a plain positive decimal")
+        raise LiveSpotError(f"{field_name} must be a plain decimal")
     try:
         result = Decimal(text)
     except InvalidOperation as exc:
         raise LiveSpotError(f"{field_name} must be a valid decimal") from exc
-    if not result.is_finite() or result <= 0:
-        raise LiveSpotError(f"{field_name} must be greater than zero")
+    if not result.is_finite() or result < 0 or (result == 0 and not allow_zero):
+        qualifier = "non-negative" if allow_zero else "greater than zero"
+        raise LiveSpotError(f"{field_name} must be {qualifier}")
     return result
+
+
+def _positive_decimal(value: Any, field_name: str) -> Decimal:
+    return _decimal_value(value, field_name, allow_zero=False)
 
 
 @dataclass(frozen=True)
@@ -152,20 +157,9 @@ class LiveSpotClient:
         item = balances.get(asset)
         if not isinstance(item, Mapping):
             return Decimal("0")
-        try:
-            total = _positive_decimal(str(item.get("value", "0")), f"{asset} balance")
-        except LiveSpotError:
-            # A zero balance is valid; negative, non-finite or malformed values are not.
-            raw = str(item.get("value", "0"))
-            if raw == "0":
-                total = Decimal("0")
-            else:
-                raise
-        locked_raw = str(item.get("locked", "0"))
-        if not _DECIMAL.fullmatch(locked_raw) and locked_raw != "0":
-            raise LiveSpotError(f"{asset} locked balance is malformed")
-        locked = Decimal(locked_raw)
-        if not locked.is_finite() or locked < 0 or locked > total:
+        total = _decimal_value(str(item.get("value", "0")), f"{asset} balance", allow_zero=True)
+        locked = _decimal_value(str(item.get("locked", "0")), f"{asset} locked balance", allow_zero=True)
+        if locked > total:
             raise LiveSpotError(f"{asset} balance/locked amounts are inconsistent")
         return total - locked
 
