@@ -4,7 +4,7 @@ Feature 008 is a separate execution foundation. It does not broaden Feature 007'
 
 ## Implemented in this slice
 
-- A policy schema requiring explicit official-rule, dedicated-account, market-list, risk-limit and compliance evidence.
+- A policy schema requiring explicit one-time owner activation, emergency-stop-off state, official-rule, dedicated-account, market-list, fee, risk-limit and compliance evidence.
 - Explicit challenge start/cutoff timestamps, allowed Spot pairs, quote assets and verified order types.
 - Deterministic Decimal-based checks for market allowlist/disabled pairs, Spot-only status, verified precision/step/minimum constraints, fresh verified market data, reconciled account/order state, side-specific balance evidence, order-rate/open-order limits, daily loss, spread, total estimated cost, per-order notional, asset exposure and total deployed capital.
 - A mediated execution adapter that requires a separately verified tool contract, including tool names, source URL and version.
