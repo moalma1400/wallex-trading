@@ -168,7 +168,10 @@ class LiveActivationPolicy:
         )
 
     def assert_live_window(self, now: datetime | None = None) -> None:
-        instant = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        instant = now or datetime.now(timezone.utc)
+        if instant.tzinfo is None or instant.utcoffset() is None:
+            raise ExecutionPolicyError("current time must include timezone")
+        instant = instant.astimezone(timezone.utc)
         if not (self.challenge_start_utc <= instant < self.challenge_cutoff_utc):
             raise ExecutionPolicyError("live execution is outside the verified challenge window")
 
@@ -243,11 +246,11 @@ def validate_order_intent(
     age = (instant - observed.astimezone(timezone.utc)).total_seconds()
     if age < 0 or age > policy.risk_limits.maximum_market_data_age_seconds:
         raise ExecutionPolicyError("market metadata/data is stale or timestamp is in the future")
-    if isinstance(open_orders_count, bool) or open_orders_count < 0:
+    if isinstance(open_orders_count, bool) or not isinstance(open_orders_count, int) or open_orders_count < 0:
         raise ExecutionPolicyError("open_orders_count is invalid")
     if open_orders_count >= policy.risk_limits.maximum_open_orders:
         raise ExecutionPolicyError("maximum open-order count reached")
-    if isinstance(orders_in_window, bool) or orders_in_window < 0:
+    if isinstance(orders_in_window, bool) or not isinstance(orders_in_window, int) or orders_in_window < 0:
         raise ExecutionPolicyError("orders_in_window is invalid")
     if orders_in_window >= policy.risk_limits.maximum_orders_per_window:
         raise ExecutionPolicyError("maximum order rate reached")
