@@ -170,7 +170,7 @@ def test_paper_candle_cli_blocks_invalid_audited_dataset(tmp_path, capsys):
         "timestamp": "2026-10-23T10:00:00Z", "open": "10", "high": "9",
         "low": "11", "close": "10", "volume": "1",
         "symbol": "BTC_USDT", "interval_seconds": 60,
-    }) + "\\n", encoding="utf-8")
+    }) + "\n", encoding="utf-8")
     code = main([
         "--input", str(source), "--symbol", "BTC_USDT", "--db", str(tmp_path / "blocked.sqlite3"),
         "--initial-cash", "1000", "--max-order-notional", "100",
