@@ -1,18 +1,17 @@
-"""Offline-only tests for Feature 008 policy and order client."""
+"""Offline-only tests for Feature 008 activation and mediated execution."""
 from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timezone
 from decimal import Decimal
-from unittest.mock import MagicMock
-import json
 
 import pytest
 
 from wallex_mcp.execution_client import (
     ExecutionClientError,
     OrderOutcomeUnknown,
-    WallexExecutionClient,
+    MediatedExecutionClient,
+    VerifiedExecutionToolContract,
 )
 from wallex_mcp.execution_policy import (
     ExecutionPolicyError,
@@ -64,6 +63,18 @@ def valid_intent():
         market_observed_at=NOW,
         market_is_spot=True,
     )
+
+
+def contract(**changes):
+    values = {
+        "place_order_tool": "wallex.place_order",
+        "get_order_tool": "wallex.get_order",
+        "source_url": "https://example.invalid/verified-tool-contract",
+        "version": "test-contract-v1",
+        "verified": True,
+    }
+    values.update(changes)
+    return VerifiedExecutionToolContract(**values)
 
 
 def test_policy_requires_every_activation_gate():
@@ -124,63 +135,63 @@ def test_order_outside_challenge_window_is_blocked():
         policy.assert_live_window(datetime(2026, 10, 24, 0, 0, tzinfo=timezone.utc))
 
 
-class FakeTransport:
-    def __init__(self, payload=None, *, raise_on_request=False, status_code=200):
-        self.payload = payload or {"success": True, "result": {"clientOrderId": "cid-1"}}
-        self.raise_on_request = raise_on_request
-        self.status_code = status_code
-        self.calls = []
-
-    def Client(self, timeout=None):
-        return self
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        return False
-
-    def request(self, method, url, headers=None, json=None):
-        self.calls.append({"method": method, "url": url, "headers": dict(headers or {}), "json": json})
-        if self.raise_on_request:
-            raise TimeoutError("synthetic timeout")
-        response = MagicMock()
-        response.status_code = self.status_code
-        response.content = __import__("json").dumps(self.payload).encode("utf-8")
-        return response
+def test_unverified_tool_contract_is_rejected():
+    with pytest.raises(ExecutionClientError, match="explicitly verified"):
+        contract(verified=False)
 
 
-def test_post_is_not_retried_and_timeout_is_outcome_unknown():
+def test_order_intent_delegates_only_to_verified_mediation_tool():
     policy = LiveActivationPolicy.from_mapping(valid_policy_mapping())
-    transport = FakeTransport(raise_on_request=True)
-    client = WallexExecutionClient("SYNTHETIC-KEY", policy, transport=transport)
+    calls = []
+
+    def fake_invoke(name, arguments):
+        calls.append((name, arguments))
+        return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
+
+    client = MediatedExecutionClient(policy, contract(), fake_invoke)
+    result = client.create_order(
+        client_id="cid-1", symbol="ABCTMN", side="BUY",
+        order_type="TEST-LIMIT", price="10.00", quantity="1.00", now=NOW,
+    )
+    assert result["success"] is True
+    assert len(calls) == 1
+    assert calls[0][0] == "wallex.place_order"
+    assert calls[0][1]["price"] == "10"
+    assert "api_key" not in calls[0][1]
+    assert "x-api-key" not in calls[0][1]
+
+
+def test_mediated_order_timeout_is_ambiguous_and_never_retried():
+    policy = LiveActivationPolicy.from_mapping(valid_policy_mapping())
+    calls = []
+
+    def fake_invoke(name, arguments):
+        calls.append((name, arguments))
+        raise TimeoutError("synthetic timeout")
+
+    client = MediatedExecutionClient(policy, contract(), fake_invoke)
     with pytest.raises(OrderOutcomeUnknown, match="reconcile"):
         client.create_order(
             client_id="cid-1", symbol="ABCTMN", side="BUY",
             order_type="TEST-LIMIT", price="10", quantity="1", now=NOW,
         )
-    assert len(transport.calls) == 1
+    assert len(calls) == 1
 
 
-def test_create_order_uses_fixed_path_and_does_not_leak_key():
+def test_order_reconciliation_is_available_after_cutoff():
     policy = LiveActivationPolicy.from_mapping(valid_policy_mapping())
-    transport = FakeTransport()
-    client = WallexExecutionClient("SYNTHETIC-KEY", policy, transport=transport)
-    result = client.create_order(
-        client_id="cid-1", symbol="ABCTMN", side="BUY",
-        order_type="TEST-LIMIT", price="10", quantity="1", now=NOW,
-    )
+    calls = []
+
+    def fake_invoke(name, arguments):
+        calls.append((name, arguments))
+        return {"success": True, "result": {"clientOrderId": arguments["client_id"]}}
+
+    client = MediatedExecutionClient(policy, contract(), fake_invoke)
+    result = client.get_order("cid-1")
     assert result["success"] is True
-    assert len(transport.calls) == 1
-    assert transport.calls[0]["method"] == "POST"
-    assert transport.calls[0]["url"] == "https://api.wallex.ir/v1/account/orders"
-    assert transport.calls[0]["headers"]["x-api-key"] == "SYNTHETIC-KEY"
+    assert calls[0][0] == "wallex.get_order"
 
 
-def test_client_id_path_injection_is_rejected_before_request():
-    policy = LiveActivationPolicy.from_mapping(valid_policy_mapping())
-    transport = FakeTransport()
-    client = WallexExecutionClient("SYNTHETIC-KEY", policy, transport=transport)
-    with pytest.raises(ExecutionClientError, match="client_id"):
-        client.get_order("../other")
-    assert transport.calls == []
+def test_tool_name_is_validated():
+    with pytest.raises(ExecutionClientError, match="place_order_tool"):
+        contract(place_order_tool="https://untrusted.example")
