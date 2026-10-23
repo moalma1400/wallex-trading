@@ -52,7 +52,7 @@ def _properties(schema: Mapping[str, Any], tool_name: str) -> Mapping[str, Any]:
     missing = set(required) - set(properties)
     if missing:
         raise Smart98ContractVerificationError(
-            f"{tool_name}: required fields absent from properties: {", ".join(sorted(missing))}"
+            f"{tool_name}: required fields absent from properties: {', '.join(sorted(missing))}"
         )
     return properties
 
