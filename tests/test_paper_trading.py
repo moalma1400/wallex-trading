@@ -78,3 +78,29 @@ def test_daily_loss_guard_keeps_new_mark_and_blocks_retries(tmp_path):
     with pytest.raises(PaperTradingError, match="max daily loss"):
         account.execute_market_order(event_id="blocked-retry", timestamp="2026-10-23T10:06:00Z",
             symbol="BTC_USDT", side="buy", quantity="0.1", reference_price="40")
+
+
+def test_rejects_timestamp_without_timezone(tmp_path):
+    account = broker(tmp_path)
+    with pytest.raises(PaperTradingError, match="timezone-aware"):
+        account.execute_market_order(event_id="no-tz", timestamp="2026-10-23T10:00:00",
+            symbol="BTC_USDT", side="buy", quantity="1", reference_price="100")
+
+
+def test_paper_cli_processes_jsonl_and_persists_ledger(tmp_path, capsys):
+    import json
+    from wallex_agent.paper_trading_cli import main
+
+    source = tmp_path / "events.jsonl"
+    source.write_text(json.dumps({
+        "event_id": "cli-1", "timestamp": "2026-10-23T10:00:00Z",
+        "symbol": "BTC_USDT", "side": "buy", "quantity": "1", "reference_price": "100",
+    }) + "\\n", encoding="utf-8")
+    db = tmp_path / "cli.sqlite3"
+    code = main(["--input", str(source), "--db", str(db), "--initial-cash", "1000",
+                 "--max-order-notional", "500"])
+    assert code == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["events_processed"] == 1
+    assert report["live_trading_enabled"] is False
+    assert report["account"]["positions"]["BTC_USDT"]["units"] == "1"
