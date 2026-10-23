@@ -60,3 +60,17 @@ wallex-paper --input events.jsonl --db var/paper/paper.sqlite3 \
 ```
 
 All amounts and fee assumptions above are examples only. The ledger persists across runs; use a fresh database path for an independent experiment. This CLI replays only explicit order events: it does not derive strategy signals from candles or subscribe to market data.
+
+## Candle-driven strategy simulation
+
+The `wallex-paper-candles` command runs a simple long-only momentum rule on a local chronological OHLCV JSONL dataset and writes simulated fills to the persistent virtual ledger. It uses prior candle closes for signals and the next candle's open as the simulated execution reference.
+
+```sh
+wallex-paper-candles --input candles.jsonl --symbol BTC_USDT \
+  --db var/paper/btc-paper.sqlite3 --initial-cash 1000000 \
+  --max-order-notional 100000 --fee-bps 10 --slippage-bps 20 \
+  --lookback-bars 5 --entry-return-bps 20 --exit-return-bps 0 \
+  --max-daily-loss-percent 3 --output var/paper/report.json
+```
+
+The input should contain at least `lookback-bars + 2` valid, strictly chronological candles with `timestamp`, `open`, `high`, `low`, `close`, and `volume`. If rows include `symbol`, it must match `--symbol`. Use a fresh database for an independent run; a persistent ledger rejects changes to its original cash/cost/risk settings. The strategy is a small baseline for testing the paper pipeline, not a recommendation or evidence of profitability.
