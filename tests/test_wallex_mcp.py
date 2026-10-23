@@ -41,11 +41,7 @@ STANDALONE_MARKETS = json.loads(
 
 
 class FakeTransport:
-    """Minimal stand-in for an httpx.Client that returns canned responses.
-
-    The real Wallex client injects this via the ``transport=`` constructor
-    argument, so no real socket is ever opened during tests.
-    """
+    """Minimal stand-in for an httpx.Client that returns canned responses."""
 
     def __init__(self, responses, status_codes=None):
         self._responses = list(responses)
