@@ -231,6 +231,9 @@ class LiveSpotClient:
         response = self._request("GET", ORDER_DETAIL_PATH.format(client_id=quote(client_id, safe="")))
         if response.get("success") is not True or not isinstance(response.get("result"), dict):
             raise LiveSpotError("Order detail response did not contain success=true and an object result")
+        returned_id = response["result"].get("clientOrderId")
+        if returned_id is None or str(returned_id) != client_id:
+            raise LiveSpotError("Order detail response is missing the requested clientOrderId or returned a mismatch")
         return response
 
     def place_limit_order(
@@ -277,8 +280,10 @@ class LiveSpotClient:
             required_quote = notional * (Decimal("1") + Decimal(self._config.fee_buffer_bps) / Decimal("10000"))
             if required_quote > free_quote:
                 raise LiveSpotError("insufficient available quote balance after configured fee buffer")
-        elif qty > free_base:
-            raise LiveSpotError("insufficient available base-asset balance")
+        else:
+            required_base = qty * (Decimal("1") + Decimal(self._config.fee_buffer_bps) / Decimal("10000"))
+            if required_base > free_base:
+                raise LiveSpotError("insufficient available base-asset balance after configured fee reserve")
 
         effective_client_id = self._validate_client_id(client_id) if client_id else f"wallex-{uuid.uuid4().hex}"
         body = {
@@ -298,8 +303,8 @@ class LiveSpotClient:
             )
         order = response["result"]
         returned_id = order.get("clientOrderId")
-        if returned_id is not None and str(returned_id) != effective_client_id:
+        if returned_id is None or str(returned_id) != effective_client_id:
             raise OrderOutcomeUnknown(
-                f"Order response ID mismatch for client_id={effective_client_id}; reconcile before any retry"
+                f"Order response is missing or mismatches client_id={effective_client_id}; reconcile before any retry"
             )
         return response
