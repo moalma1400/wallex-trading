@@ -4,12 +4,11 @@ This module performs no arbitrary HTTP. Every request is validated
 against the endpoint allowlist before the request is attempted, and every
 response is validated against the documented schema.
 """
-
 from __future__ import annotations
 
 import json
 import logging
-from decimal import Decimal
+import time
 from typing import Any, Optional
 
 from .config import (
@@ -70,17 +69,14 @@ class WallexClient:
         self._api_key = api_key
         self._transport = transport
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
     def get_markets(self) -> MarketsResponseModel:
         """Fetch and validate the public Spot markets list."""
         response = self._request("GET", "api.wallex.ir", "/hector/web/v1/markets")
-        return MarketsResponseModel.model_validate(response)
+        model = MarketsResponseModel.model_validate(response)
+        if not model.success:
+            raise WallexAPIError("Upstream markets response reported success=false")
+        return model
 
-    # ------------------------------------------------------------------
-    # Internal request plumbing
-    # ------------------------------------------------------------------
     def _request(self, method: str, host: str, path: str) -> dict[str, Any]:
         if not self._allowlist.is_allowed(method, host, path):
             raise EndpointNotAllowedError(
@@ -88,12 +84,9 @@ class WallexClient:
             )
 
         headers = {"Accept": "application/json"}
-        requires_key = self._allowlist.requires_key(method, host, path)
-        if requires_key:
+        if self._allowlist.requires_key(method, host, path):
             if not self._api_key:
-                raise WallexClientError(
-                    "Endpoint requires an API key but none was provided"
-                )
+                raise WallexClientError("Endpoint requires an API key but none was provided")
             headers["x-api-key"] = self._api_key
 
         last_error: Optional[BaseException] = None
@@ -103,7 +96,7 @@ class WallexClient:
                 return self._decode(raw)
             except (WallexClientError, EndpointNotAllowedError, ResponseTooLargeError):
                 raise
-            except Exception as exc:  # network/timeout/transport errors
+            except Exception as exc:
                 last_error = exc
                 if attempt >= self._max_retries:
                     raise WallexClientError(
@@ -111,14 +104,14 @@ class WallexClient:
                         f"{self._max_retries + 1} attempts"
                     ) from exc
                 logger.debug(
-                    "Retrying %s %s after %s: %s",
+                    "Retrying %s %s after %s",
                     method,
                     redact_for_log(f"{host}{path}"),
-                    exc,
-                    redact_for_log(self._api_key) if self._api_key else None,
+                    redact_for_log(str(exc)),
                 )
+                if self._backoff_seconds:
+                    time.sleep(self._backoff_seconds * (2**attempt))
 
-        # Unreachable; kept for type-checkers and clarity.
         raise WallexClientError("Request failed without a recorded error") from last_error
 
     def _perform_request(self, method: str, host: str, path: str, headers: dict[str, str]) -> bytes:
@@ -126,7 +119,7 @@ class WallexClient:
         if transport is None:
             try:
                 import httpx  # type: ignore
-            except ImportError as exc:  # pragma: no cover - dependency is declared
+            except ImportError as exc:  # pragma: no cover
                 raise WallexClientError(
                     "No HTTP transport is available and httpx is not installed"
                 ) from exc
@@ -140,7 +133,6 @@ class WallexClient:
             raise WallexAPIError(
                 f"Upstream returned HTTP {response.status_code} for {method} {url}"
             )
-
         content = response.content
         if len(content) > self._max_response_bytes:
             raise ResponseTooLargeError(
