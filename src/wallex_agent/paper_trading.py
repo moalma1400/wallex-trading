@@ -68,11 +68,11 @@ class PaperBroker:
                 fee TEXT NOT NULL, cash_after TEXT NOT NULL, result_json TEXT NOT NULL)""")
             db.execute("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
             configured = {
-                "initial_cash": str(self.initial_cash),
-                "fee_bps": str(self.fee_bps),
-                "slippage_bps": str(self.slippage_bps),
-                "max_order_notional": str(self.max_order_notional),
-                "max_daily_loss_percent": str(self.max_daily_loss_percent),
+                "initial_cash": format(self.initial_cash.normalize(), "f"),
+                "fee_bps": format(self.fee_bps.normalize(), "f"),
+                "slippage_bps": format(self.slippage_bps.normalize(), "f"),
+                "max_order_notional": format(self.max_order_notional.normalize(), "f"),
+                "max_daily_loss_percent": format(self.max_daily_loss_percent.normalize(), "f"),
             }
             for key, value in configured.items():
                 saved = db.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
