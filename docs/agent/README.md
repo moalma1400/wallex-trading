@@ -42,6 +42,10 @@ When the explicit fee and slippage assumptions are supplied, each cycle also inc
 
 Use `wallex-walk-forward` to select the baseline parameters on chronological training blocks and evaluate on later disjoint test blocks. See [the walk-forward guide](WALK-FORWARD.md). It is offline research only and never submits orders.
 
+## Offline paper broker
+
+The independent `wallex-paper` CLI replays explicit JSONL order events into a persistent virtual ledger. It is not wired to the shadow runner and does not create signals from market data. See [Paper Trading](PAPER-TRADING.md).
+
 ## Safety and limitations
 
 - Smart98 is not a runtime dependency.
@@ -49,5 +53,5 @@ Use `wallex-walk-forward` to select the baseline parameters on chronological tra
 - No API key, balance, order, cancellation, or transfer endpoint is used.
 - Errors are logged by exception type only; API secrets/headers are not copied to the audit file.
 - The spread estimate uses the market metadata's fair bid/ask; this is not guaranteed to be an executable quote.
-- Historical backtest and walk-forward research are offline tools. The separate SQLite paper broker is a local simulation only; it is not connected to the shadow runner and does not provide exchange fill reconciliation or live risk-gate integration.
+- Historical backtest, walk-forward research, and the SQLite paper broker are offline tools. The paper broker is not connected to the shadow runner and does not provide exchange fill reconciliation or live risk-gate integration.
 - This is not a proven profitable strategy. Live execution remains a separate future feature and must not be enabled by this runner.
