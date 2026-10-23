@@ -141,6 +141,9 @@ def audit_candles(
                     "interpretation": "potential_gap_or_no_trades; verify before backtesting",
                 }
                 gaps.append(gap)
+                issues.append({"code": "POTENTIAL_TIMESTAMP_GAP", "line": record["line"],
+                               "severity": "warning", "elapsed_seconds": int(delta),
+                               "potential_missing_buckets": missing})
             # Keep the last processed timestamp as reference to detect actual file ordering.
         previous = record
 
