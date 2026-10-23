@@ -12,12 +12,16 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable, Mapping
 
-from .execution_policy import ExecutionPolicyError, LiveActivationPolicy
+from .execution_policy import (
+    ExecutionPolicyError,
+    LiveActivationPolicy,
+    OrderIntent,
+    validate_order_intent,
+)
 
 
 _TOOL_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,127}$")
 _CLIENT_ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
-_SYMBOL = re.compile(r"^[A-Za-z0-9]{2,40}$")
 
 
 class ExecutionClientError(RuntimeError):
@@ -53,6 +57,17 @@ class VerifiedExecutionToolContract:
                 raise ExecutionClientError(f"{field} is missing or invalid")
 
 
+@dataclass(frozen=True)
+class OrderRiskEvidence:
+    """Risk observations supplied by a verified, non-model-controlled adapter."""
+
+    open_orders_count: int
+    orders_in_window: int
+    daily_loss_tmn: Decimal
+    spread_basis_points: Decimal
+    total_cost_basis_points: Decimal
+
+
 class MediatedExecutionClient:
     """Policy-check intents and delegate through a verified MCP tool contract.
 
@@ -65,55 +80,55 @@ class MediatedExecutionClient:
         policy: LiveActivationPolicy,
         contract: VerifiedExecutionToolContract,
         invoke_tool: Callable[[str, Mapping[str, Any]], Any],
+        disabled_pairs: set[str] | frozenset[str],
     ) -> None:
         if not callable(invoke_tool):
             raise ExecutionClientError("a verified MCP tool invoker is required")
         self._policy = policy
         self._contract = contract
         self._invoke_tool = invoke_tool
+        self._disabled_pairs = frozenset(disabled_pairs)
 
     @staticmethod
-    def _positive_decimal(value: Any, field: str) -> Decimal:
-        if isinstance(value, bool) or value is None:
-            raise ExecutionClientError(f"{field} must be a positive decimal")
-        try:
-            parsed = Decimal(str(value))
-        except (InvalidOperation, ValueError, TypeError) as exc:
-            raise ExecutionClientError(f"{field} must be a positive decimal") from exc
-        if not parsed.is_finite() or parsed <= 0:
-            raise ExecutionClientError(f"{field} must be a positive finite decimal")
-        return parsed
+    def _validate_client_id(client_id: str) -> None:
+        if not isinstance(client_id, str) or not _CLIENT_ID.fullmatch(client_id):
+            raise ExecutionClientError("client_id has an invalid format")
 
     def create_order(
         self,
         *,
         client_id: str,
-        symbol: str,
-        side: str,
-        order_type: str,
-        price: Any,
-        quantity: Any,
+        intent: OrderIntent,
+        risk_evidence: OrderRiskEvidence,
         now=None,
     ) -> dict[str, Any]:
-        """Delegate one validated order intent; never automatically retry."""
-        self._policy.assert_live_window(now)
-        if not isinstance(client_id, str) or not _CLIENT_ID.fullmatch(client_id):
-            raise ExecutionClientError("client_id has an invalid format")
-        if not isinstance(symbol, str) or not _SYMBOL.fullmatch(symbol):
-            raise ExecutionClientError("symbol has an invalid format")
-        if side not in {"BUY", "SELL"}:
-            raise ExecutionClientError("side must be BUY or SELL")
-        if order_type not in self._policy.allowed_order_types:
-            raise ExecutionClientError("order type is not allowlisted by the reviewed policy")
-        price_value = self._positive_decimal(price, "price")
-        quantity_value = self._positive_decimal(quantity, "quantity")
+        """Validate policy/risk locally, then delegate once; never auto-retry."""
+        self._validate_client_id(client_id)
+        try:
+            notional = validate_order_intent(
+                intent,
+                self._policy,
+                self._disabled_pairs,
+                open_orders_count=risk_evidence.open_orders_count,
+                orders_in_window=risk_evidence.orders_in_window,
+                daily_loss_tmn=risk_evidence.daily_loss_tmn,
+                spread_basis_points=risk_evidence.spread_basis_points,
+                total_cost_basis_points=risk_evidence.total_cost_basis_points,
+                now=now,
+            )
+        except ExecutionPolicyError as exc:
+            raise ExecutionClientError(f"order blocked by deterministic policy: {exc}") from exc
+
         payload = {
             "client_id": client_id,
-            "symbol": symbol,
-            "side": side,
-            "type": order_type,
-            "price": format(price_value, "f"),
-            "quantity": format(quantity_value, "f"),
+            "symbol": intent.symbol,
+            "side": intent.side,
+            "type": intent.order_type,
+            "price": format(Decimal(str(intent.price)), "f"),
+            "quantity": format(Decimal(str(intent.quantity)), "f"),
+            "validated_notional_tmn": format(notional, "f"),
+            "policy_activation_record_id": self._policy.activation_record_id,
+            "execution_contract_version": self._contract.version,
         }
         try:
             result = self._invoke_tool(self._contract.place_order_tool, payload)
@@ -129,8 +144,7 @@ class MediatedExecutionClient:
 
     def get_order(self, client_id: str) -> dict[str, Any]:
         """Reconcile an order by client ID; allowed after cutoff for recovery."""
-        if not isinstance(client_id, str) or not _CLIENT_ID.fullmatch(client_id):
-            raise ExecutionClientError("client_id has an invalid format")
+        self._validate_client_id(client_id)
         try:
             result = self._invoke_tool(self._contract.get_order_tool, {"client_id": client_id})
         except Exception:
