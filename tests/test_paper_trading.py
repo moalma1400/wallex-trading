@@ -127,3 +127,35 @@ def test_existing_ledger_rejects_changed_simulation_settings(tmp_path):
     broker(tmp_path)
     with pytest.raises(PaperTradingError, match="configuration mismatch"):
         broker(tmp_path, fee_bps="11")
+
+
+def test_daily_loss_guard_still_allows_risk_reducing_sell(tmp_path):
+    account = broker(tmp_path)
+    account.execute_market_order(event_id="buy-before-loss", timestamp="2026-10-23T10:00:00Z",
+        symbol="BTC_USDT", side="buy", quantity="1", reference_price="100")
+    account.mark_price(timestamp="2026-10-23T10:05:00Z", symbol="BTC_USDT", price="40")
+    sold = account.execute_market_order(event_id="risk-reducing-sell", timestamp="2026-10-23T10:06:00Z",
+        symbol="BTC_USDT", side="sell", quantity="1", reference_price="40")
+    assert sold["side"] == "sell"
+    assert account.snapshot()["positions"] == {}
+
+
+def test_candle_strategy_generates_next_open_paper_fills(tmp_path):
+    from wallex_agent.paper_candle_strategy import run_paper_candle_strategy
+
+    prices = [100, 101, 102, 103, 101, 99, 98]
+    rows = []
+    for hour, price in enumerate(prices):
+        rows.append({
+            "timestamp": f"2026-10-23T{hour:02d}:00:00Z",
+            "open": str(price), "high": str(price + 1), "low": str(price - 1),
+            "close": str(price), "volume": "10", "symbol": "BTC_USDT",
+        })
+    account = PaperBroker(tmp_path / "strategy.sqlite3", initial_cash="1000",
+        fee_bps="0", slippage_bps="0", max_order_notional="1000",
+        max_daily_loss_percent="20")
+    report = run_paper_candle_strategy(account, rows, symbol="BTC_USDT",
+        lookback_bars=2, entry_return_bps="50", exit_return_bps="0")
+    assert [fill["side"] for fill in report["fills"]] == ["buy", "sell"]
+    assert report["order_submission_attempted"] is False
+    assert report["account"]["positions"] == {}
