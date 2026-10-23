@@ -63,9 +63,11 @@ def run_paper_candle_strategy(
                             "action": side or "hold"})
             if side == "buy":
                 cash = Decimal(account["cash"])
-                cost_rate = (broker.fee_bps + broker.slippage_bps) / Decimal("10000")
+                fee_rate = broker.fee_bps / Decimal("10000")
+                slippage_rate = broker.slippage_bps / Decimal("10000")
+                total_cost_factor = (Decimal("1") + slippage_rate) * (Decimal("1") + fee_rate)
                 quantity = min(
-                    cash / (candle.open * (Decimal("1") + cost_rate)),
+                    cash / (candle.open * total_cost_factor),
                     broker.max_order_notional / candle.open,
                 )
             elif side == "sell":
