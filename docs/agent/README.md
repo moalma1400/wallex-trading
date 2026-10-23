@@ -38,6 +38,10 @@ Options: `--minimum-change-24h-raw`, `--maximum-spread-bps`, `--symbols`, `--int
 
 When the explicit fee and slippage assumptions are supplied, each cycle also includes `ranked_opportunities`: eligible assessments with a `WATCH_EDGE` result, ordered by highest estimated net edge, then lowest spread, then symbol. The label is `SHADOW_CANDIDATE`, not a BUY instruction. Without cost assumptions the list remains empty. See [cost-aware opportunity ranking](OPPORTUNITY-RANKING.md).
 
+## Walk-forward evaluation
+
+Use `wallex-walk-forward` to select the baseline parameters on chronological training blocks and evaluate on later disjoint test blocks. See [the walk-forward guide](WALK-FORWARD.md). It is offline research only and never submits orders.
+
 ## Safety and limitations
 
 - Smart98 is not a runtime dependency.
