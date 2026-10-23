@@ -16,9 +16,11 @@
 | شاخه پایه | `main` |
 | SHA شاخه پایه | `6cddedb0f1bf5ced78587266094440ccd504e4e5` (مرج PR #27 در 2026-10-23T18:15:17Z) |
 | شاخه کاری | `feat/contest-trading-readiness` |
+| PR ارسالی | PR #28 (باز/open — **مرج نشده است**) |
 | وضعیت CI پایه | ✅ هر دو run «Validate repository (Python 3.12)» روی PR #27 موفق |
+| وضعیت CI شاخه | ✅ هر دو run «Validate repository (Python 3.12)» روی PR #28 موفق (جدا از اجرای sandbox) |
 
-CI روی `main` شامل: نصب وابستگی‌ها، `validate_sources.py`، `validate_doc_links.py`، `compileall`، کل مجموعه تست آفلاین، ساخت بسته (build)، و `git diff --check` است — همه موفق.
+CI روی `main` شامل: نصب وابستگی‌ها، `validate_sources.py`، `validate_doc_links.py`، `compileall`، کل مجموعه تست آفلاین، ساخت بسته (build)، و `git diff --check` است — همه موفق. CI شاخهی PR #28 مشابه است و مستقل از اجرای محلی sandbox در GitHub Actions اجرا شده است.
 
 ## 2. اتصال MCP (واقعی، این نشست)
 
@@ -30,7 +32,7 @@ CI روی `main` شامل: نصب وابستگی‌ها، `validate_sources.py`�
 | Wallex MCP | `wallex_basic_get_latest_trades` | ✅ آخرین معاملات با `isBuyOrder` و ISO-8601 |
 | CoinGecko MCP | `simple.price.get` | ✅ قیمت ۶ ارز + تغییر ۲۴ساعته + market cap + `last_updated_at` |
 
-هر دو MCP مستقل تأیید شدند؛ هیچ ابزار تغییردهنده‌ی وضعیت (سفارش، لغو، انتقال، برداشت) فراخوانده نشد.
+هر دو MCP مستقل تأیید شدند؛ هیچ ابزار تغییردهنده‌ی وضعیت (سفارش، لغو، انتقال، برداشت) فراخوانده نشد. اینها مشاهدات read-only هستند، نه اجرای معاملاتی.
 
 ## 3. قوانین رسمی مسابقه
 
@@ -52,7 +54,9 @@ CI روی `main` شامل: نصب وابستگی‌ها، `validate_sources.py`�
 
 شکاف واقعی ۱۰ ساعته در سری شمع USDTTMN مشاهده شد (که در پاسخ زنده‌ی API هم وجود دارد) — ابزار data-audit آن را به‌درستی REVIEW/گپ علامت زد و شبیه‌سازی فقط با زیرمجموعه‌ی پیوسته ادامه یافت.
 
-## 5. تست‌ها (اجرای محلی در sandbox)
+## 5. تست‌ها
+
+### 5.1 اجرای محلی (sandbox — محیط بازسازی‌شده، جدا از CI)
 
 دستور پایه: `PYTHONPATH=src:. python3 -m pytest tests/ -q`
 
@@ -68,11 +72,14 @@ CI روی `main` شامل: نصب وابستگی‌ها، `validate_sources.py`�
 | CoinGecko MCP | `test_coingecko_mcp.py` | ✅ ۱۶ تست |
 
 **مجموع: ۱۰۷ تست موفق / ۰ شکست** (پس از `compileall` و نصب وابستگی‌ها با mirror-PyPI).
-نتیجه‌ی کل CI روی `main` نیز مستقل تأیید شده است.
+
+### 5.2 CI شاخه (GitHub Actions — محیط جدا)
+
+CI روی PR #28 به‌صورت مستقل در GitHub Actions اجرا و تایید شد: هر دو run «Validate repository (Python 3.12)» → `success`. این اجرا جدا از ۱۰۷ تست محلی sandbox است؛ دو محیط متفاوت و هر دو موفق.
 
 ## 6. اجرای کاغذی با داده‌ی واقعی (PAPER)
 
-- **داده**: ۱۰ شمع ساعتی واقعی USDTTMN از Wallex MCP (2026-10-23T08:00Z تا 17:00Z)، تأیید کیفیت = `OK` (۰ خطا، ۰ گپ).
+- **داده**: ۱۰ شمع ساعتی **واقعی** USDTTMN از Wallex MCP (2026-10-23T08:00Z تا 17:00Z)، تأیید کیفیت = `OK` (۰ خطا، ۰ گپ). داده‌ی سنتزی جایی در این اجرا استفاده نشده است.
 - **دستور**: `python3 -m wallex_agent.paper_candle_cli --input ... --symbol USDTTMN --initial-cash 5000000 --fee-bps 5 --slippage-bps 5 --max-order-notional 1000000 --lookback-bars 3 --entry-return-bps 20 --exit-return-bps 0 --audit-input-data --expected-interval-seconds 3600`
 - **استراتژی (فقط برای اعتبارسنجی فنی)**: `long-only-threshold-momentum-next-open-v1` — سیگنال از closeهای قبل؛ اجرای مجازی در open شمع بعد.
 - **نتیجه**: ۶ سیگنال، همه HOLD (مومنتوم ۳ساعته منفی: از ۴.۶- تا ۱۴۳- bps؛ زیر آستانه‌ی ۲۰+ bps). **۰ پر شدن، ۰ سفارش**؛ موجودی مجازی ثابت: **۵,۰۰۰,۰۰۰ TMN**؛ `order_submission_attempted: false`؛ `live_trading_enabled: false`.
@@ -131,6 +138,6 @@ CI روی `main` شامل: نصب وابستگی‌ها، `validate_sources.py`�
 ## 15. جمع‌بندی
 
 - ✅ جمع‌آوری داده‌ی واقعی (Wallex + CoinGecko) و ذخیره/audit شمع.
-- ✅ پاس کامل ۱۰۷ تست آفلاین + CI سبز روی main.
+- ✅ ۱۰۷ تست آفلاین در sandbox (محیط بازسازی‌شده) + CI سبز روی main و PR #28 (مستقل).
 - ✅ اجرای کاغذی انتها-به-انتها با داده‌ی واقعی (۰ پر شدن صادقانه در بازار نزولی).
 - ⛔ فعال‌سازی live و مجوز بازار رسمی: **BLOCKED** — شواهد گلوگاه‌های بالا موردنیاز است.
