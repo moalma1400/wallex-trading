@@ -20,6 +20,15 @@ from .config import (
     MARKETS_PATH,
 )
 from .redaction import SYNTHETIC_SECRET, redact_for_log
+from .live_spot import (
+    LIVE_ACK_VALUE,
+    LiveSpotClient,
+    LiveSpotConfig,
+    LiveSpotConfigurationError,
+    LiveSpotError,
+    LiveSpotAPIError,
+    OrderOutcomeUnknown,
+)
 from .schemas import (
     FairPriceModel,
     MarketsResponseModel,
@@ -55,4 +64,11 @@ __all__ = [
     "ResponseTooLargeError",
     "redact_for_log",
     "SYNTHETIC_SECRET",
+    "LIVE_ACK_VALUE",
+    "LiveSpotClient",
+    "LiveSpotConfig",
+    "LiveSpotConfigurationError",
+    "LiveSpotError",
+    "LiveSpotAPIError",
+    "OrderOutcomeUnknown",
 ]
