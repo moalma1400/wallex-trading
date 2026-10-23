@@ -1,8 +1,7 @@
 """HTTP client restricted to explicitly allowlisted Wallex endpoints.
 
-This module performs no arbitrary HTTP. Every request is validated
-against the endpoint allowlist before the request is attempted, and every
-response is validated against the documented schema.
+Every request is validated against the endpoint allowlist before the
+request is attempted. Responses are bounded and validated before returning.
 """
 from __future__ import annotations
 
@@ -12,10 +11,14 @@ import time
 from typing import Any, Optional
 
 from .config import (
+    BALANCES_PATH,
     DEFAULT_BACKOFF_SECONDS,
     DEFAULT_MAX_RETRIES,
     DEFAULT_MAX_RESPONSE_BYTES,
     DEFAULT_TIMEOUT_SECONDS,
+    MARKETS_PATH,
+    OPEN_ORDERS_PATH,
+    WALLEX_OFFICIAL_HOST,
     EndpointAllowlist,
 )
 from .redaction import redact_for_log
@@ -41,7 +44,7 @@ class WallexAPIError(WallexClientError):
 
 
 class WallexClient:
-    """Minimal HTTP client for allowlisted, read-only Wallex endpoints."""
+    """Minimal HTTP client for explicitly allowlisted, read-only Wallex APIs."""
 
     def __init__(
         self,
@@ -71,11 +74,33 @@ class WallexClient:
 
     def get_markets(self) -> MarketsResponseModel:
         """Fetch and validate the public Spot markets list."""
-        response = self._request("GET", "api.wallex.ir", "/hector/web/v1/markets")
+        response = self._request("GET", WALLEX_OFFICIAL_HOST, MARKETS_PATH)
         model = MarketsResponseModel.model_validate(response)
         if not model.success:
             raise WallexAPIError("Upstream markets response reported success=false")
         return model
+
+    def get_balances(self) -> dict[str, Any]:
+        """Fetch main-account balances through the authenticated GET endpoint."""
+        response = self._request("GET", WALLEX_OFFICIAL_HOST, BALANCES_PATH)
+        result = response.get("result")
+        if response.get("success") is not True or not isinstance(result, dict):
+            raise WallexAPIError("Upstream balances response has an invalid success/result envelope")
+        if not isinstance(result.get("balances"), dict):
+            raise WallexAPIError("Upstream balances response is missing result.balances")
+        return response
+
+    def get_open_orders(self) -> dict[str, Any]:
+        """Fetch active orders through the authenticated GET endpoint."""
+        response = self._request("GET", WALLEX_OFFICIAL_HOST, OPEN_ORDERS_PATH)
+        result = response.get("result")
+        if response.get("success") is not True or not isinstance(result, dict):
+            raise WallexAPIError("Upstream open-orders response has an invalid success/result envelope")
+        # The documented API uses a symbol-keyed object of order arrays. Validate
+        # that broad shape without assuming undocumented fields within each order.
+        if any(not isinstance(orders, list) for orders in result.values()):
+            raise WallexAPIError("Upstream open-orders result must contain arrays of orders")
+        return response
 
     def _request(self, method: str, host: str, path: str) -> dict[str, Any]:
         if not self._allowlist.is_allowed(method, host, path):
