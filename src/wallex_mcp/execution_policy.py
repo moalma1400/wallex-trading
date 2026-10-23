@@ -104,6 +104,9 @@ class RiskLimits:
 class LiveActivationPolicy:
     challenge_id: str
     activation_record_id: str
+    live_execution_enabled: bool
+    owner_activation_confirmed: bool
+    emergency_stop_active: bool
     official_rules_url: str
     rules_verified: bool
     account_permissions_verified: bool
@@ -125,6 +128,12 @@ class LiveActivationPolicy:
         activation_id = raw.get("activation_record_id")
         if not isinstance(activation_id, str) or not activation_id.strip():
             raise ExecutionPolicyError("activation_record_id is required")
+        if raw.get("live_execution_enabled") is not True:
+            raise ExecutionPolicyError("live_execution_enabled must be explicitly true")
+        if raw.get("owner_activation_confirmed") is not True:
+            raise ExecutionPolicyError("owner_activation_confirmed must be explicitly true")
+        if raw.get("emergency_stop_active") is not False:
+            raise ExecutionPolicyError("emergency_stop_active must be explicitly false")
         rules_url = raw.get("official_rules_url")
         if not isinstance(rules_url, str) or not rules_url.startswith("https://"):
             raise ExecutionPolicyError("official_rules_url must be an HTTPS URL")
@@ -162,6 +171,9 @@ class LiveActivationPolicy:
         return cls(
             challenge_id=raw["challenge_id"],
             activation_record_id=activation_id.strip(),
+            live_execution_enabled=True,
+            owner_activation_confirmed=True,
+            emergency_stop_active=False,
             official_rules_url=rules_url,
             rules_verified=True,
             account_permissions_verified=True,
@@ -178,6 +190,10 @@ class LiveActivationPolicy:
         )
 
     def assert_live_window(self, now: datetime | None = None) -> None:
+        if not self.live_execution_enabled or not self.owner_activation_confirmed:
+            raise ExecutionPolicyError("live execution has not been explicitly activated")
+        if self.emergency_stop_active:
+            raise ExecutionPolicyError("emergency stop is active")
         instant = now or datetime.now(timezone.utc)
         if instant.tzinfo is None or instant.utcoffset() is None:
             raise ExecutionPolicyError("current time must include timezone")
