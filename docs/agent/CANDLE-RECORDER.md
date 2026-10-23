@@ -19,9 +19,9 @@ Evidence: [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw
 
 | Step | Frame | Meaning |
 | --- | --- | --- |
-| connect | client → `{"id": 1, "connect": {}}` | first command after the socket opens; no token is needed for public channels |
+| connect | client → `{"id": 1, "connect": {}}` | first command after the socket opens; no token is needed for public channels. Nothing else is sent until this reply is validated |
 | connect ack | server → `{"id": 1, "connect": {"client": "<uuid>", "ping": 25, "pong": true}}` | `ping` is the server heartbeat interval in seconds |
-| subscribe | client → `{"id": 2, "subscribe": {"channel": "public:<SYMBOL>@trade"}}` | one command per channel |
+| subscribe | client → `{"id": 2, "subscribe": {"channel": "public:<SYMBOL>@trade"}}` | one command per channel, sent only after an `id`-validated connect reply |
 | subscribe ack | server → `{"id": 2, "subscribe": {}}` | empty object: membership only, never a snapshot or a trade |
 | trade | server → `{"push": {"channel": "public:<SYMBOL>@trade", "pub": {"data": {...}}}}` | `data` carries `isBuyOrder`, `quantity`, `price`, `timestamp` |
 | heartbeat | server → `{}`; client → `{}` | the client must echo the empty object; 8 s without an answer closes with code `3012` |
@@ -31,7 +31,8 @@ Additional documented rules the implementation follows:
 
 - The endpoint path must be exactly `/connection/websocket`; a trailing slash returns 404.
 - One transport frame **may contain several newline-separated JSON messages**, so every frame is split before
-  classification.
+  classification — on `\n` only, exactly like the published sample. `U+2028` and other Unicode line separators are
+  legal *inside* a JSON string, so splitting on them (as `str.splitlines()` does) would cut one message in half.
 - Messages without an `id` that carry `push` are channel data; commands and acks carry an `id`.
 - Documented request errors: `102` unknown channel, `103` permission denied, `105` already subscribed, `106` limit
   exceeded (64 channels), `107` bad request, `108` not available, `109` token expired.
@@ -39,6 +40,23 @@ Additional documented rules the implementation follows:
   retried by this recorder.
 - Trade channels keep no history and have no `offset`/sequence number: a missed trade cannot be recovered and
   duplicates cannot be detected from the wire.
+
+### Handshake order: connect, validate, then subscribe
+
+The page numbers the sequence `connect` (step 1) and `subscribe` (step 2) and states that the first command after the
+socket opens must be `connect`. Its own full Python and Go samples, however, send both frames back-to-back without
+waiting for the connect reply. The recorder implements the stricter reading of the numbered steps:
+
+1. send `{"id": 1, "connect": {}}` and send nothing else;
+2. accept only a `{"id": 1, "connect": {...}}` carrying its own request id;
+3. send `{"id": 2, "subscribe": {...}}` only now, and accept only an `{"id": 2, "subscribe": {}}` for the request it
+   just sent;
+4. treat an error as a rejection only when its `id` is the command it answers; an error for another id is counted and
+   the connection stays open, as documented.
+
+A connection the server never accepted can therefore never reach `status: "subscribed"`, and a `subscribe` that was
+never sent can never be "acknowledged". The cost is one extra round trip (tens of milliseconds). This is a
+**stricter client choice, not a documented requirement**; the page-internal difference is recorded as `D-023`.
 
 ### Which page says what (retrieval conflict, resolved as page structure)
 
@@ -130,7 +148,7 @@ in place.
 | `server_error_frames_received`, `last_server_error`, `last_subscription_error_code`, `last_subscription_error_message` | documented error frames, without credentials |
 | `unknown_frames_ignored`, `legacy_v1_frames_ignored` | valid-but-unrecognized frames and deprecated v1 frames; **not** counted as malformed |
 | `server_ping_interval_seconds` | the `ping` value reported by the connect acknowledgement (documented as 25) |
-| `last_connection_error_type`, `last_connection_error_message`, `fatal_close_code` | most recent failure, truncated to 200 characters, no secrets |
+| `last_connection_error_type`, `last_connection_error_message`, `fatal_close_code` | most recent failure, truncated to 200 characters, no secrets; the close code is read from `ConnectionClosed.rcvd.code`, with the deprecated flat `.code` only as a fallback for test doubles |
 | `discarded_partial_candles` | unfinished candles dropped at a disconnect or at shutdown (one per restart) |
 | `subscription_acknowledged` | `true` once at least one **id-validated** subscribe acknowledgement arrived in this run; survives a later reconnect, while `subscription_status` describes only the current connection |
 | `live_trade_received` | convenience boolean: at least one valid trade event was accepted |
@@ -157,11 +175,15 @@ wallex-candle-recorder --symbol BTCTMN --interval-seconds 60 \
   intervals plus margin**: a candle is only finalized when the next interval produces a trade, so a 60-second capture
   with `--interval-seconds 60` can legitimately write nothing.
 - `--reconnect-backoff-seconds` (default 1, exponential up to 64 s) and `--max-reconnect-attempts` (default 10) bound
-  recovery. Documented fatal close codes (`>= 3500`) and a rejected subscription stop the run immediately.
+  recovery. Documented fatal close codes (`>= 3500`) and a rejected subscription stop the run immediately. The attempt
+  budget counts **consecutive failed setups** and is reset by a validated subscription acknowledgement, so a quiet
+  market whose connections keep working cannot exhaust it; a server that keeps accepting the subscription and then
+  dropping is retried indefinitely with capped backoff, and every gap is recorded in the manifest.
 - The documented heartbeat is the empty object `{}`, answered within 8 s. The client does not send WebSocket-protocol
   pings (no official page states that the v2 server answers them); instead, if **no** frame arrives for 60 s the
   connection is treated as dead and reconnected (`inferred` implementation choice, not a documented requirement).
-  Acknowledgement timeouts are 15 s.
+  Each acknowledgement phase has its own 15 s deadline (connect, then subscribe), so a slow connect reply cannot consume
+  the subscription's budget.
 - `Ctrl+C` discards the in-progress candle, finalizes the manifest and exits with status 130.
 
 Recordings are local diagnostic data and are not committed. Git ignores `data/recordings/`, `data/*.jsonl` and
@@ -178,7 +200,14 @@ The suite is offline: it drives a scripted fake WebSocket and uses the exact fra
 It covers handshake/ack/heartbeat/error/unknown/legacy classification, multi-message frames, malformed payloads, wrong
 symbol isolation, OHLCV aggregation and bucket alignment, finalization and partial-candle handling, late and duplicate
 trades, reconnect bounds, fatal close codes, subscription rejection, manifest finalization, downstream audit
-compatibility and CLI validation. **No deterministic test proves live behaviour.**
+compatibility and CLI validation.
+
+Handshake order is pinned by tests that prove: `subscribe` is **never sent** before a validated connect reply; a
+connect error or a wrong connect id cannot produce a subscription; a subscription acknowledgement is accepted only for
+the request that was actually sent; heartbeats and multi-message frames keep working around both acknowledgements; an
+error answering another command is not reported as a subscription rejection; a real `websockets`
+`ConnectionClosed` carrying a `3501` close is treated as fatal and never retried; and a subscribed session that drops
+without any trade does not exhaust the retry budget. **No deterministic test proves live behaviour.**
 
 ## Live verification status
 

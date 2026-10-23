@@ -375,6 +375,9 @@ def test_wrong_connect_ack_id_is_not_accepted_as_a_handshake(tmp_path):
                                   reconnect_backoff_seconds=0, max_reconnect_attempts=0,
                                   ack_timeout_seconds=0.05, clock=FakeClock()))
 
+    # Without a validated connect reply the subscribe command is never sent, so a
+    # wrong acknowledgement id can never leave the recorder subscribed.
+    assert sent_json(socket) == [{"id": 1, "connect": {}}]
     manifest = read_manifest(tmp_path)
     assert manifest["handshake_frames_received"] == 0
     assert manifest["subscription_ack_frames_received"] == 0
@@ -458,6 +461,166 @@ def test_cancellation_during_connection_setup_is_clean(tmp_path):
     assert manifest["connection_errors"] == 0
     assert socket.closed == 1
     assert not output.exists()
+
+
+# --------------------------------------------------------------------------
+# Handshake sequencing: connect -> validated connect ack -> subscribe -> ack
+# --------------------------------------------------------------------------
+def test_subscribe_is_not_sent_before_the_connect_acknowledgement(tmp_path):
+    """The documented first command is `connect`; `subscribe` waits for its reply."""
+    output = tmp_path / "candles.jsonl"
+    # Enough blocking frames that the ack deadline, not the script, ends the wait.
+    socket = FakeWebSocket([BLOCK] * 10)   # the connect command is never answered
+    with pytest.raises(RuntimeError, match="reconnect limit exceeded"):
+        asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                                  reconnect_backoff_seconds=0, max_reconnect_attempts=0,
+                                  ack_timeout_seconds=0.05, clock=FakeClock()))
+
+    assert sent_json(socket) == [{"id": 1, "connect": {}}]
+    manifest = read_manifest(tmp_path)
+    assert manifest["handshake_frames_received"] == 0
+    assert manifest["subscription_ack_frames_received"] == 0
+    assert manifest["subscription_status"] == "pending"
+    assert manifest["subscription_acknowledged"] is False
+    assert manifest["unknown_frames_ignored"] == 0
+    assert manifest["last_connection_error_type"] == "TimeoutError"
+    assert "connect acknowledgement" in manifest["last_connection_error_message"]
+    assert manifest["transport_frames_received"] == 0
+    assert socket.closed == 1
+
+
+def test_connect_error_cannot_result_in_a_successful_subscription(tmp_path):
+    """A rejected connect leaves the socket unusable: nothing is subscribed."""
+    output = tmp_path / "candles.jsonl"
+    socket = FakeWebSocket([error_frame(request_id=1, code=109, message="token expired")])
+    with pytest.raises(RuntimeError, match="reconnect limit exceeded"):
+        asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                                  reconnect_backoff_seconds=0, max_reconnect_attempts=0,
+                                  ack_timeout_seconds=0.05, clock=FakeClock()))
+
+    assert sent_json(socket) == [{"id": 1, "connect": {}}]
+    manifest = read_manifest(tmp_path)
+    assert manifest["subscription_status"] == "pending"
+    assert manifest["subscription_acknowledged"] is False
+    assert manifest["subscription_ack_frames_received"] == 0
+    assert manifest["last_server_error"] == {"code": 109, "message": "token expired",
+                                             "request_id": 1}
+    assert manifest["last_connection_error_type"] == "ConnectionError"
+    assert "rejected the connect command" in manifest["last_connection_error_message"]
+    assert manifest["status"] == "failed"
+    assert manifest["stop_reason"] == "reconnect_limit"
+
+
+def test_subscription_ack_before_the_connect_reply_is_not_accepted(tmp_path):
+    """An ack for a subscription we never sent is not evidence of membership."""
+    output = tmp_path / "candles.jsonl"
+    socket = FakeWebSocket([subscribe_ack(request_id=2), connect_reply(), STOP])
+    with pytest.raises(RuntimeError, match="reconnect limit exceeded"):
+        asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                                  reconnect_backoff_seconds=0, max_reconnect_attempts=0,
+                                  ack_timeout_seconds=0.05, clock=FakeClock()))
+
+    # connect first, then exactly one subscribe: the early ack changed nothing.
+    assert [command["id"] for command in sent_json(socket)] == [1, 2]
+    manifest = read_manifest(tmp_path)
+    assert manifest["handshake_frames_received"] == 1
+    assert manifest["subscription_ack_frames_received"] == 0
+    assert manifest["subscription_acknowledged"] is False
+    assert manifest["subscription_status"] == "pending"
+    assert manifest["unknown_frames_ignored"] == 1
+    assert manifest["last_connection_error_type"] == "TimeoutError"
+    assert "not the subscription" in manifest["last_connection_error_message"]
+
+
+def test_unrelated_error_before_the_subscription_ack_is_not_a_rejection(tmp_path):
+    """Documented errors answer one command by id; another id is not our rejection."""
+    output = tmp_path / "candles.jsonl"
+    socket = FakeWebSocket([
+        connect_reply(),
+        error_frame(request_id=7, code=106, message="limit exceeded"),
+        subscribe_ack(),
+        publication(price="100", quantity="1", timestamp="2026-10-23T10:00:01Z"),
+        publication(price="101", quantity="1", timestamp="2026-10-23T10:01:01Z"),
+        STOP,
+    ])
+    written = asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                                        max_runtime_seconds=1.0, reconnect_backoff_seconds=0,
+                                        clock=FakeClock(), ack_timeout_seconds=1.0))
+
+    manifest = read_manifest(tmp_path)
+    assert written == 1
+    assert manifest["server_error_frames_received"] == 1
+    assert manifest["last_server_error"]["request_id"] == 7
+    assert manifest["subscription_status"] == "acknowledged"
+    assert manifest["subscription_acknowledged"] is True
+    assert manifest["status"] == "stopped"
+    assert manifest["stop_reason"] == "runtime_limit"
+
+
+def test_heartbeat_and_multiple_messages_per_frame_work_around_the_acknowledgements(tmp_path):
+    """Heartbeats and newline-separated messages keep working before and after the acks."""
+    output = tmp_path / "candles.jsonl"
+    socket = FakeWebSocket([
+        "{}\n" + json.dumps(connect_reply()),
+        "{}\n" + json.dumps(subscribe_ack()),
+        json.dumps(publication(price="100", quantity="1", timestamp="2026-10-23T10:00:01Z"))
+        + "\n{}\n"
+        + json.dumps(publication(price="101", quantity="1", timestamp="2026-10-23T10:01:01Z")),
+        STOP,
+    ])
+    written = asyncio.run(record_trades(SYMBOL, 60, output, connector=connector_for(socket),
+                                        max_runtime_seconds=1.0, reconnect_backoff_seconds=0,
+                                        clock=FakeClock(), ack_timeout_seconds=1.0))
+
+    commands = sent_json(socket)
+    assert commands[0] == {"id": 1, "connect": {}}
+    assert commands[1] == {}
+    assert commands[2] == {"id": 2, "subscribe": {"channel": CHANNEL}}
+    assert socket.sent.count("{}") == 3
+    manifest = read_manifest(tmp_path)
+    assert written == 1
+    assert manifest["server_ping_frames_received"] == 3
+    assert manifest["server_pongs_sent"] == 3
+    assert manifest["subscription_status"] == "acknowledged"
+    assert manifest["status"] == "stopped"
+
+
+def test_a_subscribed_session_that_drops_without_trades_does_not_exhaust_the_budget(tmp_path):
+    """The budget bounds failed setups, not disconnects from a working subscription.
+
+    A quiet market would otherwise make the recorder give up while every connection
+    was in fact accepted; the manifest keeps counting the reconnects and the gaps.
+    """
+    output = tmp_path / "candles.jsonl"
+    sockets = [
+        FakeWebSocket([connect_reply(), subscribe_ack(), OSError("synthetic disconnect")]),
+        FakeWebSocket([connect_reply(), subscribe_ack(), OSError("synthetic disconnect")]),
+        FakeWebSocket([connect_reply(), subscribe_ack(), STOP]),
+    ]
+    written = asyncio.run(record_trades(SYMBOL, 60, output,
+                                        connector=connector_for(*sockets),
+                                        max_runtime_seconds=1.0, max_reconnect_attempts=1,
+                                        reconnect_backoff_seconds=0, clock=FakeClock(),
+                                        ack_timeout_seconds=1.0))
+
+    assert written == 0                     # no trade arrived: nothing is fabricated
+    manifest = read_manifest(tmp_path)
+    assert manifest["connection_count"] == 3
+    assert manifest["reconnect_count"] == 2
+    assert manifest["connection_errors"] == 2
+    assert manifest["gaps_possible_on_disconnect"] is True
+    assert manifest["status"] == "stopped"
+    assert manifest["stop_reason"] == "runtime_limit"
+
+
+def test_only_newlines_split_a_transport_frame():
+    """The documented sample splits on ``\n`` only; U+2028 stays inside the message."""
+    payload = json.dumps(publication(note="line\u2028break"), ensure_ascii=False)
+    parts = split_messages(payload)
+    assert len(parts) == 1
+    assert classify_server_message(parts[0]).kind == FRAME_PUBLICATION
+    # CRLF still arrives as two clean messages because every line is stripped.
+    assert split_messages('{"a": 1}\r\n{"b": 2}') == ['{"a": 1}', '{"b": 2}']
 
 
 # --------------------------------------------------------------------------
@@ -769,6 +932,30 @@ def test_reconnect_is_observable_and_discards_the_partial_candle(tmp_path):
     assert manifest["status"] == "stopped"
     # Both connections were closed through their context manager, not leaked.
     assert first.closed == 1 and second.closed == 1
+
+
+def test_a_real_websockets_close_object_is_recognised_as_fatal(tmp_path):
+    """The fatal-close check must work with the library's own exception shape.
+
+    ``websockets`` exposes the received code on ``ConnectionClosed.rcvd.code``;
+    the flat ``.code`` attribute is deprecated, so the recorder is tested against
+    the real object rather than only against the local test double.
+    """
+    from websockets.exceptions import ConnectionClosed
+    from websockets.frames import Close
+
+    output = tmp_path / "candles.jsonl"
+    closed = ConnectionClosed(rcvd=Close(3501, "invalid frame"), sent=None)
+    connector = connector_for(FakeWebSocket([connect_reply(), subscribe_ack(), closed]))
+    with pytest.raises(RecorderProtocolError, match="3501"):
+        asyncio.run(record_trades(SYMBOL, 60, output, connector=connector,
+                                  max_runtime_seconds=5, reconnect_backoff_seconds=0))
+
+    assert len(connector.calls) == 1          # a client-side fault is never retried
+    manifest = read_manifest(tmp_path)
+    assert manifest["fatal_close_code"] == 3501
+    assert manifest["status"] == "failed"
+    assert manifest["stop_reason"] == "fatal_close_code"
 
 
 def test_fatal_close_code_is_never_retried(tmp_path):

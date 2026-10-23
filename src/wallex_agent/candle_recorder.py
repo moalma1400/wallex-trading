@@ -113,6 +113,19 @@ def _int_or_none(value: Any) -> int | None:
     return None
 
 
+def _close_code(exc: BaseException) -> int | None:
+    """Return the close code the server sent, if this exception carries one.
+
+    ``websockets`` exposes it on ``ConnectionClosed.rcvd.code``; the flat
+    ``.code`` attribute is deprecated and raises when no close frame arrived.
+    Test doubles expose ``.code`` directly, so it is kept as a fallback.
+    """
+    received = getattr(getattr(exc, "rcvd", None), "code", None)
+    if received is not None:
+        return _int_or_none(received)
+    return _int_or_none(getattr(exc, "code", None))
+
+
 def trade_channel(symbol: str) -> str:
     """Documented v2 public trade channel name for one market symbol."""
     return f"public:{symbol}@trade"
@@ -147,7 +160,10 @@ def split_messages(raw: str | bytes) -> list[str]:
         text = raw
     else:
         raise TypeError("websocket frame must be text")
-    return [line.strip() for line in text.splitlines() if line.strip()]
+    # Exactly the documented split: on "\n" only. ``str.splitlines`` would also split
+    # on U+2028, U+0085 and friends, which are legal inside a JSON string, and would
+    # cut one message into two unparseable halves.
+    return [line.strip() for line in text.split("\n") if line.strip()]
 
 
 @dataclass(slots=True)
@@ -564,29 +580,42 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                     writer.subscription_status = "pending"
                     writer.set_status("handshaking", force=True)
 
+                    # Documented order: the first command after the socket opens is
+                    # `connect`, and `subscribe` is step 2. The official samples send
+                    # both back-to-back, so waiting for the connect reply is a stricter
+                    # choice, not a documented requirement: it guarantees that a
+                    # connection the server never accepted can never reach a
+                    # "subscribed" state, and that every error is attributed to the
+                    # command that caused it.
                     await websocket.send(json.dumps({"id": CONNECT_REQUEST_ID, "connect": {}}))
-                    await websocket.send(json.dumps({"id": SUBSCRIBE_REQUEST_ID,
-                                                     "subscribe": {"channel": channel}}))
-                    ack_deadline = now() + ack_timeout_seconds
+                    connect_deadline = now() + ack_timeout_seconds
+                    subscribe_deadline: float | None = None
                     connect_acked = False
+                    subscribe_requested = False
                     subscribe_acked = False
                     last_rx = now()
 
                     while True:
-                        acked = connect_acked and subscribe_acked
                         waits = [last_rx + heartbeat_timeout_seconds]
-                        if not acked:
-                            waits.append(ack_deadline)
+                        if not connect_acked:
+                            waits.append(connect_deadline)
+                        elif not subscribe_acked and subscribe_deadline is not None:
+                            waits.append(subscribe_deadline)
                         if deadline is not None:
                             waits.append(deadline)
                         timeout = min(waits) - now()
                         if timeout <= 0:
                             if deadline is not None and now() >= deadline:
                                 break
-                            if not acked and now() >= ack_deadline:
+                            if not connect_acked and now() >= connect_deadline:
                                 raise TimeoutError(
-                                    "no documented connect/subscribe acknowledgement within "
+                                    "no documented connect acknowledgement within "
                                     f"{ack_timeout_seconds:g}s")
+                            if (not subscribe_acked and subscribe_deadline is not None
+                                    and now() >= subscribe_deadline):
+                                raise TimeoutError(
+                                    "the server acknowledged connect but not the subscription "
+                                    f"within {ack_timeout_seconds:g}s")
                             raise TimeoutError(
                                 f"no frames received for {heartbeat_timeout_seconds:g}s; the "
                                 "documented heartbeat is an empty object every 25s")
@@ -614,20 +643,33 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                                 writer.write_manifest()
                                 continue
                             if frame.kind == FRAME_HANDSHAKE:
-                                if frame.request_id != CONNECT_REQUEST_ID:
+                                if frame.request_id != CONNECT_REQUEST_ID or connect_acked:
+                                    # An ack that does not answer our connect command
+                                    # (or repeats it) proves nothing about this session.
                                     writer.unknown_frames += 1
                                     continue
                                 writer.handshake_frames += 1
                                 connect_acked = True
                                 writer.server_ping_interval_seconds = frame.server_ping_seconds
                                 writer.write_manifest()
+                                # Step 2 only after the connect reply is validated.
+                                await websocket.send(json.dumps({
+                                    "id": SUBSCRIBE_REQUEST_ID,
+                                    "subscribe": {"channel": channel}}))
+                                subscribe_requested = True
+                                subscribe_deadline = now() + ack_timeout_seconds
                                 continue
                             if frame.kind == FRAME_SUBSCRIPTION_ACK:
-                                if frame.request_id != SUBSCRIBE_REQUEST_ID:
+                                if (not subscribe_requested
+                                        or frame.request_id != SUBSCRIBE_REQUEST_ID
+                                        or subscribe_acked):
+                                    # An ack we never asked for, or for another id, is
+                                    # not evidence that our channel is subscribed.
                                     writer.unknown_frames += 1
                                     continue
                                 writer.subscription_ack_frames += 1
                                 subscribe_acked = True
+                                consecutive_failures = 0
                                 writer.subscription_status = "acknowledged"
                                 writer.set_status("subscribed", force=True)
                                 continue
@@ -639,20 +681,28 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                                     "request_id": frame.request_id,
                                 }
                                 if frame.request_id == CONNECT_REQUEST_ID:
+                                    # A rejected connect means this socket is unusable;
+                                    # no subscribe was sent, so nothing is subscribed.
+                                    writer.write_manifest(force=True)
                                     raise ConnectionError(
                                         "server rejected the connect command: "
                                         f"code={frame.error_code} message={frame.error_message}")
-                                if frame.request_id == SUBSCRIBE_REQUEST_ID or not subscribe_acked:
+                                if (frame.request_id == SUBSCRIBE_REQUEST_ID
+                                        and subscribe_requested):
                                     writer.subscription_status = "rejected"
                                     writer.last_subscription_error_code = frame.error_code
                                     writer.last_subscription_error_message = frame.error_message
                                     writer.set_status("failed", force=True)
+                                    failure_reason = "subscription_rejected"
                                     raise RecorderProtocolError(
                                         "server rejected the subscription for "
                                         f"{channel} (code={frame.error_code}: "
                                         f"{frame.error_message}); verify the symbol against the "
                                         "official markets list and the channel name in "
                                         f"{RAW_PROTOCOL_DOC_URL}")
+                                # Documented errors answer one command by id and do not
+                                # close the connection; an error for another (or no)
+                                # request id is not our subscription being rejected.
                                 writer.write_manifest(force=True)
                                 continue
                             if frame.kind == FRAME_PUBLICATION:
@@ -667,7 +717,6 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                                 timestamp, price, quantity = trade
                                 writer.trade_events += 1
                                 writer.last_trade_at = timestamp.isoformat().replace("+00:00", "Z")
-                                consecutive_failures = 0
                                 next_candle = CandleAccumulator.from_trade(
                                     timestamp, price, quantity, interval_seconds)
                                 if (writer.last_written_start is not None
@@ -720,12 +769,13 @@ async def record_trades(symbol: str, interval_seconds: int, output: str | Path, 
                 if active is not None:
                     writer.discarded_partial_candles += 1
                     active = None
-                failure_reason = "subscription_rejected" if writer.subscription_status == "rejected" else "protocol_error"
+                # The raise site knows why it gave up; do not infer it afterwards.
+                failure_reason = failure_reason or "protocol_error"
                 raise
             except Exception as exc:
                 writer.last_connection_error_type = type(exc).__name__
                 writer.last_connection_error_message = _short(str(exc))
-                close_code = _int_or_none(getattr(exc, "code", None))
+                close_code = _close_code(exc)
                 if close_code is not None and close_code >= FATAL_CLOSE_CODE_MIN:
                     writer.fatal_close_code = close_code
                     failure_reason = "fatal_close_code"

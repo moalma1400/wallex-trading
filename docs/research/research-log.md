@@ -231,3 +231,27 @@ Wallex TLS endpoint from this environment). No commit, push, branch switch or pu
 - Result: no documentation conflict. `socket-trade` documents three access methods on one page and lists **version 1 (deprecated) first**, then v2-with-SDK, then v2-without-SDK; `socket-intro` deliberately documents v2 rules followed by a "version 1 (deprecated) details" section. A truncated or top-only read of either page therefore shows exactly the legacy content the independent path reported. Recorded as `D-022`; each source keeps its earlier `retrieved_at_utc`, gains a third `retrieval_history` entry and a `reverification_note`.
 - Newline splitting is **documented**, not assumed: the raw-protocol page's Python sample contains the comment «یک فریم ممکن است چند پیام داشته باشد» followed by `for line in raw.split("\n")`, and the Go sample uses `strings.Split(string(raw), "\n")`. Both were re-read in this pass.
 - Because no live session was observed, the earlier root-cause sentence was downgraded from "established" to **strong hypothesis**, and the v2 runtime protocol remains `documented`, never `verified`. The bounded live attempt from this environment still fails at TLS (`ConnectionResetError`), so transport, application subscription, trade receipt and candle finalization all remain `pending`.
+
+## Handshake-order review and PR #22 follow-up — 2026-10-23 (after publication)
+
+- Scope: audit of the published recorder (`e53f9ab`, PR #22) against `/docs/socket-raw-protocol`, which was re-read in
+  both chunks in this pass. The page defines numbered steps: `connect` first, `subscribe` second.
+- Verified, and worth stating plainly: the page's own complete Python and Go samples send `connect` and `subscribe`
+  back-to-back without waiting for the connect reply. The previous implementation therefore did **not** violate a
+  documented requirement — it matched the sample. Recorded as `D-023` rather than as a defect claim.
+- Changed anyway, as a stricter reading of the numbered steps: `subscribe` is now sent only after an `id`-validated
+  connect reply, and a subscription acknowledgement is accepted only for the request id that was actually sent. This
+  removes a real weakness — a subscribe ack could previously be accepted before the connection was validated, and any
+  error arriving before the subscription ack was reported as a *subscription rejection*, whatever request id it
+  answered.
+- Also changed: an error is now attributed to the command it answers (connect error → retryable connection failure,
+  subscription error → fatal rejection, any other id → counted and ignored); `failure_reason` is set where the failure
+  is detected instead of being inferred from `subscription_status` afterwards; the retry budget resets on a validated
+  subscription rather than on a trade, so a quiet market cannot exhaust it; transport frames are split on `\n` only,
+  matching the published sample instead of `str.splitlines()`, which would split a JSON string containing `U+2028`; and
+  the fatal-close check reads `ConnectionClosed.rcvd.code` instead of the deprecated flat `.code`.
+- Every new guard is mutation-checked: removing the connect gate, the "subscribe was actually sent" guard, the error
+  attribution fix, or the `\n`-only split each makes the corresponding test fail; the source was restored
+  byte-identically afterwards.
+- Evidence class: all of this is `verified_by_test` against scripted frames, plus `documented` page text. No live
+  handshake, subscription acknowledgement or trade receipt was observed, so the runtime sequence remains `pending`.

@@ -77,3 +77,15 @@ chunk 1، شامل chunk پایانی که پاس‌های قبلی نخواند
 | ID | موضوع | منابع | بهترین تفسیر | آنچه نامعلوم می‌ماند |
 |---|---|---|---|---|
 | D-022 | تعارض ظاهری محتوا بین مسیرهای بازیابی: یک مسیر فقط v1 دید، ثبت منابع v2 | [MOD-SOCKET-TRADE](https://developers.wallex.ir/docs/socket-trade) · [SOCKET-INTRO](https://developers.wallex.ir/docs/socket-intro) · [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol) · [SOCKET-MIGRATION](https://developers.wallex.ir/docs/socket-migration) | `documented` + `observed_2026-10-23T13:46Z`: هر صفحه هر دو نسل را مستند می‌کند و در `socket-trade` نسخه ۱ **اول** می‌آید؛ خواندن کوتاه/بریده‌شده صفحه فقط v1 را نشان می‌دهد. پس تعارض «محتوا» نیست، تعارض «دامنه‌ی خواندن» است. | `unresolved`: کدام نسل در runtime واقعاً سرو می‌شود؛ آیا صفحه بین دو بازیابی تغییر کرده است؛ چرا مسیر مستقل دو صفحه‌ی v2 را نگرفت (شبکه، robots، یا تفاوت ابزار). این‌ها با مشاهده‌ی زنده حل می‌شوند، نه با استدلال. |
+
+## D-023 — Handshake order inside one page: numbered steps versus the published sample — 2026-10-23
+
+`/docs/socket-raw-protocol` describes the v2 handshake as numbered steps: **step 1** is the `connect` command
+(«اولین دستور بعد از باز شدن سوکت باید `connect` باشد» — the first command after the socket opens must be `connect`),
+and **step 2** is `subscribe`, with its own acknowledgement. The page's complete Python and Go samples, however, send
+`{"id": 1, "connect": {}}` and then `{"id": 2, "subscribe": {...}}` back-to-back and never wait for, or even inspect,
+the connect reply.
+
+| ID | Subject | Sources | Best evidence-backed reading | What stays unknown |
+|---|---|---|---|---|
+| D-023 | The same page numbers connect → subscribe sequentially but its own sample sends both without waiting for the connect acknowledgement | [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol) | `documented`: the ordering (connect first, subscribe second) is explicit; the *wait* is not stated. Both behaviours are defensible, so the earlier implementation that batched the two frames was not a documented violation — it matched the sample. The recorder now implements the stricter reading (validate the connect reply, then subscribe) because it makes error attribution exact and prevents an unvalidated connection from reaching a "subscribed" state. | `unresolved`: whether the server rejects or silently accepts an early `subscribe`, and whether a connect reply is guaranteed before one arrives. Only a live session can decide this. |

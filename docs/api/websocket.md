@@ -25,6 +25,11 @@ Documented, not runtime-verified. Source: [MOD-SOCKET-RAW-PROTOCOL](https://deve
 - Endpoint: exactly `wss://api.wallex.ir/connection/websocket` (a trailing slash returns 404). JSON in text frames. Every command carries a unique numeric `id`; the answer uses the same `id`. Messages without `id` that carry `push` are channel data.
 - Connect: `{"id": 1, "connect": {}}` → `{"id": 1, "connect": {"client": "<uuid>", "ping": 25, "pong": true}}`. Public channels need no token.
 - Subscribe: `{"id": 2, "subscribe": {"channel": "public:<SYMBOL>@trade"}}` → `{"id": 2, "subscribe": {}}`. The acknowledgement is empty: no snapshot, no `offset`/`epoch`/`recoverable` fields.
+- Handshake order: `connect` is step 1 and `subscribe` is step 2, but the page's own complete Python and Go samples
+  send both frames back-to-back without waiting for the connect reply. The recorder validates the connect reply and
+  only then sends `subscribe`, and accepts a subscription acknowledgement only for the request id it actually sent.
+  That is a stricter client choice, not a documented requirement; see `D-023` in the
+  [discrepancy register](../research/discrepancies.md). [MOD-SOCKET-RAW-PROTOCOL](https://developers.wallex.ir/docs/socket-raw-protocol)
 - Publication: `{"push": {"channel": "public:<SYMBOL>@trade", "pub": {"data": {"isBuyOrder": true, "quantity": "...", "price": "...", "timestamp": "..."}}}}`. Channel data always arrives in `push.pub.data`; `push.channel` separates channels on one connection.
 - Heartbeat: the server sends an empty object `{}` every 25 seconds and the client must echo `{}` within 8 seconds or the connection closes with code `3012`. This is an **application-level** frame; it is not a WebSocket-protocol ping.
 - Errors are answered per `id` without closing the connection: `102` unknown channel (for example a wrong namespace), `103` permission denied (channel name without `:`), `105` already subscribed, `106` limit exceeded (64 channels per connection), `107` bad request, `108` not available, `109` token expired. Close codes `3005`/`3008`/`3012` may be retried; `3500`/`3501` are client-side faults.
