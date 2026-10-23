@@ -21,6 +21,7 @@ dependencies = [
     "mcp==2.3.0",
     "pydantic>=2.12,<3",
     "httpx>=0.27,<1",
+    "websockets>=13,<16",
 ]
 
 [project.scripts]
@@ -28,6 +29,7 @@ wallex-mcp = "wallex_mcp.server:main"
 coingecko-mcp = "coingecko_mcp.server:main"
 wallex-agent = "wallex_agent.runner:main"
 wallex-backtest = "wallex_agent.backtest_cli:main"
+wallex-candle-recorder = "wallex_agent.candle_recorder:main"
 
 [project.optional-dependencies]
 test = ["pytest==9.1.1"]
