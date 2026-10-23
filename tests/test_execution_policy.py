@@ -63,6 +63,13 @@ def valid_intent():
         quantity=Decimal("100"),
         market_observed_at=NOW,
         market_is_spot=True,
+        market_constraints_verified=True,
+        price_precision=2,
+        amount_precision=2,
+        price_step=Decimal("0.01"),
+        quantity_step=Decimal("0.01"),
+        minimum_quantity=Decimal("0.01"),
+        minimum_notional_tmn=Decimal("100"),
     )
 
 
