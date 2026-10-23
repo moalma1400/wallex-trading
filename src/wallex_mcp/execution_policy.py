@@ -46,6 +46,8 @@ def _utc(value: Any, field: str) -> datetime:
 @dataclass(frozen=True)
 class RiskLimits:
     maximum_order_notional_tmn: Decimal
+    maximum_asset_exposure_tmn: Decimal
+    maximum_total_deployed_tmn: Decimal
     maximum_open_orders: int
     maximum_orders_per_window: int
     maximum_daily_loss_tmn: Decimal
@@ -57,6 +59,8 @@ class RiskLimits:
     def from_mapping(cls, raw: Mapping[str, Any]) -> "RiskLimits":
         required = (
             "maximum_order_notional_tmn",
+            "maximum_asset_exposure_tmn",
+            "maximum_total_deployed_tmn",
             "maximum_open_orders",
             "maximum_orders_per_window",
             "maximum_daily_loss_tmn",
@@ -69,6 +73,8 @@ class RiskLimits:
             raise ExecutionPolicyError("Missing explicit risk limits: " + ", ".join(missing))
         values = {
             "maximum_order_notional_tmn": _decimal(raw["maximum_order_notional_tmn"], "maximum_order_notional_tmn"),
+            "maximum_asset_exposure_tmn": _decimal(raw["maximum_asset_exposure_tmn"], "maximum_asset_exposure_tmn"),
+            "maximum_total_deployed_tmn": _decimal(raw["maximum_total_deployed_tmn"], "maximum_total_deployed_tmn"),
             "maximum_open_orders": raw["maximum_open_orders"],
             "maximum_orders_per_window": raw["maximum_orders_per_window"],
             "maximum_daily_loss_tmn": _decimal(raw["maximum_daily_loss_tmn"], "maximum_daily_loss_tmn"),
@@ -81,6 +87,8 @@ class RiskLimits:
                 raise ExecutionPolicyError(f"{key} must be a positive integer")
         for key in (
             "maximum_order_notional_tmn",
+            "maximum_asset_exposure_tmn",
+            "maximum_total_deployed_tmn",
             "maximum_daily_loss_tmn",
             "maximum_spread_basis_points",
             "maximum_total_cost_basis_points",
