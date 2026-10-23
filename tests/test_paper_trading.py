@@ -159,3 +159,23 @@ def test_candle_strategy_generates_next_open_paper_fills(tmp_path):
     assert [fill["side"] for fill in report["fills"]] == ["buy", "sell"]
     assert report["order_submission_attempted"] is False
     assert report["account"]["positions"] == {}
+
+
+def test_paper_candle_cli_blocks_invalid_audited_dataset(tmp_path, capsys):
+    import json
+    from wallex_agent.paper_candle_cli import main
+
+    source = tmp_path / "bad-candles.jsonl"
+    source.write_text(json.dumps({
+        "timestamp": "2026-10-23T10:00:00Z", "open": "10", "high": "9",
+        "low": "11", "close": "10", "volume": "1",
+        "symbol": "BTC_USDT", "interval_seconds": 60,
+    }) + "\\n", encoding="utf-8")
+    code = main([
+        "--input", str(source), "--symbol", "BTC_USDT", "--db", str(tmp_path / "blocked.sqlite3"),
+        "--initial-cash", "1000", "--max-order-notional", "100",
+        "--audit-input-data", "--expected-interval-seconds", "60",
+    ])
+    assert code == 2
+    assert "audit status is INVALID" in capsys.readouterr().err
+    assert not (tmp_path / "blocked.sqlite3").exists()
