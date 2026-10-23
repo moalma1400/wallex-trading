@@ -37,7 +37,7 @@ There is no submitter. `MarketRequest.risk_approved` must be supplied from the s
 
 ## Smart98-mediated integration research (documentation only)
 
-> **Architecture constraint:** all future Wallex API or Wallex MCP access intended for the trading agent must pass through Smart98. This is a requirement supplied in the current project context; it is **not** evidence that Smart98 supports any particular transport, MCP registration path, authentication mechanism, tool catalog, or Wallex integration. The repository does not call Wallex or Smart98 directly. No MCP was installed, no Smart98 configuration changed, and no production request was made.
+> **Architecture clarification (2026-10-23):** Smart98 is not required for the standalone execution path. The repository-owned MCP server may connect from Python to the official Wallex API and expose narrowly scoped tools to any compatible MCP host. A separate proposed feature branch adds opt-in Spot LIMIT-order tools in `src/wallex_mcp/live_spot.py`; these are distinct from this Feature 004 offline research/settlement module. This architecture text describes Feature 004's offline boundary, not the capability of the separate standalone MCP server. No production request was made by the tests.
 
 ### Evidence and confirmed scope
 
@@ -45,7 +45,7 @@ There is no submitter. `MarketRequest.risk_approved` must be supplied from the s
 - **Wallex API:** the repository's registered official documentation includes market metadata (`MARKETS`), Spot market metadata (`SPOT-MARKETS`), an overview (`MOD-INTRO`), and a generated order-create page (`MOD-GENERATED-POST-ACCOUNT-ORDERS`). These are **documentation-level capabilities only**. The order-create page is state-changing documentation, not authorization. Host/schema discrepancies and incomplete contracts are already recorded in [API overview](overview.md) and [source register](../research/source-register.yaml); no runtime, account permission, or challenge entitlement is confirmed.
 - **Wallex MCP:** no authoritative Wallex MCP implementation, publisher/repository, version, URL, tool inventory, or permission contract is registered in this checkout. The only Wallex MCP mention found is in the user-supplied hackathon transcript; it remains transcript-only, not official confirmation. No Wallex MCP tool is confirmed.
 - **Tools accessible through Smart98:** none are verified. There is no evidence that a Wallex MCP can be registered with, routed through, or safely exposed by Smart98.
-- **Trading agent:** this repository currently validates caller-supplied/local data, applies local eligibility/risk checks, replays local decisions, and logs local events. It has no remote market-data provider, MCP client, Smart98 adapter, authentication code, or Wallex order submitter.
+- **Feature 004 trading/research agent:** this subsystem validates caller-supplied/local data, applies local eligibility/risk checks, replays local decisions, and logs local events. Its `src/wallex_research/challenge_execution.py` remains offline-only and has no submitter. The separate `src/wallex_mcp/` server is the direct API boundary; proposed live tools are opt-in and documented in [the standalone MCP guide](../mcp/README.md).
 
 ### Required integration-layer matrix
 
@@ -99,7 +99,7 @@ Before even a read-only adapter can be proposed, obtain and review:
 7. An explicit Smart98 compatibility/approval statement for the exact Wallex MCP/API integration and tool scopes. If unavailable, record compatibility as `UNKNOWN`; do not attempt registration or test production.
 8. A separate approved non-production contract/security test plan. This documentation task performs no runtime test, production request, credential creation, MCP installation, or Smart98 configuration change.
 
-Until these evidence items exist, Smart98-to-Wallex MCP compatibility, API mediation, tool discovery, authentication, error/timeout/logging behavior, permissions, and execution remain `UNKNOWN`. No direct Wallex access is an acceptable fallback.
+Until these evidence items exist, Smart98-to-Wallex MCP compatibility remains `UNKNOWN` and is not required for the standalone server. For the standalone direct-API path, rely only on the fixed official host, documented endpoints, explicit local configuration, and reviewed tool scopes; live trading remains disabled unless the separate live-Spot feature is explicitly configured by the operator.
 
 ## Provenance states and unresolved policy
 
