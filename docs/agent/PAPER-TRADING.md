@@ -36,6 +36,9 @@ Use a deterministic, unique `event_id` for each intended simulated order. Retryi
 - Maintains a per-day marked-equity baseline and rejects orders when the configured daily-loss limit has been reached.
 - Reports marked equity and explicit `live_trading_enabled: false` / `order_submission_attempted: false` fields.
 - Uses decimal arithmetic for money/quantity calculations.
+- Fails closed when the `WALLEX_PAPER_DISABLE=1` kill switch is set, or when `WALLEX_ENABLE_LIVE_TRADING=1` appears in the same process environment, keeping paper and live modes strictly separate.
+
+For the bounded 20-candle mission that chains the data audit, this broker, and Wallex/CoinGecko reference reconciliation (`wallex-reconcile`), see [the 20-candle offline paper mission](PAPER-MISSION-20M.md).
 
 ## Important limitations
 

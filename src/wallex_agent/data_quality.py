@@ -23,6 +23,8 @@ def audit_candles(
     expected_symbol: str | None = None,
     expected_interval_seconds: int | None = None,
     manifest: Mapping[str, Any] | None = None,
+    as_of: datetime | str | None = None,
+    max_staleness_seconds: int | None = None,
 ) -> dict[str, Any]:
     """Audit candle lines and distinguish hard structure errors from possible gaps.
 
@@ -40,6 +42,18 @@ def audit_candles(
         expected_symbol = expected_symbol.strip().upper()
         if not expected_symbol:
             raise ValueError("expected_symbol must be non-empty when supplied")
+    if (as_of is None) != (max_staleness_seconds is None):
+        raise ValueError("as_of and max_staleness_seconds must be supplied together")
+    as_of_dt: datetime | None = None
+    if as_of is not None:
+        if isinstance(max_staleness_seconds, bool) or not isinstance(max_staleness_seconds, int) or max_staleness_seconds < 0:
+            raise ValueError("max_staleness_seconds must be a non-negative integer")
+        try:
+            as_of_dt = _parse_timestamp(as_of) if isinstance(as_of, str) else as_of.astimezone(timezone.utc)
+        except (ValueError, AttributeError) as exc:
+            raise ValueError("as_of must be a timezone-aware datetime or ISO-8601 string") from exc
+        if as_of_dt.tzinfo is None or as_of_dt.utcoffset() is None:
+            raise ValueError("as_of must include a timezone")
 
     issues: list[dict[str, Any]] = []
     records: list[dict[str, Any]] = []
@@ -152,6 +166,22 @@ def audit_candles(
 
     first_ts = min((r["timestamp"] for r in records), default=None)
     last_ts = max((r["timestamp"] for r in records), default=None)
+    dataset_age_seconds = None
+    if as_of_dt is not None and last_ts is not None:
+        dataset_age_seconds = int((as_of_dt - last_ts).total_seconds())
+        if dataset_age_seconds > max_staleness_seconds:
+            issues.append({
+                "code": "STALE_DATASET", "severity": "warning",
+                "dataset_age_seconds_at_as_of": dataset_age_seconds,
+                "max_staleness_seconds": max_staleness_seconds,
+                "detail": "last candle is older than the caller-supplied staleness limit; do not present it as fresh data",
+            })
+        elif dataset_age_seconds < 0:
+            issues.append({
+                "code": "DATASET_ENDS_AFTER_AS_OF", "severity": "warning",
+                "dataset_age_seconds_at_as_of": dataset_age_seconds,
+                "detail": "candles exist after the audit as-of time; check for look-ahead before simulating",
+            })
     error_count = sum(issue["severity"] == "error" for issue in issues)
     warning_count = sum(issue["severity"] == "warning" for issue in issues)
     status = "INVALID" if error_count else ("REVIEW" if warning_count or gaps else "OK")
@@ -189,6 +219,9 @@ def audit_candles(
         "interval_seconds": interval_seconds,
         "first_timestamp_utc": iso(first_ts),
         "last_timestamp_utc": iso(last_ts),
+        "as_of_utc": iso(as_of_dt),
+        "dataset_age_seconds_at_as_of": dataset_age_seconds,
+        "max_staleness_seconds": max_staleness_seconds,
         "elapsed_seconds": int((last_ts - first_ts).total_seconds()) if first_ts and last_ts else None,
         "error_count": error_count,
         "warning_count": warning_count,
@@ -206,6 +239,8 @@ def audit_file(
     expected_symbol: str | None = None,
     expected_interval_seconds: int | None = None,
     manifest_path: str | Path | None = None,
+    as_of: datetime | str | None = None,
+    max_staleness_seconds: int | None = None,
 ) -> dict[str, Any]:
     path = Path(input_path)
     manifest = None
@@ -227,6 +262,8 @@ def audit_file(
         expected_symbol=expected_symbol,
         expected_interval_seconds=expected_interval_seconds,
         manifest=manifest,
+        as_of=as_of,
+        max_staleness_seconds=max_staleness_seconds,
     )
     if manifest_invalid:
         report["issues"].append({"code": "INVALID_RECORDER_MANIFEST", "severity": "warning"})

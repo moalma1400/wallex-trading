@@ -4,13 +4,38 @@ from __future__ import annotations
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 import json
+import os
 from pathlib import Path
 import sqlite3
-from typing import Any
+from typing import Any, Mapping
 
 
 class PaperTradingError(ValueError):
     """Rejected paper order or invalid simulator configuration."""
+
+
+PAPER_DISABLE_ENV = "WALLEX_PAPER_DISABLE"
+LIVE_ENABLE_ENV = "WALLEX_ENABLE_LIVE_TRADING"
+
+
+def ensure_paper_trading_allowed(environ: Mapping[str, str] | None = None) -> None:
+    """Fail-closed kill switch and live-mode separation for the paper ledger.
+
+    Paper simulation is structurally incapable of submitting live orders;
+    these checks additionally refuse to run in a process whose environment
+    enables live trading, or when the paper kill switch is set, so the two
+    modes can never be confused by configuration alone.
+    """
+    env = os.environ if environ is None else environ
+    if env.get(PAPER_DISABLE_ENV, "").strip() == "1":
+        raise PaperTradingError(
+            f"paper trading is disabled by the {PAPER_DISABLE_ENV} kill switch"
+        )
+    if env.get(LIVE_ENABLE_ENV, "").strip() == "1":
+        raise PaperTradingError(
+            f"refusing to run the paper ledger while {LIVE_ENABLE_ENV}=1; "
+            "use a separate process/environment for paper simulation"
+        )
 
 
 def _decimal(value: Any, field: str) -> Decimal:
@@ -41,6 +66,7 @@ class PaperBroker:
         max_order_notional: Any,
         max_daily_loss_percent: Any = "5",
     ) -> None:
+        ensure_paper_trading_allowed()
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.initial_cash = _decimal(initial_cash, "initial_cash")
@@ -113,6 +139,7 @@ class PaperBroker:
 
     def mark_price(self, *, timestamp: str, symbol: str, price: Any) -> dict[str, Any]:
         """Persist a supplied mark and initialize the day's baseline before repricing."""
+        ensure_paper_trading_allowed()
         symbol = symbol.strip().upper()
         if not symbol:
             raise PaperTradingError("symbol must be non-empty")
@@ -151,6 +178,7 @@ class PaperBroker:
         self, *, event_id: str, timestamp: str, symbol: str, side: str,
         quantity: Any, reference_price: Any,
     ) -> dict[str, Any]:
+        ensure_paper_trading_allowed()
         event_id = event_id.strip()
         symbol = symbol.strip().upper()
         side = side.strip().lower()

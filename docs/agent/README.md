@@ -46,6 +46,8 @@ Use `wallex-walk-forward` to select the baseline parameters on chronological tra
 
 The independent `wallex-paper` CLI replays explicit JSONL order events, while `wallex-paper-candles` applies a simple long-only momentum baseline to local candles; both write to a persistent virtual ledger. Neither is wired to the shadow runner or provides exchange fill reconciliation or live risk-gate integration. See [Paper Trading](PAPER-TRADING.md).
 
+For the bounded 20-candle audit + paper + Wallex/CoinGecko reconciliation run, including the paper kill switch and the manual read-only provider check, see the [20-candle offline paper mission](PAPER-MISSION-20M.md).
+
 ## Safety and limitations
 
 - Smart98 is not a runtime dependency.

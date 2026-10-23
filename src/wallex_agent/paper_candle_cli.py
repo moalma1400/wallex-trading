@@ -31,15 +31,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--audit-input-data", action="store_true", help="Audit candle data before simulation")
     parser.add_argument("--expected-interval-seconds", type=int, help="Expected candle interval for audit")
     parser.add_argument("--allow-review-data", action="store_true", help="Proceed on REVIEW only after manually checking the audit report")
+    parser.add_argument("--audit-as-of", help="Audit staleness reference time; requires --audit-input-data and --audit-max-staleness-seconds")
+    parser.add_argument("--audit-max-staleness-seconds", type=int, help="Flag input older than this at --audit-as-of as stale")
     parser.add_argument("--output", help="Optional JSON report path; defaults to stdout")
     args = parser.parse_args(argv)
     try:
         if args.allow_review_data and not args.audit_input_data:
             raise PaperTradingError("--allow-review-data requires --audit-input-data")
+        if (args.audit_as_of or args.audit_max_staleness_seconds is not None) and not args.audit_input_data:
+            raise PaperTradingError("--audit-as-of/--audit-max-staleness-seconds require --audit-input-data")
         audit = None
         if args.audit_input_data:
             audit = audit_file(args.input, expected_symbol=args.symbol,
-                               expected_interval_seconds=args.expected_interval_seconds)
+                               expected_interval_seconds=args.expected_interval_seconds,
+                               as_of=args.audit_as_of,
+                               max_staleness_seconds=args.audit_max_staleness_seconds)
             if audit["status"] == "INVALID":
                 raise PaperTradingError("input data audit status is INVALID; paper simulation blocked")
             if audit["status"] == "REVIEW" and not args.allow_review_data:
